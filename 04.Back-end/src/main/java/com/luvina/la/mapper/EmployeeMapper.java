@@ -10,12 +10,10 @@ import org.mapstruct.factory.Mappers;
  *  EmployeeMapper.MAPPER.toEntity(dto);
  *  EmployeeMapper.MAPPER.toList(list);
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface EmployeeMapper {
-    EmployeeMapper MAPPER = Mappers.getMapper( EmployeeMapper.class );
-
     Employee toEntity(EmployeeDTO entity);
-    Employee toDto(EmployeeDTO entity);
+    EmployeeDTO toDto(Employee entity);
     Iterable<EmployeeDTO> toList(Iterable<Employee> list);
 
 }
