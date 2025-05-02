@@ -1,5 +1,6 @@
 package com.luvina.la.controller;
 
+import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.dto.DepartmentDTO;
 import com.luvina.la.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,10 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @GetMapping("")
-    public ResponseEntity<List<DepartmentDTO>> getAllDepartment() {
-        return ResponseEntity.status(HttpStatus.OK).body(departmentService.getAllDepartments());
+    public ResponseEntity<BaseResponse<List<DepartmentDTO>>> getAllDepartment() {
+        List<DepartmentDTO> departmentDTOList = departmentService.getAllDepartments();
+        BaseResponse<List<DepartmentDTO>> baseResponse = new BaseResponse<>(200, departmentDTOList);
+        return ResponseEntity.ok(baseResponse);
     }
 
 }

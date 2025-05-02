@@ -26,7 +26,7 @@ import { FormsModule } from '@angular/forms';
     FormsModule
   ],
   providers: [
-    TokenInterceptor
+    TokenInterceptor,
   ],
   bootstrap: [AppComponent]
 })

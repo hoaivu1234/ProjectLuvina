@@ -14,10 +14,11 @@
               <li class="form-group row">
                 <label class="col-form-label">グループ:</label>
                 <div class="col-sm">
-                  <select>
-                    <option>全て</option>
-                    <option>Nhóm 1</option>
-                    <option>Nhóm 2</option>
+                  <select [(ngModel)]="selectedDepartment" name="departmentSelect">
+                    <option value="">全て</option>
+                    <option *ngFor="let dept of listDepartment" [value]="dept.departmentId">
+                      {{dept.departmentName}}
+                    </option>
                   </select>
                 </div>
               </li>
