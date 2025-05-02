@@ -10,7 +10,7 @@ import { AppConstants } from 'src/app/app-constants';
 export class DepartmentService {
   constructor(private http: HttpClient) { }
 
-  // getListDepartment(): Observable<> {
-  //   return this.http.get<>(AppConstants.BASE_URL_API + "/departments");
-  // }
+  getListDepartment(): Observable<any> {
+    return this.http.get(AppConstants.BASE_URL_API + "/departments");
+  }
 }

@@ -25,7 +25,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<DepartmentDTO> getAllDepartments() {
-        Iterable<Department> departmentList = departmentRepository.findAll();
+        List<Department> departmentList = departmentRepository.findAllByOrderByDepartmentNameAsc();
         return departmentMapper.toList(departmentList);
     }
 }

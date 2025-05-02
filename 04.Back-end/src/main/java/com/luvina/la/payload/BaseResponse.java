@@ -1,9 +1,13 @@
 package com.luvina.la.payload;
 
+import lombok.Data;
+
 /**
  * Copyright(C) 2025  Luvina Software Company
  * BaseResponse.java, 5/2/2025 hoaivd
  */
+
+@Data
 public class BaseResponse<T> {
     private int code;
     private int count;
@@ -17,40 +21,14 @@ public class BaseResponse<T> {
         this.data = data;
     }
 
-    public BaseResponse(int code, ErrorMessage message) {
+    public BaseResponse(int count, int code, T data) {
         this.code = code;
-        this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
+        this.data = data;
         this.count = count;
     }
 
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public ErrorMessage getMessage() {
-        return message;
-    }
-
-    public void setMessage(ErrorMessage message) {
+    public BaseResponse(int code, ErrorMessage message) {
+        this.code = code;
         this.message = message;
     }
 }

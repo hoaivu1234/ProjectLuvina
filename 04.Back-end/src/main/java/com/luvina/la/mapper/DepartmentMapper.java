@@ -14,5 +14,5 @@ public interface DepartmentMapper {
 
     DepartmentDTO toDTO(Department entity);
 
-    List<DepartmentDTO> toList(Iterable<Department> list);
+    List<DepartmentDTO> toList(List<Department> list);
 }

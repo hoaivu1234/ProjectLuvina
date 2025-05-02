@@ -19,7 +19,7 @@ export class UserListComponent {
 
   ngOnInit(): void {
     this.testAuth();
-    // this.getListDepartment();
+    this.getListDepartment();
   };
 
   testAuth() {
@@ -38,15 +38,15 @@ export class UserListComponent {
       });
   }
 
-  // getListDepartment() {
-  //   this.departmentService.getListDepartment().subscribe({
-  //     next: (value) => {
-  //       this.listDepartment = value?.data,
-  //         console.log("Lấy dữ liệu phòng ban thành công.")
-  //     },
-  //     error: () => {
-  //       console.log("Không thể lấy dữ liệu phòng ban!!!");
-  //     },
-  //   })
-  // }
+  getListDepartment() {
+    this.departmentService.getListDepartment().subscribe({
+      next: (value) => {
+        this.listDepartment = value?.data,
+          console.log("Lấy dữ liệu phòng ban thành công.")
+      },
+      error: () => {
+        console.log("Không thể lấy dữ liệu phòng ban!!!");
+      },
+    })
+  }
 }
