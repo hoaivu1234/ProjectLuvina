@@ -28,7 +28,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDTO> getListEmployees() {
-        List<Employee> employees = employeeRepository.getListEmployee();
+        List<Employee> employees = employeeRepository.getListEmployees();
         return employeeMapper.toList(employees);
     }
 }

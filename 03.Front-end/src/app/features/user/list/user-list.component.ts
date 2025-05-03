@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { AppConstants } from "../../../app-constants";
-import { DepartmentService } from '../../service/department.service';
+import { DepartmentService } from '../../../shared/service/department.service';
+import { EmployeeService } from '../../../shared/service/employee.service';
 
 @Component({
   selector: 'app-user-list',
@@ -11,15 +12,18 @@ import { DepartmentService } from '../../service/department.service';
 export class UserListComponent {
   listDepartment: any;
   selectedDepartment: string = '';
+  listEmployee: any;
 
   constructor(
     public http: HttpClient,
-    public departmentService: DepartmentService
+    public departmentService: DepartmentService,
+    public employeeService: EmployeeService
   ) { }
 
   ngOnInit(): void {
     this.testAuth();
     this.getListDepartment();
+    // this.getListEmployee();
   };
 
   testAuth() {
@@ -46,6 +50,18 @@ export class UserListComponent {
       },
       error: () => {
         console.log("Không thể lấy dữ liệu phòng ban!!!");
+      },
+    })
+  }
+
+  getListEmployee() {
+    this.employeeService.getListEmployee().subscribe({
+      next: (value) => {
+        this.listEmployee = value?.data,
+          console.log("Lấy dữ liệu nhân viên thành công.")
+      },
+      error: () => {
+        console.log("Không thể lấy dữ liệu nhân viên!!!");
       },
     })
   }

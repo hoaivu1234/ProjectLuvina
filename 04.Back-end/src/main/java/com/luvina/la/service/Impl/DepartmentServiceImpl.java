@@ -7,9 +7,10 @@ import com.luvina.la.repository.DepartmentRepository;
 import com.luvina.la.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Iterator;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Copyright(C) 2025  Luvina Software Company

@@ -44,66 +44,16 @@
               <div>失効日 ▼△</div>
               <div>点数</div>
             </div>
-            <div class="css-grid-table-body">
-              <div class="bor-l-none">
-                <a routerLink="/user/detail">1</a>
-              </div>
-              <div>Nguyễn Thị Mai Hương</div>
-              <div>1983/07/08</div>
-              <div>Phòng QAT</div>
-              <div>ntmhuongluvina.net</div>
-              <div>0914326386</div>
-              <div>Trình độ tiếng nhật cấp 4</div>
-              <div>2011/07/08</div>
-              <div>290</div>
-
-              <div class="bor-l-none">
-                <a routerLink="/user/detail">2</a>
-              </div>
-              <div>Lê Thị Xoa</div>
-              <div>1983/07/08</div>
-              <div>Phòng DEV1</div>
-              <div>xoaltluvina.net</div>
-              <div>1234567894</div>
-              <div>Trình độ tiếng nhật cấp 4</div>
-              <div>2011/07/08</div>
-              <div>290</div>
-
-              <div class="bor-l-none">
-                <a routerLink="/user/detail">3</a>
-              </div>
-              <div>Đặng Thị Hân</div>
-              <div>1983/07/08</div>
-              <div>Phòng QAT</div>
-              <div>handtluvina.net</div>
-              <div>0914326386</div>
-              <div>Trình độ tiếng nhật cấp 4</div>
-              <div>2011/07/08</div>
-              <div>290</div>
-
-              <div class="bor-l-none">
-                <a routerLink="/user/detail">4</a>
-              </div>
-              <div>Lê Nghiêm Thủy</div>
-              <div>1983/07/08</div>
-              <div>Phòng DEV1</div>
-              <div>thuylnluvina.net</div>
-              <div>1234567894</div>
-              <div>Trình độ tiếng nhật cấp 4</div>
-              <div>2011/07/08</div>
-              <div>290</div>
-
-              <div class="bor-l-none">
-                <a routerLink="/user/detail">5</a>
-              </div>
-              <div>Lê Phương Anh</div>
-              <div>1983/07/08</div>
-              <div>Phòng DEV1</div>
-              <div>anhlpluvina.net</div>
-              <div>1234567894</div>
-              <div>Trình độ tiếng nhật cấp 4</div>
-              <div>2011/07/08</div>
-              <div>290</div>
+            <div class="css-grid-table-body" *ngFor="let employee of listEmployee">
+              <div>{{employee?.employeeId}}</div>
+              <div>{{employee?.employeeName}}</div>
+              <div>{{employee?.employeeBirthDate | date:'yyyy/MM/dd'}}</div>
+              <div>{{employee?.departmentName}}</div>
+              <div>{{employee?.employeeEmail}}</div>
+              <div>{{employee?.employeeTelephone}}</div>
+              <div>{{employee?.certificationName}}</div>
+              <div>{{employee?.endDate | date:'yyyy/MM/dd'}}</div>
+              <div>{{employee?.score}}</div>
             </div>
             <div class="pagin">
               <button class="btn btn-sm btn-pre btn-falcon-default" type="button" disabled="disabled">
