@@ -1,6 +1,9 @@
 package com.luvina.la.payload;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Copyright(C) 2025  Luvina Software Company
@@ -8,13 +11,16 @@ import lombok.Data;
  */
 
 @Data
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseResponse<T> {
     private int code;
-    private int count;
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private int totalRecords;
+
     private T data;
     private ErrorMessage message;
-
-    public BaseResponse() {}
 
     public BaseResponse(int code, T data) {
         this.code = code;
@@ -24,7 +30,7 @@ public class BaseResponse<T> {
     public BaseResponse(int count, int code, T data) {
         this.code = code;
         this.data = data;
-        this.count = count;
+        this.totalRecords = count;
     }
 
     public BaseResponse(int code, ErrorMessage message) {

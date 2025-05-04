@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 
+import com.luvina.la.common.EmployeeRole;
 import lombok.Data;
 
 @Entity
@@ -37,6 +38,9 @@ public class Employee implements Serializable {
 
     @Column(name = "employee_login_id")
     private String employeeLoginId;
+
+    @Column(name = "employee_role")
+    private EmployeeRole employeeRole;
 
     @Column(name = "employee_login_password")
     private String employeeLoginPassword;

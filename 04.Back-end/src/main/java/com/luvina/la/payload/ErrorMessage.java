@@ -1,6 +1,8 @@
 package com.luvina.la.payload;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -9,15 +11,10 @@ import java.util.List;
  * ErrorMessage.java, 5/2/2025 hoaivd
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ErrorMessage {
     private String code;
     private List<String> params;
-
-    public ErrorMessage() {}
-
-    public ErrorMessage(String code, List<String> params) {
-        this.code = code;
-        this.params = params;
-    }
 }
 
