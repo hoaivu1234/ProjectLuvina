@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { AppConstants } from "../../../app-constants";
-import { DepartmentService } from '../../../shared/service/department.service';
-import { EmployeeService } from '../../../shared/service/employee.service';
+import { DepartmentService } from '../../../service/department.service';
+import { EmployeeService } from '../../../service/employee.service';
+import { Department } from 'src/app/shared/model/department.model';
+import { Employee } from 'src/app/shared/model/employee.model';
 
 @Component({
   selector: 'app-user-list',
@@ -10,9 +12,10 @@ import { EmployeeService } from '../../../shared/service/employee.service';
   styleUrls: ['./user-list.component.css'],
 })
 export class UserListComponent {
-  listDepartment: any;
+  listDepartment: Department[] = [];
   selectedDepartment: string = '';
-  listEmployee: any;
+  listEmployee: Employee[] = [];
+  employeeName: string = '';
 
   constructor(
     public http: HttpClient,
@@ -23,7 +26,7 @@ export class UserListComponent {
   ngOnInit(): void {
     this.testAuth();
     this.getListDepartment();
-    // this.getListEmployee();
+    this.getListEmployee();
   };
 
   testAuth() {
@@ -45,7 +48,7 @@ export class UserListComponent {
   getListDepartment() {
     this.departmentService.getListDepartment().subscribe({
       next: (value) => {
-        this.listDepartment = value?.data,
+        this.listDepartment = value?.departments,
           console.log("Lấy dữ liệu phòng ban thành công.")
       },
       error: () => {
@@ -54,15 +57,19 @@ export class UserListComponent {
     })
   }
 
-  getListEmployee() {
-    this.employeeService.getListEmployee().subscribe({
+  getListEmployee(employeeName?: string, departmentId?: string) {
+    this.employeeService.getListEmployee(employeeName, departmentId).subscribe({
       next: (value) => {
-        this.listEmployee = value?.data,
+        this.listEmployee = value?.employees,
           console.log("Lấy dữ liệu nhân viên thành công.")
       },
       error: () => {
         console.log("Không thể lấy dữ liệu nhân viên!!!");
       },
     })
+  }
+
+  searchByName() {
+    this.getListEmployee(this.employeeName, this.selectedDepartment);
   }
 }

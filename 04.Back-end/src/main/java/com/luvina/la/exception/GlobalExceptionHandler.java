@@ -33,4 +33,16 @@ public class GlobalExceptionHandler {
         BaseResponse response = new BaseResponse(404, errorMessage);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(value = BusinessException.class)
+    ResponseEntity<BaseResponse> handlingAppException(BusinessException exception) {
+        ErrorMessage errorMessage = exception.getErrorMessage();
+        int code = exception.getCode();
+        BaseResponse baseResponse = new BaseResponse();
+
+        baseResponse.setCode(code);
+        baseResponse.setMessage(errorMessage);
+
+        return ResponseEntity.status(code).body(baseResponse);
+    }
 }

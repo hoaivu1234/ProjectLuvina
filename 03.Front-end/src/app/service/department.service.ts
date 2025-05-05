@@ -2,14 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConstants } from 'src/app/app-constants';
+import { DepartmentResponse } from '../shared/model/department-response';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EmployeeService {
+
+export class DepartmentService {
   constructor(private http: HttpClient) { }
 
-  getListEmployee(): Observable<any> {
-    return this.http.get(AppConstants.BASE_URL_API + "/employees");
+  getListDepartment(): Observable<DepartmentResponse> {
+    return this.http.get<DepartmentResponse>(AppConstants.BASE_URL_API + "/departments");
   }
 }

@@ -2,6 +2,7 @@ package com.luvina.la.controller;
 
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.payload.BaseResponse;
+import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.payload.ErrorMessage;
 import com.luvina.la.repository.EmployeeRepository;
 import com.luvina.la.service.EmployeeService;
@@ -25,8 +26,15 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @GetMapping("")
-    public ResponseEntity<BaseResponse<List<EmployeeDTO>>> getListEmployees() throws DataAccessException {
-        BaseResponse<List<EmployeeDTO>> response = employeeService.getListEmployees();
+    public ResponseEntity<EmployeeResponse<List<EmployeeDTO>>> getListEmployees(
+            @RequestParam(name = "employee_name", required = false, defaultValue = "") String employeeName,
+            @RequestParam(name = "department_id", required = false, defaultValue = "") String departmentId,
+            @RequestParam(name = "ord_employee_name", required = false, defaultValue = "") String ordEmployeeName,
+            @RequestParam(name = "ord_certification_name", required = false, defaultValue = "") String ordCertificationName,
+            @RequestParam(name = "ord_end_date", required = false, defaultValue = "") String ordEndName,
+            @RequestParam(name = "offset", required = false, defaultValue = "") String offset,
+            @RequestParam(name = "limit", required = false, defaultValue = "") String limit) throws DataAccessException {
+        EmployeeResponse<List<EmployeeDTO>> response = employeeService.getListEmployees(employeeName, departmentId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

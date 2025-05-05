@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 public enum ErrorCode {
-    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR);
+    UNCATEGORIZED_EXCEPTION(500, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMPLOYEE_NOT_EXISTED(404, "Employee not existed", HttpStatus.NOT_FOUND);
     ErrorCode(int code, String message, HttpStatus statusCode) {
         this.code = code;
         this.message = message;

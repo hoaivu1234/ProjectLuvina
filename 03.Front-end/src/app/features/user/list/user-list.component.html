@@ -9,7 +9,7 @@
             <ul class="d-flex">
               <li class="form-group row">
                 <label class="col-form-label">氏名:</label>
-                <div class="col-sm"><input type="text"></div>
+                <div class="col-sm"><input type="text" maxlength="125" [(ngModel)]="employeeName" [ngModelOptions]="{standalone: true}"></div>
               </li>
               <li class="form-group row">
                 <label class="col-form-label">グループ:</label>
@@ -24,7 +24,7 @@
               </li>
               <li class="form-group row">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-primary btn-sm" onclick="alert('Search action');">検索</button>
+                  <button type="button" class="btn btn-primary btn-sm" (click)="searchByName()">検索</button>
                   <button type="button" class="btn btn-secondary btn-sm" onclick="alert('Open ADM004');">新規追加</button>
                 </div>
               </li>
