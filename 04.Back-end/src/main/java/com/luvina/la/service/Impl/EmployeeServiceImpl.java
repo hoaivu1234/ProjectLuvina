@@ -53,7 +53,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         int pageNumber = offset / limit;
         Pageable pageable = PageRequest.of(pageNumber, limit, Sort.by(orders));
 
-
         Page<Employee> page = employeeRepository.getListEmployees(
                 EmployeeRole.USER,
                 employeeName,
@@ -77,18 +76,18 @@ public class EmployeeServiceImpl implements EmployeeService {
             switch (sortPriority.toLowerCase()) {
                 case "ord_employee_name":
                     orders.add(new Sort.Order(employeeNameDirection, "employeeName"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeCertifications.endDate"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "certification.certificationName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationName"));
                     break;
                 case "ord_certification_name":
                     orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-                    orders.add(new Sort.Order(certificationNameDirection, "employeeCertifications.endDate"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "certification.certificationName"));
+                    orders.add(new Sort.Order(certificationNameDirection, "c.certificationName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
                     break;
                 case "ord_end_date":
                     orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeCertifications.endDate"));
-                    orders.add(new Sort.Order(endDateDirection, "certification.certificationName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationName"));
+                    orders.add(new Sort.Order(endDateDirection, "ec.endDate"));
                     break;
                 default:
                     addDefaultSortOrders(orders);
@@ -99,10 +98,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return orders;
     }
+
     private void addDefaultSortOrders(List<Sort.Order> orders) {
         orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-        orders.add(new Sort.Order(Sort.Direction.ASC, "employeeCertifications.endDate"));
-        orders.add(new Sort.Order(Sort.Direction.ASC, "certification.certificationName"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationName"));
     }
 
     @Override

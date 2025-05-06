@@ -16,6 +16,9 @@ export class UserListComponent {
   selectedDepartment: string = '';
   listEmployee: Employee[] = [];
   employeeName: string = '';
+  currentPage!: number;
+  pageSize!: number;
+  totalItems = 0;
 
   constructor(
     public http: HttpClient,
@@ -27,6 +30,7 @@ export class UserListComponent {
     this.testAuth();
     this.getListDepartment();
     this.getListEmployee();
+    this.getPageNumbers();
   };
 
   testAuth() {
@@ -57,11 +61,27 @@ export class UserListComponent {
     })
   }
 
-  getListEmployee(employeeName?: string, departmentId?: string) {
-    this.employeeService.getListEmployee(employeeName, departmentId).subscribe({
+  getListEmployee(
+    employeeName?: string,
+    departmentId?: string,
+    ordEmployeeName?: string,
+    ordCertificationName?: string,
+    ordEndDate?: string,
+    sortPriority?: string,
+    offset: string = '',
+    limit: string = '') {
+
+    if (this.currentPage && this.pageSize) {
+      const offSet = (this.currentPage - 1) * this.pageSize;
+      offset = offSet.toString();
+      limit = this.pageSize.toString();
+    }
+    this.employeeService.getListEmployee(employeeName, departmentId, '', '', '', '', offset, limit).subscribe({
       next: (value) => {
         this.listEmployee = value?.employees,
-          console.log("Lấy dữ liệu nhân viên thành công.")
+        this.totalItems = value.totalRecords,
+        this.pageSize = value?.employees.length,
+        console.log("Lấy dữ liệu nhân viên thành công.")
       },
       error: () => {
         console.log("Không thể lấy dữ liệu nhân viên!!!");
@@ -72,4 +92,23 @@ export class UserListComponent {
   searchByName() {
     this.getListEmployee(this.employeeName, this.selectedDepartment);
   }
+
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.getListEmployee();
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const pages: number[] = [];
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize) || 1;
+  }  
+
 }

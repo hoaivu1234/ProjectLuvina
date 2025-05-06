@@ -2,7 +2,9 @@ package com.luvina.la.repository;
 
 import com.luvina.la.entity.Employee;
 import com.luvina.la.common.EmployeeRole;
+
 import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,25 +22,25 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query(
             value = """
-        SELECT DISTINCT e
-        FROM Employee e
-        INNER JOIN e.department d
-        LEFT JOIN e.employeeCertifications ec
-        LEFT JOIN ec.certification c
-        WHERE e.employeeRole = :role
-          AND (:name IS NULL OR e.employeeName LIKE CONCAT('%', :name, '%'))
-          AND (:departmentId IS NULL OR d.departmentId = :departmentId)
-        """,
+                    SELECT e
+                    FROM Employee e
+                    INNER JOIN FETCH e.department d
+                    LEFT JOIN FETCH e.employeeCertifications ec
+                    LEFT JOIN FETCH ec.certification c
+                    WHERE e.employeeRole = :role
+                      AND (:name IS NULL OR e.employeeName LIKE %:name%)
+                      AND (:departmentId IS NULL OR d.departmentId = :departmentId)
+                    """,
             countQuery = """
-        SELECT COUNT(DISTINCT e)
-        FROM Employee e
-        INNER JOIN e.department d
-        LEFT JOIN e.employeeCertifications ec
-        LEFT JOIN ec.certification c
-        WHERE e.employeeRole = :role
-          AND (:name IS NULL OR e.employeeName LIKE CONCAT('%', :name, '%'))
-          AND (:departmentId IS NULL OR d.departmentId = :departmentId)
-        """
+                    SELECT COUNT(DISTINCT e)
+                    FROM Employee e
+                    INNER JOIN e.department d
+                    LEFT JOIN e.employeeCertifications ec
+                    LEFT JOIN ec.certification c
+                    WHERE e.employeeRole = :role
+                      AND (:name IS NULL OR e.employeeName LIKE %:name%)
+                      AND (:departmentId IS NULL OR d.departmentId = :departmentId)
+                    """
     )
     Page<Employee> getListEmployees(
             @Param("role") EmployeeRole role,
@@ -53,7 +55,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             FROM Employee e
             INNER JOIN e.department d
             WHERE e.employeeRole = :role
-              AND (:name IS NULL OR e.employeeName LIKE CONCAT('%', :name, '%'))
+              AND (:name IS NULL OR e.employeeName LIKE %:name%)
               AND (:departmentId IS NULL OR d.departmentId = :departmentId)
             """)
     int getCountEmployee(

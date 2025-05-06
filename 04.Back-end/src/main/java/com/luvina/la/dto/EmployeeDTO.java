@@ -6,8 +6,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+
 public class EmployeeDTO implements Serializable {
 
     private static final long serialVersionUID = 6868189362900231672L;

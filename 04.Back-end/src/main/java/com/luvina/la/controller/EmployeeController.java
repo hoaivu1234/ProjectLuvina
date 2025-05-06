@@ -9,6 +9,7 @@ import com.luvina.la.service.EmployeeService;
 import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,11 @@ public class EmployeeController {
             @RequestParam(name = "limit", required = false, defaultValue = "") String limit) throws DataAccessException {
 
         // validate input params
-        employeeName = inputValidator.validateEmployeeName(employeeName);
+//        if (employeeName != null && !employeeName.isBlank()) {
+//            employeeName = inputValidator.prepareLikeKeyword(employeeName);
+//        }
+        employeeName = EscapeCharacter.DEFAULT.escape(employeeName);
+
         Long departmentIdNumber = inputValidator.validateDepartmentId(departmentId);
 
         // Validate sort directions

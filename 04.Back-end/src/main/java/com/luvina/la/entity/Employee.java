@@ -8,10 +8,14 @@ import javax.persistence.*;
 
 import com.luvina.la.common.EmployeeRole;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "employees")
-@Data
+@Getter
+@Setter
+
 public class Employee implements Serializable {
 
     private static final long serialVersionUID = 5771173953267484096L;
