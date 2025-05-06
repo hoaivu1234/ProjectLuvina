@@ -73,7 +73,7 @@ export class UserListComponent {
 
     if (this.currentPage && this.pageSize) {
       const offSet = (this.currentPage - 1) * this.pageSize;
-      offset = offSet.toString();
+      offset = offSet > 0 ? offSet.toString() : offset;
       limit = this.pageSize.toString();
     }
     this.employeeService.getListEmployee(employeeName, departmentId, '', '', '', '', offset, limit).subscribe({
@@ -104,6 +104,7 @@ export class UserListComponent {
     for (let i = 1; i <= total; i++) {
       pages.push(i);
     }
+    this.currentPage = 1;
     return pages;
   }
 
