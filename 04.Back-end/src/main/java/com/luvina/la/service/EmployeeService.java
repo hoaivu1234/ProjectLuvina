@@ -3,10 +3,21 @@ package com.luvina.la.service;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.payload.EmployeeResponse;
+import org.springframework.data.domain.Sort;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public interface EmployeeService {
-    public EmployeeResponse<List<EmployeeDTO>> getListEmployees(String employeeName, String departmentId);
+    EmployeeResponse<List<EmployeeDTO>> getListEmployees(
+            String employeeName,
+            Long departmentId,
+            Sort.Direction employeeNameDirection,
+            Sort.Direction certificationNameDirection,
+            Sort.Direction endDateDirection,
+            String sortPriority,
+            int offset,
+            int limit);
+
+    int getCountEmployee(String employeeName, Long departmentId);
 }

@@ -2,6 +2,7 @@ package com.luvina.la.validator;
 
 import com.luvina.la.exception.BusinessException;
 import com.luvina.la.payload.ErrorMessage;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,13 +22,13 @@ public class InputValidator {
         }
 
         if (SPECIAL_CHAR_PATTERN.matcher(departmentId).find()) {
-            throw new BusinessException(400, new ErrorMessage("ERR005", List.of("departmentId")));
+            throw buildBusinessException(400, "ERR005", "departmentId");
         }
 
         try {
             return Long.parseLong(departmentId.trim());
         } catch (NumberFormatException e) {
-            throw new BusinessException(400, new ErrorMessage("ERR005", List.of("departmentId")));
+            throw buildBusinessException(400, "ERR005", "departmentId");
         }
     }
 
@@ -37,11 +38,39 @@ public class InputValidator {
         }
 
         if (SPECIAL_CHAR_PATTERN.matcher(employeeName.trim()).find()) {
-            throw new BusinessException(400, new ErrorMessage("ERR005", List.of("employeeName")));
+            throw buildBusinessException(400, "ERR005", "employeeName");
         }
 
         return employeeName.trim();
     }
+
+    public Sort.Direction validateSortDirection(String direction) {
+        if (direction == null || direction.trim().isEmpty()) {
+            return Sort.Direction.ASC; // Giá trị mặc định khi không có hoặc rỗng
+        }
+        try {
+            return Sort.Direction.fromString(direction);
+        } catch (IllegalArgumentException e) {
+            throw buildBusinessException(400, "ERR021", "");
+        }
+    }
+
+    public int validatePositiveNumber(String value, String type) {
+        try {
+            int number = Integer.parseInt(value);
+            if (number <= 0) {
+                throw buildBusinessException(400, "ERR018", type);
+            }
+            return number;
+        } catch (NumberFormatException ex) {
+            throw buildBusinessException(400, "ERR018", type);
+        }
+    }
+
+    private BusinessException buildBusinessException(int code, String errCode, String field) {
+        return new BusinessException(code, new ErrorMessage(errCode, List.of(field)));
+    }
+
 }
 
 

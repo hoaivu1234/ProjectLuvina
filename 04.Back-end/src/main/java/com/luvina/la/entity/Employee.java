@@ -42,6 +42,9 @@ public class Employee implements Serializable {
     @Column(name = "employee_role")
     private EmployeeRole employeeRole;
 
+    @Column(name = "sort_priority")
+    private String sortPriority;
+
     @Column(name = "employee_login_password")
     private String employeeLoginPassword;
 

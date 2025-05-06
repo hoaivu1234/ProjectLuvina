@@ -3,21 +3,19 @@ package com.luvina.la.service.Impl;
 import com.luvina.la.common.EmployeeRole;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.entity.Employee;
-import com.luvina.la.exception.BusinessException;
 import com.luvina.la.mapper.EmployeeMapper;
-import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.payload.EmployeeResponse;
-import com.luvina.la.payload.ErrorMessage;
 import com.luvina.la.repository.EmployeeRepository;
 import com.luvina.la.service.EmployeeService;
-import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,17 +30,83 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    private InputValidator inputValidator;
-    @Autowired
     private EmployeeMapper employeeMapper;
 
     @Override
-    public EmployeeResponse<List<EmployeeDTO>> getListEmployees(String employeeName, String departmentId) {
-        employeeName = inputValidator.validateEmployeeName(employeeName);
-        Long id = inputValidator.validateDepartmentId(departmentId);
+    public EmployeeResponse<List<EmployeeDTO>> getListEmployees(
+            String employeeName,
+            Long departmentId,
+            Sort.Direction employeeNameDirection,
+            Sort.Direction certificationNameDirection,
+            Sort.Direction endDateDirection,
+            String sortPriority,
+            int offset,
+            int limit){
 
-        List<Employee> employees = employeeRepository.getListEmployees(EmployeeRole.USER, employeeName, id);
-        int count = employeeRepository.getCountEmployee(EmployeeRole.USER, employeeName, id);
-        return new EmployeeResponse<>(count, 200, employeeMapper.toList(employees));
+        // Tạo sort order
+        List<Sort.Order> orders = buildSortOrders(
+                employeeNameDirection,
+                certificationNameDirection,
+                endDateDirection,
+                sortPriority);
+
+        int pageNumber = offset / limit;
+        Pageable pageable = PageRequest.of(pageNumber, limit, Sort.by(orders));
+
+
+        Page<Employee> page = employeeRepository.getListEmployees(
+                EmployeeRole.USER,
+                employeeName,
+                departmentId,
+                pageable);
+
+        return new EmployeeResponse<>(
+                (int) page.getTotalElements(),
+                HttpStatus.OK.value(),
+                employeeMapper.toList(page.getContent()));
+    }
+
+    private List<Sort.Order> buildSortOrders(
+            Sort.Direction employeeNameDirection,
+            Sort.Direction certificationNameDirection,
+            Sort.Direction endDateDirection,
+            String sortPriority) {
+        List<Sort.Order> orders = new ArrayList<>();
+
+        if (sortPriority != null) {
+            switch (sortPriority.toLowerCase()) {
+                case "ord_employee_name":
+                    orders.add(new Sort.Order(employeeNameDirection, "employeeName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeCertifications.endDate"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "certification.certificationName"));
+                    break;
+                case "ord_certification_name":
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
+                    orders.add(new Sort.Order(certificationNameDirection, "employeeCertifications.endDate"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "certification.certificationName"));
+                    break;
+                case "ord_end_date":
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeCertifications.endDate"));
+                    orders.add(new Sort.Order(endDateDirection, "certification.certificationName"));
+                    break;
+                default:
+                    addDefaultSortOrders(orders);
+            }
+        } else {
+            addDefaultSortOrders(orders);
+        }
+
+        return orders;
+    }
+    private void addDefaultSortOrders(List<Sort.Order> orders) {
+        orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "employeeCertifications.endDate"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "certification.certificationName"));
+    }
+
+    @Override
+    public int getCountEmployee(String employeeName, Long departmentId) {
+        return employeeRepository.getCountEmployee(EmployeeRole.USER, employeeName, departmentId);
     }
 }

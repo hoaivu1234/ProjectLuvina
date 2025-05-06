@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `employees` (
     employee_email VARCHAR(255) NOT NULL,
     employee_telephone VARCHAR(50),
     employee_role SMALLINT NOT NULL,
+    sort_priority VARCHAR(50),
     employee_login_id VARCHAR(50) NOT NULL,
     employee_login_password VARCHAR(100) DEFAULT NULL,
     PRIMARY KEY (`employee_id`) USING BTREE
