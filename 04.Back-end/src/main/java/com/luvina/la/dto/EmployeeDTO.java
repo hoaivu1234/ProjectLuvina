@@ -3,14 +3,17 @@ package com.luvina.la.dto;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 
 public class EmployeeDTO implements Serializable {
 
@@ -25,7 +28,7 @@ public class EmployeeDTO implements Serializable {
     private String departmentName;
     private String certificationName;
     private Date endDate;
-    private int score;
+    private BigDecimal score;
     private String employeeLoginId;
     private String employeeLoginPassword;
 }

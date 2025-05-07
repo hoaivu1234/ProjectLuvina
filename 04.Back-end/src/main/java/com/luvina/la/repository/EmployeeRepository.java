@@ -1,5 +1,6 @@
 package com.luvina.la.repository;
 
+import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.entity.Employee;
 import com.luvina.la.common.EmployeeRole;
 
@@ -22,27 +23,38 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query(
             value = """
-                    SELECT DISTINCT e
-                    FROM Employee e
-                    INNER JOIN FETCH e.department d
-                    LEFT JOIN FETCH e.employeeCertifications ec
-                    LEFT JOIN FETCH ec.certification c
-                    WHERE e.employeeRole = :role
-                      AND (:name IS NULL OR e.employeeName LIKE %:name%)
-                      AND (:departmentId IS NULL OR d.departmentId = :departmentId)
+                      SELECT new com.luvina.la.dto.EmployeeDTO(
+                            e.employeeId,
+                            e.employeeName,
+                            e.employeeEmail,
+                            e.employeeNameKana,
+                            e.employeeBirthDate,
+                            e.employeeTelephone,
+                            d.departmentName,
+                            c.certificationName,
+                            ec.endDate,
+                            ec.score,
+                            e.employeeLoginId,
+                            e.employeeLoginPassword
+                        )
+                        FROM Employee e
+                        JOIN e.department d
+                        LEFT JOIN e.employeeCertifications ec
+                        LEFT JOIN ec.certification c
+                        WHERE e.employeeRole = :role
+                          AND (:name IS NULL OR e.employeeName LIKE %:name%)
+                          AND (:departmentId IS NULL OR d.departmentId = :departmentId)
                     """,
             countQuery = """
                     SELECT COUNT(DISTINCT e)
                     FROM Employee e
                     INNER JOIN e.department d
-                    LEFT JOIN e.employeeCertifications ec
-                    LEFT JOIN ec.certification c
                     WHERE e.employeeRole = :role
                       AND (:name IS NULL OR e.employeeName LIKE %:name%)
                       AND (:departmentId IS NULL OR d.departmentId = :departmentId)
                     """
     )
-    Page<Employee> getListEmployees(
+    Page<EmployeeDTO> getListEmployees(
             @Param("role") EmployeeRole role,
             @Param("name") @Nullable String name,
             @Param("departmentId") @Nullable Long departmentId,

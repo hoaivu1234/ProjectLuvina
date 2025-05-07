@@ -53,7 +53,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         int pageNumber = offset / limit;
         Pageable pageable = PageRequest.of(pageNumber, limit, Sort.by(orders));
 
-        Page<Employee> page = employeeRepository.getListEmployees(
+        Page<EmployeeDTO> page = employeeRepository.getListEmployees(
                 EmployeeRole.USER,
                 employeeName,
                 departmentId,
@@ -62,7 +62,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new EmployeeResponse<>(
                 (int) page.getTotalElements(),
                 HttpStatus.OK.value(),
-                employeeMapper.toList(page.getContent()));
+                page.getContent());
     }
 
     private List<Sort.Order> buildSortOrders(
