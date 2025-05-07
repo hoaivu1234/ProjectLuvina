@@ -22,7 +22,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query(
             value = """
-                    SELECT e
+                    SELECT DISTINCT e
                     FROM Employee e
                     INNER JOIN FETCH e.department d
                     LEFT JOIN FETCH e.employeeCertifications ec

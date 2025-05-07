@@ -17,8 +17,11 @@ export class UserListComponent {
   listEmployee: Employee[] = [];
   employeeName: string = '';
   currentPage!: number;
-  pageSize!: number;
+  pageSize: number = 5;
   totalItems = 0;
+  sortIconColumnName: string = '▲▽';
+  sortIconColumnCertification: string = '▲▽';
+  sortIconColumnEndDate: string = '▲▽';
 
   constructor(
     public http: HttpClient,
@@ -62,26 +65,24 @@ export class UserListComponent {
   }
 
   getListEmployee(
-    employeeName?: string,
-    departmentId?: string,
-    ordEmployeeName?: string,
-    ordCertificationName?: string,
-    ordEndDate?: string,
-    sortPriority?: string,
+    employeeName: string = '',
+    departmentId: string = '',
+    ordEmployeeName: string = '',
+    ordCertificationName: string = '',
+    ordEndDate: string = '',
+    sortPriority: string = '',
     offset: string = '',
     limit: string = '') {
-
     if (this.currentPage && this.pageSize) {
       const offSet = (this.currentPage - 1) * this.pageSize;
       offset = offSet > 0 ? offSet.toString() : offset;
       limit = this.pageSize.toString();
     }
-    this.employeeService.getListEmployee(employeeName, departmentId, '', '', '', '', offset, limit).subscribe({
+    this.employeeService.getListEmployee(employeeName, departmentId, ordEmployeeName, ordCertificationName, ordEndDate, sortPriority, offset, limit).subscribe({
       next: (value) => {
         this.listEmployee = value?.employees,
-        this.totalItems = value.totalRecords,
-        this.pageSize = value?.employees.length,
-        console.log("Lấy dữ liệu nhân viên thành công.")
+          this.totalItems = value?.totalRecords,
+          console.log("Lấy dữ liệu nhân viên thành công.")
       },
       error: () => {
         console.log("Không thể lấy dữ liệu nhân viên!!!");
@@ -110,6 +111,30 @@ export class UserListComponent {
 
   totalPages(): number {
     return Math.ceil(this.totalItems / this.pageSize) || 1;
-  }  
+  }
+
+  changeSortIcon(sortIcon: string) {
+    if (sortIcon === '▲▽') sortIcon = '▼△';
+    else sortIcon = '▲▽';
+    return sortIcon;
+  }
+
+  handleSearchName() {
+    this.sortIconColumnName = this.changeSortIcon(this.sortIconColumnName);
+    var sortOrder = this.sortIconColumnName == '▲▽' ? 'ASC' : 'DESC';
+    this.getListEmployee(this.employeeName, this.selectedDepartment, sortOrder, '', '', 'ord_employee_name')
+  }
+
+  handleSearchCertification() {
+    this.sortIconColumnCertification = this.changeSortIcon(this.sortIconColumnCertification);
+    var sortOrder = this.sortIconColumnCertification == '▲▽' ? 'ASC' : 'DESC';
+    this.getListEmployee(this.employeeName, this.selectedDepartment, '', sortOrder, '', 'ord_certification_name')
+  }
+
+  handleSearchEndDate() {
+    this.sortIconColumnEndDate = this.changeSortIcon(this.sortIconColumnEndDate);
+    var sortOrder = this.sortIconColumnEndDate == '▲▽' ? 'ASC' : 'DESC';
+    this.getListEmployee(this.employeeName, this.selectedDepartment, '', '', sortOrder, 'ord_end_date')
+  }
 
 }

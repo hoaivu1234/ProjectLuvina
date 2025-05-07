@@ -76,18 +76,18 @@ public class EmployeeServiceImpl implements EmployeeService {
             switch (sortPriority.toLowerCase()) {
                 case "ord_employee_name":
                     orders.add(new Sort.Order(employeeNameDirection, "employeeName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationName"));
                     break;
                 case "ord_certification_name":
+                    orders.add(new Sort.Order(certificationNameDirection, "c.certificationLevel"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-                    orders.add(new Sort.Order(certificationNameDirection, "c.certificationName"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
                     break;
                 case "ord_end_date":
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationName"));
                     orders.add(new Sort.Order(endDateDirection, "ec.endDate"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
                     break;
                 default:
                     addDefaultSortOrders(orders);
@@ -101,8 +101,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private void addDefaultSortOrders(List<Sort.Order> orders) {
         orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
         orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
-        orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationName"));
     }
 
     @Override

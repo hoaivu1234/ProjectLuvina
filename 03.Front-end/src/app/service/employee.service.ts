@@ -30,7 +30,7 @@ export class EmployeeService {
     if (ordEmployeeName) params = params.append('ord_employee_name', ordEmployeeName);
     if (ordCertificationName) params = params.append('ord_certification_name', ordCertificationName);
     if (ordEndDate) params = params.append('ord_end_date', ordEndDate);
-    if (sortPriority) params = params.append('ord_end_date', sortPriority);
+    if (sortPriority) params = params.append('sort_priority', sortPriority);
     if (offset) params = params.append('offset', offset);
     if (limit) params = params.append('limit', limit);
 
