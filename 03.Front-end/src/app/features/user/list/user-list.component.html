@@ -40,18 +40,25 @@
             </ul>
           </form>
         </div>
-        <div class="row row-table">
+        <div class="row row-table" *ngIf="totalPages() > 1; else handleMess">
           <div class="css-grid-table box-shadow">
             <div class="css-grid-table-header">
               <div>ID</div>
-              <div style="cursor: pointer;" (click)="handleSearchName()">氏名 {{sortIconColumnName}}</div>
+              <div style="cursor: pointer;" (click)="handleSort('Name', 'ord_employee_name')">
+                氏名 {{ sortIcons['Name'] }}
+              </div>
               <div>生年月日</div>
               <div>グループ</div>
               <div>メールアドレス</div>
               <div>電話番号</div>
-              <div style="cursor: pointer;" (click)="handleSearchCertification()">日本語能力 {{sortIconColumnCertification}}</div>
-              <div style="cursor: pointer;" (click)="handleSearchEndDate()">失効日 {{sortIconColumnEndDate}}</div>
+              <div style="cursor: pointer;" (click)="handleSort('Certification', 'ord_certification_name')">
+                日本語能力 {{ sortIcons['Certification'] }}
+              </div>
+              <div style="cursor: pointer;" (click)="handleSort('EndDate', 'ord_end_date')">
+                失効日 {{ sortIcons['EndDate'] }}
+              </div>
               <div>点数</div>
+
             </div>
             <div class="css-grid-table-body" *ngFor="let employee of listEmployee">
               <div>{{ employee?.employeeId }}</div>
@@ -134,6 +141,7 @@
             </div>
           </div>
         </div>
+        <ng-template #handleMess>索条件に該当するユーザが見つかりません</ng-template>
       </div>
     </div>
     <app-footer></app-footer>

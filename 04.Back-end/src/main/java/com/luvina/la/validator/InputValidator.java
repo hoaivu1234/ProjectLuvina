@@ -44,15 +44,14 @@ public class InputValidator {
         return employeeName.trim();
     }
 
-    public Sort.Direction validateSortDirection(String direction) {
-        if (direction == null || direction.trim().isEmpty()) {
-            return Sort.Direction.ASC; // Giá trị mặc định khi không có hoặc rỗng
-        }
-        try {
-            return Sort.Direction.fromString(direction);
-        } catch (IllegalArgumentException e) {
+    public String validateSortOrder(String sortOrder) {
+        if (sortOrder == null || sortOrder.trim().isEmpty()) {
+            return "ASC"; // Giá trị mặc định khi không có hoặc rỗng
+        } else if (!"ASC".equals(sortOrder) && !"DESC".equals(sortOrder)) {
             throw buildBusinessException(400, "ERR021", "");
         }
+
+        return sortOrder;
     }
 
     public int validatePositiveNumber(String value, String type) {

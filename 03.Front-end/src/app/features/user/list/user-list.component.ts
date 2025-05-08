@@ -5,6 +5,7 @@ import { DepartmentService } from '../../../service/department.service';
 import { EmployeeService } from '../../../service/employee.service';
 import { Department } from 'src/app/shared/model/department.model';
 import { Employee } from 'src/app/shared/model/employee.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-list',
@@ -19,14 +20,22 @@ export class UserListComponent {
   currentPage!: number;
   pageSize: number = 5;
   totalItems = 0;
-  sortIconColumnName: string = '▲▽';
-  sortIconColumnCertification: string = '▲▽';
-  sortIconColumnEndDate: string = '▲▽';
+
+  sortIcons: { [key: string]: string } = {
+    Name: '▲▽',
+    Certification: '▲▽',
+    EndDate: '▲▽',
+  };
+
+  currentSortColumn: string = '';
+  currentSortField: string = '';
+  currentSortOrder: string = '';
 
   constructor(
     public http: HttpClient,
     public departmentService: DepartmentService,
-    public employeeService: EmployeeService
+    public employeeService: EmployeeService,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -60,6 +69,7 @@ export class UserListComponent {
       },
       error: () => {
         console.log("Không thể lấy dữ liệu phòng ban!!!");
+        this.router.navigate(['error']);
       },
     })
   }
@@ -86,17 +96,27 @@ export class UserListComponent {
       },
       error: () => {
         console.log("Không thể lấy dữ liệu nhân viên!!!");
+        this.router.navigate(['error']);
       },
     })
   }
 
   searchByName() {
+    this.currentPage = 1;
     this.getListEmployee(this.employeeName, this.selectedDepartment);
   }
 
   goToPage(page: number) {
     this.currentPage = page;
-    this.getListEmployee();
+
+    this.getListEmployee(
+      this.employeeName,
+      this.selectedDepartment,
+      this.currentSortColumn === 'Name' ? this.currentSortOrder : '',
+      this.currentSortColumn === 'Certification' ? this.currentSortOrder : '',
+      this.currentSortColumn === 'EndDate' ? this.currentSortOrder : '',
+      this.currentSortField ? this.currentSortField : ''
+    );
   }
 
   getPageNumbers(): number[] {
@@ -113,28 +133,27 @@ export class UserListComponent {
     return Math.ceil(this.totalItems / this.pageSize) || 1;
   }
 
-  changeSortIcon(sortIcon: string) {
-    if (sortIcon === '▲▽') sortIcon = '▼△';
-    else sortIcon = '▲▽';
-    return sortIcon;
+  changeSortIcon(sortIcon: string): string {
+    return sortIcon === '▲▽' ? '▼△' : '▲▽';
   }
 
-  handleSearchName() {
-    this.sortIconColumnName = this.changeSortIcon(this.sortIconColumnName);
-    var sortOrder = this.sortIconColumnName == '▲▽' ? 'ASC' : 'DESC';
-    this.getListEmployee(this.employeeName, this.selectedDepartment, sortOrder, '', '', 'ord_employee_name')
-  }
+  handleSort(column: string, sortField: string) {
+    this.currentPage = 1;
+    this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]);
+    const sortOrder = this.sortIcons[column] === '▲▽' ? 'ASC' : 'DESC';
 
-  handleSearchCertification() {
-    this.sortIconColumnCertification = this.changeSortIcon(this.sortIconColumnCertification);
-    var sortOrder = this.sortIconColumnCertification == '▲▽' ? 'ASC' : 'DESC';
-    this.getListEmployee(this.employeeName, this.selectedDepartment, '', sortOrder, '', 'ord_certification_name')
-  }
+    this.currentSortColumn = column;
+    this.currentSortField = sortField;
+    this.currentSortOrder = sortOrder;
 
-  handleSearchEndDate() {
-    this.sortIconColumnEndDate = this.changeSortIcon(this.sortIconColumnEndDate);
-    var sortOrder = this.sortIconColumnEndDate == '▲▽' ? 'ASC' : 'DESC';
-    this.getListEmployee(this.employeeName, this.selectedDepartment, '', '', sortOrder, 'ord_end_date')
+    this.getListEmployee(
+      this.employeeName,
+      this.selectedDepartment,
+      column === 'Name' ? sortOrder : '',
+      column === 'Certification' ? sortOrder : '',
+      column === 'EndDate' ? sortOrder : '',
+      sortField
+    );
   }
 
 }

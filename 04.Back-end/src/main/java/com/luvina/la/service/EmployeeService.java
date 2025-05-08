@@ -12,9 +12,9 @@ public interface EmployeeService {
     EmployeeResponse<List<EmployeeDTO>> getListEmployees(
             String employeeName,
             Long departmentId,
-            Sort.Direction employeeNameDirection,
-            Sort.Direction certificationNameDirection,
-            Sort.Direction endDateDirection,
+            String ordEmployeeName,
+            String ordCertificationName,
+            String ordEndDate,
             String sortPriority,
             int offset,
             int limit);

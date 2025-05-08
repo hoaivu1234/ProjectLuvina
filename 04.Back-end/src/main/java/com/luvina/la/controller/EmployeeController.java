@@ -44,17 +44,13 @@ public class EmployeeController {
             @RequestParam(name = "limit", required = false, defaultValue = "") String limit) throws DataAccessException {
 
         // validate input params
-//        if (employeeName != null && !employeeName.isBlank()) {
-//            employeeName = inputValidator.prepareLikeKeyword(employeeName);
-//        }
         employeeName = EscapeCharacter.DEFAULT.escape(employeeName);
-
         Long departmentIdNumber = inputValidator.validateDepartmentId(departmentId);
 
-        // Validate sort directions
-        Sort.Direction employeeNameDirection = inputValidator.validateSortDirection(ordEmployeeName);
-        Sort.Direction certificationNameDirection = inputValidator.validateSortDirection(ordCertificationName);
-        Sort.Direction endDateDirection = inputValidator.validateSortDirection(ordEndDate);
+        // Validate sort order
+        ordEmployeeName = inputValidator.validateSortOrder(ordEmployeeName);
+        ordCertificationName = inputValidator.validateSortOrder(ordCertificationName);
+        ordEndDate = inputValidator.validateSortOrder(ordEndDate);
 
         int offsetNumber;
         int limitNumber;
@@ -69,8 +65,8 @@ public class EmployeeController {
         // Khởi tạo response
         EmployeeResponse<List<EmployeeDTO>> response = new EmployeeResponse<>(count, 200, new ArrayList<>());
         if (count > 0) {
-            response = employeeService.getListEmployees(employeeName, departmentIdNumber, employeeNameDirection, certificationNameDirection,
-                    endDateDirection, sortPriority, offsetNumber, limitNumber);
+            response = employeeService.getListEmployees(employeeName, departmentIdNumber, ordEmployeeName, ordCertificationName,
+                    ordEndDate, sortPriority, offsetNumber, limitNumber);
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

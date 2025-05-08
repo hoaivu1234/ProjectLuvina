@@ -36,18 +36,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse<List<EmployeeDTO>> getListEmployees(
             String employeeName,
             Long departmentId,
-            Sort.Direction employeeNameDirection,
-            Sort.Direction certificationNameDirection,
-            Sort.Direction endDateDirection,
+            String ordEmployeeName,
+            String ordCertificationName,
+            String ordEndDate,
             String sortPriority,
             int offset,
             int limit){
 
         // Tạo sort order
         List<Sort.Order> orders = buildSortOrders(
-                employeeNameDirection,
-                certificationNameDirection,
-                endDateDirection,
+                ordEmployeeName,
+                ordCertificationName,
+                ordEndDate,
                 sortPriority);
 
         int pageNumber = offset / limit;
@@ -57,7 +57,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                 EmployeeRole.USER,
                 employeeName,
                 departmentId,
-                pageable);
+                orders,
+                offset,
+                limit);
 
         return new EmployeeResponse<>(
                 (int) page.getTotalElements(),
@@ -66,26 +68,32 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private List<Sort.Order> buildSortOrders(
-            Sort.Direction employeeNameDirection,
-            Sort.Direction certificationNameDirection,
-            Sort.Direction endDateDirection,
+            String ordEmployeeName,
+            String ordCertificationName,
+            String ordEndDate,
             String sortPriority) {
         List<Sort.Order> orders = new ArrayList<>();
+
+        ordCertificationName = "ASC".equalsIgnoreCase(ordCertificationName) ? "DESC" : "ASC";
+
+        Sort.Direction dirEmployeeName = parseDirection(ordEmployeeName);
+        Sort.Direction dirCertificationName = parseDirection(ordCertificationName);
+        Sort.Direction dirEndDate = parseDirection(ordEndDate);
 
         if (sortPriority != null) {
             switch (sortPriority.toLowerCase()) {
                 case "ord_employee_name":
-                    orders.add(new Sort.Order(employeeNameDirection, "employeeName"));
+                    orders.add(new Sort.Order(dirEmployeeName, "employeeName"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
                     break;
                 case "ord_certification_name":
-                    orders.add(new Sort.Order(certificationNameDirection, "c.certificationLevel"));
+                    orders.add(new Sort.Order(dirCertificationName, "c.certificationLevel"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
                     break;
                 case "ord_end_date":
-                    orders.add(new Sort.Order(endDateDirection, "ec.endDate"));
+                    orders.add(new Sort.Order(dirEndDate, "ec.endDate"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
                     orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
                     break;
@@ -99,10 +107,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         return orders;
     }
 
+    private Sort.Direction parseDirection(String direction) {
+        return "ASC".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    }
+
     private void addDefaultSortOrders(List<Sort.Order> orders) {
-        orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-        orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
-        orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
+        orders.add(Sort.Order.asc("employeeName"));
+        orders.add(Sort.Order.asc("c.certificationLevel"));
+        orders.add(Sort.Order.asc("ec.endDate"));
     }
 
     @Override

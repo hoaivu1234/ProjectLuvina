@@ -15,52 +15,11 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+public interface EmployeeRepository extends JpaRepository<Employee, Long>, EmployeeRepositoryCustom {
 
     Optional<Employee> findByEmployeeLoginId(String employeeLoginId);
 
     Optional<Employee> findByEmployeeId(Long employeeId);
-
-    @Query(
-            value = """
-                      SELECT new com.luvina.la.dto.EmployeeDTO(
-                            e.employeeId,
-                            e.employeeName,
-                            e.employeeEmail,
-                            e.employeeNameKana,
-                            e.employeeBirthDate,
-                            e.employeeTelephone,
-                            d.departmentName,
-                            c.certificationName,
-                            ec.endDate,
-                            ec.score,
-                            e.employeeLoginId,
-                            e.employeeLoginPassword
-                        )
-                        FROM Employee e
-                        JOIN e.department d
-                        LEFT JOIN e.employeeCertifications ec
-                        LEFT JOIN ec.certification c
-                        WHERE e.employeeRole = :role
-                          AND (:name IS NULL OR e.employeeName LIKE %:name%)
-                          AND (:departmentId IS NULL OR d.departmentId = :departmentId)
-                    """,
-            countQuery = """
-                    SELECT COUNT(DISTINCT e)
-                    FROM Employee e
-                    INNER JOIN e.department d
-                    WHERE e.employeeRole = :role
-                      AND (:name IS NULL OR e.employeeName LIKE %:name%)
-                      AND (:departmentId IS NULL OR d.departmentId = :departmentId)
-                    """
-    )
-    Page<EmployeeDTO> getListEmployees(
-            @Param("role") EmployeeRole role,
-            @Param("name") @Nullable String name,
-            @Param("departmentId") @Nullable Long departmentId,
-            Pageable pageable
-    );
-
 
     @Query("""
             SELECT COUNT(e) 

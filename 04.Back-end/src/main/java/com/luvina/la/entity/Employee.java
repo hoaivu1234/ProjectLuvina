@@ -52,7 +52,7 @@ public class Employee implements Serializable {
     @Column(name = "employee_login_password")
     private String employeeLoginPassword;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "department_id")
     private Department department;
 

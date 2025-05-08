@@ -29,11 +29,11 @@ public class EmployeeCertification {
     @Column(name = "score")
     private BigDecimal score;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "certification_id")
     private Certification certification;
 }
