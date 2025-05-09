@@ -19,8 +19,8 @@ export class UserListComponent {
   employeeName: string = '';
   currentPage!: number;
   pageSize: number = 5;
-  totalItems = 0;
-
+  totalItems!: number;
+  isLoading = true;
   sortIcons: { [key: string]: string } = {
     Name: '▲▽',
     Certification: '▲▽',
@@ -83,19 +83,25 @@ export class UserListComponent {
     sortPriority: string = '',
     offset: string = '',
     limit: string = '') {
+
     if (this.currentPage && this.pageSize) {
       const offSet = (this.currentPage - 1) * this.pageSize;
       offset = offSet > 0 ? offSet.toString() : offset;
       limit = this.pageSize.toString();
     }
+
+    this.isLoading = true;
+
     this.employeeService.getListEmployee(employeeName, departmentId, ordEmployeeName, ordCertificationName, ordEndDate, sortPriority, offset, limit).subscribe({
       next: (value) => {
         this.listEmployee = value?.employees,
           this.totalItems = value?.totalRecords,
           console.log("Lấy dữ liệu nhân viên thành công.")
+          this.isLoading = false;
       },
       error: () => {
         console.log("Không thể lấy dữ liệu nhân viên!!!");
+        this.isLoading = false;
         this.router.navigate(['error']);
       },
     })

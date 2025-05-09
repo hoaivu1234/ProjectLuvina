@@ -50,32 +50,41 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
 
     private String buildEmployeeQueryString(String name, Long departmentId, List<Sort.Order> orders) {
         StringBuilder sb = new StringBuilder();
-        sb.append("""
-                    SELECT new com.luvina.la.dto.EmployeeDTO(
-                        e.employeeId,
-                        e.employeeName,
-                        e.employeeEmail,
-                        e.employeeNameKana,
-                        e.employeeBirthDate,
-                        e.employeeTelephone,
-                        d.departmentName,
-                        c.certificationName,
-                        ec.endDate,
-                        ec.score,
-                        e.employeeLoginId,
-                        e.employeeLoginPassword
+        sb.append("""       
+                SELECT new com.luvina.la.dto.EmployeeDTO(
+                    e.employeeId,
+                    e.employeeName,
+                    e.employeeEmail,
+                    e.employeeNameKana,
+                    e.employeeBirthDate,
+                    e.employeeTelephone,
+                    d.departmentName,
+                    c.certificationName,
+                    ec.endDate,
+                    ec.score,
+                    e.employeeLoginId,
+                    e.employeeLoginPassword
+                )
+                FROM Employee e
+                JOIN e.department d
+                LEFT JOIN e.employeeCertifications ec
+                LEFT JOIN ec.certification c
+                WHERE e.employeeRole = :role
+                AND (
+                    ec.employeeCertificationId IS NULL
+                    OR ec.employeeCertificationId = (
+                        SELECT ec2.employeeCertificationId
+                        FROM EmployeeCertification ec2
+                        JOIN ec2.certification c2
+                        WHERE ec2.employee.employeeId = e.employeeId
+                        AND c2.certificationLevel = (
+                            SELECT MIN(c3.certificationLevel)
+                            FROM EmployeeCertification ec3
+                            JOIN ec3.certification c3
+                            WHERE ec3.employee.employeeId = e.employeeId
+                        )
                     )
-                    FROM Employee e
-                    JOIN e.department d
-                    LEFT JOIN e.employeeCertifications ec
-                    LEFT JOIN ec.certification c
-                    WHERE e.employeeRole = :role
-                    AND (c.certificationLevel = (
-                                        SELECT MIN(c2.certificationLevel)
-                                        FROM EmployeeCertification ec2
-                                        JOIN ec2.certification c2
-                                        WHERE ec2.employee.employeeId = e.employeeId
-                                  ))
+                )
                 """);
 
         addNameCondition(sb, name);
@@ -149,11 +158,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
     private String buildCountQueryString(String name, Long departmentId) {
         StringBuilder sb = new StringBuilder();
         sb.append("""
-            SELECT COUNT(DISTINCT e)
-            FROM Employee e
-            JOIN e.department d
-            WHERE e.employeeRole = :role
-        """);
+                    SELECT COUNT(DISTINCT e)
+                    FROM Employee e
+                    JOIN e.department d
+                    WHERE e.employeeRole = :role
+                """);
 
         addNameCondition(sb, name);
         addDepartmentCondition(sb, departmentId);

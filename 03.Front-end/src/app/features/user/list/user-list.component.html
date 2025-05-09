@@ -40,7 +40,8 @@
             </ul>
           </form>
         </div>
-        <div class="row row-table" *ngIf="totalPages() > 1; else handleMess">
+        <!-- *ngIf="totalItems > 0 && !isLoading; else handleMess" -->
+        <div class="row row-table">
           <div class="css-grid-table box-shadow">
             <div class="css-grid-table-header">
               <div>ID</div>
