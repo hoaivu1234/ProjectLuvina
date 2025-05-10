@@ -39,27 +39,10 @@ export class UserListComponent {
   ) { }
 
   ngOnInit(): void {
-    this.testAuth();
     this.getListDepartment();
     this.getListEmployee();
     this.getPageNumbers();
   };
-
-  testAuth() {
-    // test call api auto inject token to header
-    this.http.post(AppConstants.BASE_URL_API + "/test-auth", null)
-      .subscribe({
-        next: (response) => {
-          console.log(response);
-        },
-        error: (error) => {
-          console.log(error);
-        },
-        complete: () => {
-          console.log('complete');
-        }
-      });
-  }
 
   getListDepartment() {
     this.departmentService.getListDepartment().subscribe({

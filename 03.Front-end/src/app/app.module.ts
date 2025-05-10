@@ -10,14 +10,12 @@ import { SharedModule } from './shared/shared.module';
 import { HttpClientModule } from "@angular/common/http";
 import { TokenInterceptor } from './shared/auth/token.interceptor';
 import { FormsModule } from '@angular/forms';
-import { PageErrorComponent } from './features/page-error/page-error.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     SystemErrorComponent,
-    PageErrorComponent,
   ],
   imports: [
     BrowserModule,
