@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConstants } from 'src/app/app-constants';
-import { Employee } from '../shared/model/employee.model';
-import { EmployeeResponse } from '../shared/model/employee-response.model';
+import { Employee } from '../model/employee.model';
+import { EmployeeResponse } from '../model/employee-response.model';
 
 @Injectable({
   providedIn: 'root'

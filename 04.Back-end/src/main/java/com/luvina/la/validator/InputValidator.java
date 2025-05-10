@@ -22,13 +22,13 @@ public class InputValidator {
         }
 
         if (SPECIAL_CHAR_PATTERN.matcher(departmentId).find()) {
-            throw buildBusinessException(400, "ERR005", "departmentId");
+            throw buildBusinessException(400, "ER005", "departmentId");
         }
 
         try {
             return Long.parseLong(departmentId.trim());
         } catch (NumberFormatException e) {
-            throw buildBusinessException(400, "ERR005", "departmentId");
+            throw buildBusinessException(400, "ER005", "departmentId");
         }
     }
 
@@ -38,7 +38,7 @@ public class InputValidator {
         }
 
         if (SPECIAL_CHAR_PATTERN.matcher(employeeName.trim()).find()) {
-            throw buildBusinessException(400, "ERR005", "employeeName");
+            throw buildBusinessException(400, "ER005", "employeeName");
         }
 
         return employeeName.trim();
@@ -48,7 +48,7 @@ public class InputValidator {
         if (sortOrder == null || sortOrder.trim().isEmpty()) {
             return "ASC"; // Giá trị mặc định khi không có hoặc rỗng
         } else if (!"ASC".equals(sortOrder) && !"DESC".equals(sortOrder)) {
-            throw buildBusinessException(400, "ERR021", "");
+            throw buildBusinessException(400, "ER021", "");
         }
 
         return sortOrder;
@@ -58,11 +58,11 @@ public class InputValidator {
         try {
             int number = Integer.parseInt(value);
             if (number <= 0) {
-                throw buildBusinessException(400, "ERR018", type);
+                throw buildBusinessException(400, "ER018", type);
             }
             return number;
         } catch (NumberFormatException ex) {
-            throw buildBusinessException(400, "ERR018", type);
+            throw buildBusinessException(400, "ER018", type);
         }
     }
 

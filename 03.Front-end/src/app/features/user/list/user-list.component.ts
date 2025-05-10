@@ -1,11 +1,17 @@
+/*
+  Copyright(C) 2025 Luvina Software Company
+  user-list.component.ts 10/5 hoaivd
+*/
+
 import { Component } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { AppConstants } from "../../../app-constants";
 import { DepartmentService } from '../../../service/department.service';
 import { EmployeeService } from '../../../service/employee.service';
-import { Department } from 'src/app/shared/model/department.model';
-import { Employee } from 'src/app/shared/model/employee.model';
+import { Department } from 'src/app/model/department.model';
+import { Employee } from 'src/app/model/employee.model';
 import { Router } from '@angular/router';
+import { MSG } from 'src/app/shared/message/messages';
 
 @Component({
   selector: 'app-user-list',
@@ -17,10 +23,11 @@ export class UserListComponent {
   selectedDepartment: string = '';
   listEmployee: Employee[] = [];
   employeeName: string = '';
-  currentPage!: number;
+  currentPage: number = 1;
   pageSize: number = 5;
-  totalItems!: number;
-  isLoading = true;
+  totalRecords!: number;
+  MSG = MSG;
+
   sortIcons: { [key: string]: string } = {
     Name: '▲▽',
     Certification: '▲▽',
@@ -52,7 +59,7 @@ export class UserListComponent {
       },
       error: () => {
         console.log("Không thể lấy dữ liệu phòng ban!!!");
-        this.router.navigate(['error']);
+        this.router.navigate(['error'], { state: { errorCode: 'ER024' } });
       },
     })
   }
@@ -73,19 +80,15 @@ export class UserListComponent {
       limit = this.pageSize.toString();
     }
 
-    this.isLoading = true;
-
     this.employeeService.getListEmployee(employeeName, departmentId, ordEmployeeName, ordCertificationName, ordEndDate, sortPriority, offset, limit).subscribe({
       next: (value) => {
-        this.listEmployee = value?.employees,
-          this.totalItems = value?.totalRecords,
+        this.totalRecords = value?.totalRecords,
+          this.listEmployee = value?.employees,
           console.log("Lấy dữ liệu nhân viên thành công.")
-          this.isLoading = false;
       },
       error: () => {
         console.log("Không thể lấy dữ liệu nhân viên!!!");
-        this.isLoading = false;
-        this.router.navigate(['error']);
+        this.router.navigate(['error'], { state: { errorCode: 'ER025' } });
       },
     })
   }
@@ -119,7 +122,7 @@ export class UserListComponent {
   }
 
   totalPages(): number {
-    return Math.ceil(this.totalItems / this.pageSize) || 1;
+    return Math.ceil(this.totalRecords / this.pageSize) || 1;
   }
 
   changeSortIcon(sortIcon: string): string {
@@ -144,5 +147,13 @@ export class UserListComponent {
       sortField
     );
   }
+
+  shortenText(text: string | undefined, maxLength: number = 17): string {
+    if (text && text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
+    }
+    return text ?? '';
+  }
+
 
 }

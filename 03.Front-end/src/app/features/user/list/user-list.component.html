@@ -40,8 +40,8 @@
             </ul>
           </form>
         </div>
-        <!-- *ngIf="totalItems > 0 && !isLoading; else handleMess" -->
-        <div class="row row-table">
+
+        <div class="row row-table" *ngIf="totalRecords > 0; else handleMess">
           <div class="css-grid-table box-shadow">
             <div class="css-grid-table-header">
               <div>ID</div>
@@ -63,15 +63,16 @@
             </div>
             <div class="css-grid-table-body" *ngFor="let employee of listEmployee">
               <div>{{ employee?.employeeId }}</div>
-              <div>{{ employee?.employeeName }}</div>
+              <div>{{ shortenText(employee?.employeeName) }}</div>
               <div>{{ employee?.employeeBirthDate | date : "yyyy/MM/dd" }}</div>
-              <div>{{ employee?.departmentName }}</div>
-              <div>{{ employee?.employeeEmail }}</div>
-              <div>{{ employee?.employeeTelephone }}</div>
-              <div>{{ employee?.certificationName }}</div>
+              <div>{{ shortenText(employee?.departmentName) }}</div>
+              <div>{{ shortenText(employee?.employeeEmail) }}</div>
+              <div>{{ shortenText(employee?.employeeTelephone) }}</div>
+              <div>{{ shortenText(employee?.certificationName) }}</div>
               <div>{{ employee?.endDate | date : "yyyy/MM/dd" }}</div>
               <div>{{ employee?.score }}</div>
             </div>
+            
             <!-- Paging -->
             <div class="pagin" *ngIf="totalPages() > 1">
               <button class="btn btn-sm btn-pre btn-falcon-default" [disabled]="currentPage === 1"
@@ -142,7 +143,10 @@
             </div>
           </div>
         </div>
-        <ng-template #handleMess>索条件に該当するユーザが見つかりません</ng-template>
+        <ng-template #handleMess>
+          <div style="text-align: center;">{{MSG['MSG005']}}</div>
+        </ng-template>
+        
       </div>
     </div>
     <app-footer></app-footer>

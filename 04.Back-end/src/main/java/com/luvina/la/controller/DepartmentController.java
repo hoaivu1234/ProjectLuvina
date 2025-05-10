@@ -27,14 +27,8 @@ public class DepartmentController {
 
     @GetMapping("")
     public ResponseEntity<DepartmentResponse<List<DepartmentDTO>>> getAllDepartment() {
-        try {
-            List<DepartmentDTO> departments = departmentService.getAllDepartments();
-            return ResponseEntity.ok(new DepartmentResponse(200, departments));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(new DepartmentResponse(500,
-                            new ErrorMessage("部門を取得できません", List.of())));
-        }
+        List<DepartmentDTO> departments = departmentService.getAllDepartments();
+        return ResponseEntity.ok(new DepartmentResponse(200, departments));
     }
 
 }
