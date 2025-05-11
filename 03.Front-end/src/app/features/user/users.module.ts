@@ -7,10 +7,12 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { FormsModule } from '@angular/forms';
+import { ShortenTextPipe } from 'src/app/shared/custom-pipe/shorten-text';
 
 @NgModule({
   declarations: [
     UserListComponent,
+    ShortenTextPipe
   ],
   imports: [
     BrowserAnimationsModule,
@@ -18,7 +20,7 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     SharedModule,
     UsersRoutingModule,
-    FormsModule
+    FormsModule,
   ]
 })
 export class UsersModule { }

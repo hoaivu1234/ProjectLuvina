@@ -1,5 +1,7 @@
 package com.luvina.la.controller;
 
+import com.luvina.la.common.HttpStatusConstants;
+import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.payload.EmployeeResponse;
@@ -56,14 +58,14 @@ public class EmployeeController {
         int limitNumber;
 
         // validate paging param
-        offsetNumber = offset.isEmpty() ? 0 : inputValidator.validatePositiveNumber(offset, "オフセット");
-        limitNumber = limit.isEmpty() ? 5 : inputValidator.validatePositiveNumber(limit, "リミット");
+        offsetNumber = offset.isEmpty() ? PaginationConstants.DEFAULT_OFFSET_VALUE : inputValidator.validatePositiveNumber(offset, PaginationConstants.OFFSET_LABEL);
+        limitNumber = limit.isEmpty() ? PaginationConstants.DEFAULT_LIMIT_VALUE : inputValidator.validatePositiveNumber(limit, PaginationConstants.LIMIT_LABEL);
 
         // Lấy tổng số bản ghi response
         int count = employeeService.getCountEmployee(employeeName, departmentIdNumber);
 
         // Khởi tạo response
-        EmployeeResponse<List<EmployeeDTO>> response = new EmployeeResponse<>(count, 200, new ArrayList<>());
+        EmployeeResponse<List<EmployeeDTO>> response = new EmployeeResponse<>(count, HttpStatusConstants.OK, new ArrayList<>());
         if (count > 0) {
             response = employeeService.getListEmployees(employeeName, departmentIdNumber, ordEmployeeName, ordCertificationName,
                     ordEndDate, sortPriority, offsetNumber, limitNumber);

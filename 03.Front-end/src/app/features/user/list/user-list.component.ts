@@ -1,37 +1,41 @@
 /*
   Copyright(C) 2025 Luvina Software Company
-  user-list.component.ts 10/5 hoaivd
+  user-list.component.ts 10/5/2025 hoaivd
 */
 
 import { Component } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import { AppConstants } from "../../../app-constants";
 import { DepartmentService } from '../../../service/department.service';
 import { EmployeeService } from '../../../service/employee.service';
 import { Department } from 'src/app/model/department.model';
 import { Employee } from 'src/app/model/employee.model';
 import { Router } from '@angular/router';
-import { MSG } from 'src/app/shared/message/messages';
+import { MSG } from 'src/app/shared/utils/messages.constants';
+import { PAGINATION } from 'src/app/shared/utils/pagination.constants';
+import { SORT } from 'src/app/shared/utils/sort.constants';
+import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
+import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css'],
 })
+
 export class UserListComponent {
   listDepartment: Department[] = [];
   selectedDepartment: string = '';
   listEmployee: Employee[] = [];
   employeeName: string = '';
-  currentPage: number = 1;
-  pageSize: number = 5;
+  currentPage: number = PAGINATION.DEFAULT_PAGE;
+  pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE;
   totalRecords!: number;
   MSG = MSG;
 
   sortIcons: { [key: string]: string } = {
-    Name: '▲▽',
-    Certification: '▲▽',
-    EndDate: '▲▽',
+    [SORT.COLUMNS.NAME]: SORT.ICONS.DEFAULT,
+    [SORT.COLUMNS.CERTIFICATION]: SORT.ICONS.DEFAULT,
+    [SORT.COLUMNS.END_DATE]: SORT.ICONS.DEFAULT,
   };
 
   currentSortColumn: string = '';
@@ -55,11 +59,11 @@ export class UserListComponent {
     this.departmentService.getListDepartment().subscribe({
       next: (value) => {
         this.listDepartment = value?.departments,
-          console.log("Lấy dữ liệu phòng ban thành công.")
+          console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_SUCCESS)
       },
       error: () => {
-        console.log("Không thể lấy dữ liệu phòng ban!!!");
-        this.router.navigate(['error'], { state: { errorCode: 'ER024' } });
+        console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
+        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
       },
     })
   }
@@ -80,17 +84,45 @@ export class UserListComponent {
       limit = this.pageSize.toString();
     }
 
+    // this.employeeService.getListEmployee(employeeName, departmentId, ordEmployeeName, ordCertificationName, ordEndDate, sortPriority, offset, limit).subscribe({
+    //   next: (value) => {
+    //     this.totalRecords = value?.totalRecords,
+    //       this.listEmployee = value?.employees,
+    //       console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS)
+    //   },
+    //   error: () => {
+    //     console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_FAILED);
+    //     this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.EMPLOYEE_FETCH_FAILED } });
+    //   },
+    // })
     this.employeeService.getListEmployee(employeeName, departmentId, ordEmployeeName, ordCertificationName, ordEndDate, sortPriority, offset, limit).subscribe({
       next: (value) => {
-        this.totalRecords = value?.totalRecords,
-          this.listEmployee = value?.employees,
-          console.log("Lấy dữ liệu nhân viên thành công.")
+        this.totalRecords = value?.totalRecords || 0;
+        this.listEmployee = value?.employees || [];
+    
+        const totalPages = this.totalPages();
+        // Nếu currentPage vượt quá số trang hiện có (ví dụ xóa dữ liệu trang cuối)
+        if (this.currentPage > totalPages) {
+          this.currentPage = totalPages;
+          this.getListEmployee( // Gọi lại để đảm bảo đúng page
+            this.employeeName,
+            this.selectedDepartment,
+            this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
+            this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
+            this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
+            this.currentSortField ? this.currentSortField : ''
+          );
+          return; // tránh hiển thị dữ liệu sai page
+        }
+    
+        console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS);
       },
       error: () => {
-        console.log("Không thể lấy dữ liệu nhân viên!!!");
-        this.router.navigate(['error'], { state: { errorCode: 'ER025' } });
+        console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_FAILED);
+        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.EMPLOYEE_FETCH_FAILED } });
       },
-    })
+    });
+    
   }
 
   searchByName() {
@@ -104,9 +136,9 @@ export class UserListComponent {
     this.getListEmployee(
       this.employeeName,
       this.selectedDepartment,
-      this.currentSortColumn === 'Name' ? this.currentSortOrder : '',
-      this.currentSortColumn === 'Certification' ? this.currentSortOrder : '',
-      this.currentSortColumn === 'EndDate' ? this.currentSortOrder : '',
+      this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
+      this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
+      this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
       this.currentSortField ? this.currentSortField : ''
     );
   }
@@ -125,35 +157,27 @@ export class UserListComponent {
     return Math.ceil(this.totalRecords / this.pageSize) || 1;
   }
 
-  changeSortIcon(sortIcon: string): string {
-    return sortIcon === '▲▽' ? '▼△' : '▲▽';
+  changeSortIcon(currentIcon: string): string {
+    return currentIcon === SORT.ICONS.DEFAULT 
+      ? `${SORT.ICONS.DESC}${SORT.ICONS.ASC}` 
+      : SORT.ICONS.DEFAULT;
   }
 
   handleSort(column: string, sortField: string) {
-    this.currentPage = 1;
+    this.currentPage = PAGINATION.DEFAULT_PAGE;
     this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]);
-    const sortOrder = this.sortIcons[column] === '▲▽' ? 'ASC' : 'DESC';
-
-    this.currentSortColumn = column;
-    this.currentSortField = sortField;
-    this.currentSortOrder = sortOrder;
+    
+    const sortOrder = this.sortIcons[column] === SORT.ICONS.DEFAULT 
+      ? SORT.ORDERS.ASC 
+      : SORT.ORDERS.DESC;
 
     this.getListEmployee(
       this.employeeName,
       this.selectedDepartment,
-      column === 'Name' ? sortOrder : '',
-      column === 'Certification' ? sortOrder : '',
-      column === 'EndDate' ? sortOrder : '',
+      column === SORT.COLUMNS.NAME ? sortOrder : '',
+      column === SORT.COLUMNS.CERTIFICATION ? sortOrder : '',
+      column === SORT.COLUMNS.END_DATE ? sortOrder : '',
       sortField
     );
   }
-
-  shortenText(text: string | undefined, maxLength: number = 17): string {
-    if (text && text.length > maxLength) {
-      return text.substring(0, maxLength) + '...';
-    }
-    return text ?? '';
-  }
-
-
 }

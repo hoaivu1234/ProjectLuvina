@@ -1,5 +1,6 @@
 package com.luvina.la.controller;
 
+import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.dto.DepartmentDTO;
 import com.luvina.la.payload.DepartmentResponse;
@@ -28,7 +29,7 @@ public class DepartmentController {
     @GetMapping("")
     public ResponseEntity<DepartmentResponse<List<DepartmentDTO>>> getAllDepartment() {
         List<DepartmentDTO> departments = departmentService.getAllDepartments();
-        return ResponseEntity.ok(new DepartmentResponse(200, departments));
+        return ResponseEntity.ok(new DepartmentResponse(HttpStatusConstants.OK, departments));
     }
 
 }

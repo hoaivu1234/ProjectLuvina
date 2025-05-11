@@ -1,6 +1,7 @@
 package com.luvina.la.service.Impl;
 
 import com.luvina.la.common.EmployeeRole;
+import com.luvina.la.common.SortConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.entity.Employee;
 import com.luvina.la.mapper.EmployeeMapper;
@@ -50,9 +51,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 ordEndDate,
                 sortPriority);
 
-        int pageNumber = offset / limit;
-        Pageable pageable = PageRequest.of(pageNumber, limit, Sort.by(orders));
-
         Page<EmployeeDTO> page = employeeRepository.getListEmployees(
                 EmployeeRole.USER,
                 employeeName,
@@ -72,9 +70,13 @@ public class EmployeeServiceImpl implements EmployeeService {
             String ordCertificationName,
             String ordEndDate,
             String sortPriority) {
+
         List<Sort.Order> orders = new ArrayList<>();
 
-        ordCertificationName = "ASC".equalsIgnoreCase(ordCertificationName) ? "DESC" : "ASC";
+        // Đảo ngược hướng sắp xếp của certificationName
+        ordCertificationName = SortConstants.ASC.equalsIgnoreCase(ordCertificationName)
+                ? SortConstants.DESC
+                : SortConstants.ASC;
 
         Sort.Direction dirEmployeeName = parseDirection(ordEmployeeName);
         Sort.Direction dirCertificationName = parseDirection(ordCertificationName);
@@ -82,20 +84,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         if (sortPriority != null) {
             switch (sortPriority.toLowerCase()) {
-                case "ord_employee_name":
-                    orders.add(new Sort.Order(dirEmployeeName, "employeeName"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
+                case SortConstants.SORT_PRIORITY_EMPLOYEE_NAME:
+                    orders.add(new Sort.Order(dirEmployeeName, SortConstants.EMPLOYEE_NAME_FIELD));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, SortConstants.CERTIFICATION_NAME_FIELD));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, SortConstants.END_DATE_FIELD));
                     break;
-                case "ord_certification_name":
-                    orders.add(new Sort.Order(dirCertificationName, "c.certificationLevel"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "ec.endDate"));
+                case SortConstants.SORT_PRIORITY_CERTIFICATION_NAME:
+                    orders.add(new Sort.Order(dirCertificationName, SortConstants.CERTIFICATION_NAME_FIELD));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, SortConstants.EMPLOYEE_NAME_FIELD));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, SortConstants.END_DATE_FIELD));
                     break;
-                case "ord_end_date":
-                    orders.add(new Sort.Order(dirEndDate, "ec.endDate"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "employeeName"));
-                    orders.add(new Sort.Order(Sort.Direction.ASC, "c.certificationLevel"));
+                case SortConstants.SORT_PRIORITY_END_DATE:
+                    orders.add(new Sort.Order(dirEndDate, SortConstants.END_DATE_FIELD));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, SortConstants.EMPLOYEE_NAME_FIELD));
+                    orders.add(new Sort.Order(Sort.Direction.ASC, SortConstants.CERTIFICATION_NAME_FIELD));
                     break;
                 default:
                     addDefaultSortOrders(orders);
@@ -108,13 +110,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private Sort.Direction parseDirection(String direction) {
-        return "ASC".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return SortConstants.ASC.equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
     }
 
     private void addDefaultSortOrders(List<Sort.Order> orders) {
-        orders.add(Sort.Order.asc("employeeName"));
-        orders.add(Sort.Order.asc("c.certificationLevel"));
-        orders.add(Sort.Order.asc("ec.endDate"));
+        orders.add(Sort.Order.asc(SortConstants.EMPLOYEE_NAME_FIELD));
+        orders.add(Sort.Order.asc(SortConstants.CERTIFICATION_NAME_FIELD));
+        orders.add(Sort.Order.asc(SortConstants.END_DATE_FIELD));
     }
 
     @Override

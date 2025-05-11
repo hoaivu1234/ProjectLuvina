@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -19,10 +20,19 @@ export class AppComponent implements OnInit {
    * @return response()
    */
   ngOnInit(): void {
-    if(!sessionStorage.getItem("access_token")) {
-      this.router.navigate(['login'])
-    } else {
-      this.router.navigate(['user/list'])
-    }
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const token = sessionStorage.getItem("access_token");
+        const currentUrl = this.router.url;
+
+        if (!token) {
+          this.router.navigate(['/login']);
+        } else {
+          if (currentUrl === '/' || currentUrl === '') {
+            this.router.navigate(['/user/list']);
+          }
+        }
+      });
   }
 }

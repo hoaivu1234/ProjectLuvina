@@ -1,6 +1,7 @@
 package com.luvina.la.repository.Impl;
 
 import com.luvina.la.common.EmployeeRole;
+import com.luvina.la.common.SortConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.repository.EmployeeRepositoryCustom;
 import org.springframework.data.domain.Page;
@@ -77,8 +78,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
                         FROM EmployeeCertification ec2
                         JOIN ec2.certification c2
                         WHERE ec2.employee.employeeId = e.employeeId
-                        AND c2.certificationLevel = (
-                            SELECT MIN(c3.certificationLevel)
+                        AND c2.certificationName = (
+                            SELECT MIN(c3.certificationName)
                             FROM EmployeeCertification ec3
                             JOIN ec3.certification c3
                             WHERE ec3.employee.employeeId = e.employeeId
@@ -117,10 +118,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
 
     private String mapOrderToProperty(Sort.Order order) {
         return switch (order.getProperty()) {
-            case "employeeName" -> "e.employeeName";
-            case "c.certificationLevel" -> "c.certificationLevel";
-            case "ec.endDate" -> "ec.endDate";
-            default -> "e.employeeName"; // fallback
+            case SortConstants.EMPLOYEE_NAME_FIELD -> SortConstants.EMPLOYEE_NAME_FIELD;
+            case SortConstants.CERTIFICATION_NAME_FIELD -> SortConstants.CERTIFICATION_NAME_FIELD;
+            case SortConstants.END_DATE_FIELD -> SortConstants.END_DATE_FIELD;
+            default -> SortConstants.EMPLOYEE_NAME_FIELD;
         } + " " + order.getDirection();
     }
 

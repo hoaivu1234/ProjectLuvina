@@ -11,3 +11,10 @@
   color: #2c7be5; /* Màu xanh khi hover */
   background-color: rgba(44, 123, 229, 0.1); /* Nền nhạt */
 }
+
+.css-grid-table-body > div {
+  word-wrap: break-word;    /* Bắt buộc từ dài phải xuống dòng */
+  white-space: normal;      /* Cho phép xuống dòng */
+  overflow-wrap: break-word;
+  max-width: 100%;          /* Đảm bảo không tràn */
+}

@@ -1,5 +1,7 @@
 package com.luvina.la.exception;
 
+import com.luvina.la.common.ErrorCodeConstants;
+import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.payload.ErrorMessage;
 import org.springframework.http.HttpStatus;
@@ -22,15 +24,15 @@ import java.util.List;
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<BaseResponse> handlingRuntimeException(Exception exception) {
-        ErrorMessage errorMessage = new ErrorMessage("ER023", new ArrayList<>());
-        BaseResponse response = new BaseResponse(500, errorMessage);
+        ErrorMessage errorMessage = new ErrorMessage(ErrorCodeConstants.ER023, new ArrayList<>());
+        BaseResponse response = new BaseResponse(HttpStatusConstants.INTERNAL_SERVER_ERROR, errorMessage);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<BaseResponse> handleNotFound(Exception ex) {
-        ErrorMessage errorMessage = new ErrorMessage("ER022", new ArrayList<>());
-        BaseResponse response = new BaseResponse(404, errorMessage);
+        ErrorMessage errorMessage = new ErrorMessage(ErrorCodeConstants.ER022, new ArrayList<>());
+        BaseResponse response = new BaseResponse(HttpStatusConstants.NOT_FOUND, errorMessage);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 

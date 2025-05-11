@@ -11,6 +11,7 @@ import lombok.Data;
 public class BusinessException extends RuntimeException{
     private int code;
     private ErrorMessage errorMessage;
+
     public BusinessException(int code, ErrorMessage errorMessage) {
         super(errorMessage.getCode());
         this.errorMessage = errorMessage;
