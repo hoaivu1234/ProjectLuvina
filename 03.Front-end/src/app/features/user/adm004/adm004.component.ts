@@ -4,8 +4,8 @@
 */
 
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
@@ -48,42 +48,106 @@ export class ADM004Component {
    */
   ngOnInit(): void {
     this.initForm();
+    this.addCertification();
     this.getListDepartment();
     this.getListCertification();
-    if (this.employeeForm) {
-      this.employeeForm.get('certificationId')?.valueChanges.subscribe((value: any) => {
-        if (value) {
-          const selectedCertification = this.listCertifications.find(cer => cer.certificationId === value);
-          if (selectedCertification) {
-            console.log('Selected certification name:', selectedCertification.certificationName);
-          }
-        } else {
-          console.log('No certification selected');
-        }
-      });
-    }
   }
 
   /**
-   * Khởi tạo form ban đầu, kèm validate
-   */
+    * Khởi tạo form chính với các trường thông tin nhân viên và danh sách chứng chỉ (certifications)
+  */
   initForm() {
     this.employeeForm = this.fb.group({
       employeeLoginId: [null, Validators.required],
+      departmentId: [null, Validators.required],
       employeeNameKana: [null, Validators.required],
       employeeName: [null, Validators.required],
-      dateCertificateIssue: [null, Validators.required],
-      expirationDateCertificate: [null, Validators.required],
-      scoreCertificate: [null, Validators.required],
+      employeeBirthDate: [null, Validators.required],
+      employeeEmail: [null, Validators.required],
+      employeeTelephone: [null, Validators.required],
+      employeeLoginPassword: [null, Validators.required],
+      employeeReLoginPassword: [null, Validators.required],
       certifications: this.fb.array([]),
-      departmentId: [null, Validators.required],
-      certificationId: [null, Validators.required],
-      certificationStartDate: [null, Validators.required],
-      certificationEndDate: [null, Validators.required],
-      employeeCertificationScore: [null, Validators.required],
     });
   }
 
+  /**
+    * Thêm một chứng chỉ mới vào form array `certifications`, 
+    * với các trường liên quan được khởi tạo và disable mặc định
+  */
+  addCertification(): void {
+    const certificationGroup = this.fb.group({
+      certificationId: [null],
+      certificationStartDate: [{ value: null, disabled: true }],
+      certificationEndDate: [{ value: null, disabled: true }],
+      employeeCertificationScore: [{ value: null, disabled: true }],
+    });
+
+    this.certifications.push(certificationGroup);
+  }
+
+  /**
+    * Getter để lấy FormArray chứa danh sách chứng chỉ từ form chính
+  */
+  get certifications(): FormArray {
+    return this.employeeForm.get('certifications') as FormArray;
+  }
+
+  /**
+    * Kiểm tra xem chứng chỉ tại vị trí `index` đã được chọn hay chưa (dựa trên certificationId)
+    * @param index - vị trí của chứng chỉ trong mảng
+    * @returns true nếu đã chọn chứng chỉ, ngược lại là false
+  */
+  isCertSelected(index: number): boolean {
+    const certGroup = this.certifications.at(index) as FormGroup;
+    return !!certGroup.get('certificationId')?.value;
+  }
+
+  /**
+    * Xác định xem các trường ngày hiệu lực, ngày hết hạn, điểm có bắt buộc hay không
+    * Dựa trên việc đã chọn chứng chỉ tại vị trí `index`
+    * @param index - vị trí chứng chỉ
+    * @returns true nếu cần required, ngược lại là false
+  */
+  isRequired(index: number): boolean {
+    return this.isCertSelected(index);
+  }
+
+  /**
+    * Xử lý khi giá trị của dropdown `certificationId` thay đổi
+    * - Nếu chọn rỗng: disable, reset và clear validators các trường liên quan
+    * - Nếu chọn có giá trị: enable và thêm required validator vào các trường liên quan
+    * @param index - vị trí chứng chỉ trong mảng
+  */
+  handleChangeCertificationId(index: number): void {
+    const certGroup = this.certifications.at(index) as FormGroup;
+    const selectedId = certGroup.get('certificationId')?.value;
+
+    const controlsToUpdate = [
+      'certificationStartDate',
+      'certificationEndDate',
+      'employeeCertificationScore',
+    ];
+
+    if (!selectedId) {
+      // Khi chọn lại về rỗng
+      controlsToUpdate.forEach(controlName => {
+        const control = certGroup.get(controlName);
+        control?.disable();
+        control?.reset();
+        control?.clearValidators();
+        control?.updateValueAndValidity();
+      });
+    } else {
+      // Khi chọn một chứng chỉ hợp lệ
+      controlsToUpdate.forEach(controlName => {
+        const control = certGroup.get(controlName);
+        control?.enable();
+        control?.setValidators(Validators.required);
+        control?.updateValueAndValidity();
+      });
+    }
+  }
 
   /**
    * Gọi API để lấy danh sách phòng ban.
@@ -126,9 +190,5 @@ export class ADM004Component {
   */
   hanleBack() {
     this.router.navigate(['/user/list']);
-  }
-
-  handleChangeCertificationId(ev: any) {
-    console.log(ev)
   }
 }
