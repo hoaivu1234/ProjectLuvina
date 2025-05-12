@@ -1,10 +1,20 @@
+/**
+ * Copyright(C) 2025  Luvina Software Company
+ * ErrorCodeConstants.java, 11/5/2025 hoaivd
+ */
+
 package com.luvina.la.common;
 
 /**
- * Copyright(C) 2025  Luvina Software Company
- * ErrorCodeConstants.java, 5/11/2025 hoaivd
+ * Lưu trữ các hằng số mã lỗi được sử dụng trong hệ thống để đại diện cho các lỗi phía client (4xx)
+ * và lỗi phía server (5xx).
+ *
+ * Mã lỗi được phân nhóm theo chuẩn HTTP:
+ * - ER001 ~ ER014, ER016 ~ ER022: lỗi phía client.
+ * - ER015, ER023: lỗi phía server.
+ *
+ * @author hoaivd
  */
-
 public final class ErrorCodeConstants {
 
     // --- 4xx Client Errors ---
@@ -34,7 +44,11 @@ public final class ErrorCodeConstants {
     public static final String ER015 = "ER015";
     public static final String ER023 = "ER023";
 
-    // Ngăn chặn khởi tạo class
+    /**
+     * Constructor private để ngăn không cho khởi tạo class chứa hằng số.
+     *
+     * @throws AssertionError luôn luôn ném lỗi nếu bị gọi.
+     */
     private ErrorCodeConstants() {
         throw new AssertionError("Cannot instantiate constants class");
     }

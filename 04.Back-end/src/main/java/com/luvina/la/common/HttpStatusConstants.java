@@ -1,10 +1,19 @@
+/**
+ * Copyright(C) 2025  Luvina Software Company
+ * HttpStatusConstants.java, 11/5/2025 hoaivd
+ */
+
 package com.luvina.la.common;
 
 /**
- * Copyright(C) 2025  Luvina Software Company
- * HttpStatusConstants.java, 5/11/2025 hoaivd
+ * Lưu trữ các hằng số mã trạng thái HTTP được sử dụng trong hệ thống.
+ * Mã trạng thái được phân nhóm theo chuẩn HTTP:
+ * - 2xx: Các mã trạng thái thành công.
+ * - 4xx: Các mã trạng thái lỗi phía client.
+ * - 5xx: Các mã trạng thái lỗi phía server.
+ *
+ * @author hoaivd
  */
-
 public final class HttpStatusConstants {
 
     // 2xx Success
@@ -28,7 +37,11 @@ public final class HttpStatusConstants {
     public static final int SERVICE_UNAVAILABLE = 503;
     public static final int GATEWAY_TIMEOUT = 504;
 
-    // Ngăn chặn khởi tạo class
+    /**
+     * Constructor private để ngăn không cho khởi tạo class chứa hằng số.
+     *
+     * @throws AssertionError luôn luôn ném lỗi nếu bị gọi.
+     */
     private HttpStatusConstants() {
         throw new AssertionError("Cannot instantiate constants class");
     }
