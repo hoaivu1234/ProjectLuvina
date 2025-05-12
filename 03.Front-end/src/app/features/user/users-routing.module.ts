@@ -4,10 +4,12 @@ import { SystemErrorComponent } from 'src/app/shared/component/error/system-erro
 import { UserListComponent } from './list/user-list.component';
 import { AuthorizeGuard } from '../../shared/auth/authorize.guard';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
+import { ADM004Component } from './adm004/adm004.component';
 
 const routes: Routes = [
   { path: 'user', redirectTo: 'user/list', pathMatch: 'full'},
   { path: 'user/list', component: UserListComponent, canActivate: [AuthorizeGuard] },
+  { path: 'user/add', component: ADM004Component, canActivate: [AuthorizeGuard] },
   { path: '**', component: SystemErrorComponent, data: { errorCode: ERROR_CODES.PAGE_NOT_FOUND} },
 ];
 

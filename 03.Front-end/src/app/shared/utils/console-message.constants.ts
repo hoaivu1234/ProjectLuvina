@@ -7,4 +7,8 @@ export const CONSOLE_MESSAGES = {
             FETCH_SUCCESS: 'Lấy dữ liệu nhân viên thành công.',
             FETCH_FAILED: 'Không thể lấy dữ liệu nhân viên!!!',
       },
+      CERTIFICATION: {
+            FETCH_SUCCESS: 'Lấy dữ liệu trình độ tiếng nhật thành công.',
+            FETCH_FAILED: 'Không thể lấy dữ liệu trình độ tiếng nhật!!!',
+      },
 };

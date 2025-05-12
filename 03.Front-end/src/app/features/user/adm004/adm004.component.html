@@ -1,0 +1,129 @@
+<main>
+    <div class="container">
+        <app-header></app-header>
+        <div class="content">
+            <div class="content-main">
+                <div class="row">
+                    <form [formGroup]="employeeForm" class="c-form box-shadow was-validated">
+                        <ul>
+                            <li class="title">会員情報編集</li>
+                            <li class="box-err">
+                                <div class="box-err-content">Hiển thị lỗi chung lại đây</div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">アカウント名:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control" formControlName="employeeLoginId"></div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">グループ:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10">
+                                    <select class="form-control" formControlName="departmentId"
+                                        name="departmentSelect">
+                                        <option value="">選択してください</option>
+                                        <option *ngFor="let dept of listDepartments" [value]="dept.departmentId">
+                                            {{ dept.departmentName }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">氏名:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control"></div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">カタカナ氏名:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10">
+                                    <input type="text" class="form-control" required="">
+                                    <div class="invalid-feedback">Example invalid form file feedback</div>
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">生年月日:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10 d-flex">
+                                    <div class="input-group date datepicker" data-date-format="dd-mm-yyyy">
+                                        <input class="form-control" readonly="" type="text">
+                                        <span class="input-group-addon"><i
+                                                class="glyphicon glyphicon-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">メールアドレス:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control"></div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">電話番号:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control"></div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">パスワード:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control"></div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">パスワード（確認）:</i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control"></div>
+                            </li>
+                            <li class="title mt-12">日本語能力</li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">資格:</i></label>
+                                <div class="col-sm col-sm-10">
+                                    <select class="form-control" formControlName="certificationId"
+                                        name="certificationSelect" (change)="handleChangeCertificationId($event)">
+                                        <option value="">選択してください</option>
+                                        <option *ngFor="let cer of listCertifications" [value]="cer.certificationId">
+                                            {{ cer.certificationName }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">資格交付日:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10 d-flex">
+                                    <div id="datepicker" class="input-group date datepicker"
+                                        data-date-format="dd-mm-yyyy">
+                                        <input class="form-control" readonly="" type="text">
+                                        <span class="input-group-addon"><i
+                                                class="glyphicon glyphicon-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">失効日:<span
+                                            class="note-red">*</span></i></label>
+                                <div class="col-sm col-sm-10 d-flex">
+                                    <div class="input-group date datepicker" data-date-format="dd-mm-yyyy">
+                                        <input class="form-control" readonly="" type="text">
+                                        <span class="input-group-addon"><i
+                                                class="glyphicon glyphicon-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2"><i class="relative">点数:</i></label>
+                                <div class="col-sm col-sm-10"><input type="text" class="form-control"></div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <div class="btn-group col-sm col-sm-10 ml">
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                        onclick="location.href = './ADM005.html';return false;">確認</button>
+                                    <button type="button" class="btn btn-secondary btn-sm"
+                                        (click)="hanleBack()">戻る</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <app-footer></app-footer>
+    </div>
+</main>

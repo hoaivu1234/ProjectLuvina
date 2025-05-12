@@ -30,9 +30,9 @@ import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
  * @author hoaivd
  */
 export class UserListComponent {
-  listDepartment: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị dropdown hoặc filter
+  listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị dropdown hoặc filter
   selectedDepartment: string = '';   // ID của phòng ban đang được chọn
-  listEmployee: Employee[] = []; // Danh sách nhân viên được hiển thị trong bảng
+  listEmployees: Employee[] = []; // Danh sách nhân viên được hiển thị trong bảng
   employeeName: string = ''; // Tên nhân viên dùng để tìm kiếm hoặc lọc
   currentPage: number = PAGINATION.DEFAULT_PAGE;   // Trang hiện tại trong phân trang, giá trị mặc định được lấy từ hằng số PAGINATION
   pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE;  // Số lượng bản ghi trên mỗi trang, giá trị mặc định lấy từ PAGINATION
@@ -83,7 +83,7 @@ export class UserListComponent {
   getListDepartment() {
     this.departmentService.getListDepartment().subscribe({
       next: (value) => {
-        this.listDepartment = value?.departments;
+        this.listDepartments = value?.departments;
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_SUCCESS);
       },
       error: () => {
@@ -145,7 +145,7 @@ export class UserListComponent {
         //   },
         // })
         this.totalRecords = value?.totalRecords || 0;
-        this.listEmployee = value?.employees || [];
+        this.listEmployees = value?.employees || [];
 
         const totalPages = this.totalPages();
 
@@ -188,78 +188,84 @@ export class UserListComponent {
  *
  * @param page Số trang muốn chuyển tới
  */
-goToPage(page: number) {
-  this.currentPage = page;
+  goToPage(page: number) {
+    this.currentPage = page;
 
-  this.getListEmployee(
-    this.employeeName,
-    this.selectedDepartment,
-    this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
-    this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
-    this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
-    this.currentSortField ? this.currentSortField : ''
-  );
-}
-
-/**
- * Tạo danh sách số trang dựa trên tổng số bản ghi và kích thước trang.
- *
- * @returns Mảng chứa các số trang
- */
-getPageNumbers(): number[] {
-  const total = this.totalPages();
-  const pages: number[] = [];
-  for (let i = 1; i <= total; i++) {
-    pages.push(i);
+    this.getListEmployee(
+      this.employeeName,
+      this.selectedDepartment,
+      this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
+      this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
+      this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
+      this.currentSortField ? this.currentSortField : ''
+    );
   }
-  this.currentPage = 1;
-  return pages;
-}
 
-/**
- * Tính tổng số trang dựa trên tổng số bản ghi và kích thước mỗi trang.
- *
- * @returns Tổng số trang
- */
-totalPages(): number {
-  return Math.ceil(this.totalRecords / this.pageSize) || 1;
-}
+  /**
+   * Tạo danh sách số trang dựa trên tổng số bản ghi và kích thước trang.
+   *
+   * @returns Mảng chứa các số trang
+   */
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const pages: number[] = [];
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+    this.currentPage = 1;
+    return pages;
+  }
 
-/**
- * Thay đổi biểu tượng sắp xếp giữa trạng thái mặc định và tăng/giảm.
- *
- * @param currentIcon Biểu tượng hiện tại của cột
- * @returns Biểu tượng mới sau khi thay đổi
- */
-changeSortIcon(currentIcon: string): string {
-  return currentIcon === SORT.ICONS.DEFAULT
-    ? `${SORT.ICONS.ASC}${SORT.ICONS.DESC}`
-    : SORT.ICONS.DEFAULT;
-}
+  /**
+   * Tính tổng số trang dựa trên tổng số bản ghi và kích thước mỗi trang.
+   *
+   * @returns Tổng số trang
+   */
+  totalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize) || 1;
+  }
 
-/**
- * Xử lý logic khi người dùng click sắp xếp theo cột.
- * Cập nhật biểu tượng sắp xếp và gọi API với thứ tự sắp xếp mới.
- *
- * @param column Tên cột được chọn để sắp xếp
- * @param sortField Trường dữ liệu tương ứng với cột để gửi lên API
- */
-handleSort(column: string, sortField: string) {
-  this.currentPage = PAGINATION.DEFAULT_PAGE;
-  this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]);
+  /**
+   * Thay đổi biểu tượng sắp xếp giữa trạng thái mặc định và tăng/giảm.
+   *
+   * @param currentIcon Biểu tượng hiện tại của cột
+   * @returns Biểu tượng mới sau khi thay đổi
+   */
+  changeSortIcon(currentIcon: string): string {
+    return currentIcon === SORT.ICONS.DEFAULT
+      ? `${SORT.ICONS.ASC}${SORT.ICONS.DESC}`
+      : SORT.ICONS.DEFAULT;
+  }
 
-  const sortOrder = this.sortIcons[column] === SORT.ICONS.DEFAULT
-    ? SORT.ORDERS.ASC
-    : SORT.ORDERS.DESC;
+  /**
+   * Xử lý logic khi người dùng click sắp xếp theo cột.
+   * Cập nhật biểu tượng sắp xếp và gọi API với thứ tự sắp xếp mới.
+   *
+   * @param column Tên cột được chọn để sắp xếp
+   * @param sortField Trường dữ liệu tương ứng với cột để gửi lên API
+   */
+  handleSort(column: string, sortField: string) {
+    this.currentPage = PAGINATION.DEFAULT_PAGE;
+    this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]);
 
-  this.getListEmployee(
-    this.employeeName,
-    this.selectedDepartment,
-    column === SORT.COLUMNS.NAME ? sortOrder : '',
-    column === SORT.COLUMNS.CERTIFICATION ? sortOrder : '',
-    column === SORT.COLUMNS.END_DATE ? sortOrder : '',
-    sortField
-  );
-}
+    const sortOrder = this.sortIcons[column] === SORT.ICONS.DEFAULT
+      ? SORT.ORDERS.ASC
+      : SORT.ORDERS.DESC;
 
+    this.getListEmployee(
+      this.employeeName,
+      this.selectedDepartment,
+      column === SORT.COLUMNS.NAME ? sortOrder : '',
+      column === SORT.COLUMNS.CERTIFICATION ? sortOrder : '',
+      column === SORT.COLUMNS.END_DATE ? sortOrder : '',
+      sortField
+    );
+  }
+
+  /**
+   * Điều hướng đến màn hình ADM004
+   */
+  openADM004() {
+    this.router.navigate(['/user/add']);
+  }
 }

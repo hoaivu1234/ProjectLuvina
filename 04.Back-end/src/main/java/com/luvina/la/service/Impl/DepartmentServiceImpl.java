@@ -16,7 +16,6 @@ import java.util.List;
 
 /**
  * Lớp triển khai dịch vụ quản lý các phòng ban (Department) trong hệ thống.
- * <p>
  * Lớp này cung cấp các phương thức xử lý nghiệp vụ liên quan đến phòng ban,
  * bao gồm việc lấy danh sách các phòng ban từ cơ sở dữ liệu và chuyển đổi dữ liệu
  * từ thực thể (Entity) sang DTO để trả về cho người dùng.
