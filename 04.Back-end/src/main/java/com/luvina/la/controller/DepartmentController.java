@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Controller xử lý các yêu cầu liên quan đến phòng ban (departments).
- * Cung cấp các endpoint để lấy danh sách phòng ban từ dịch vụ và trả về thông tin cho client.
+ * Cung cấp các endpoint để lấy danh sách phòng ban từ service và trả về thông tin cho client.
  *
  * @author hoaivd
  */
@@ -33,7 +33,7 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     /**
-     * Lấy danh sách tất cả các phòng ban từ dịch vụ và trả về phản hồi với mã trạng thái OK.
+     * Lấy danh sách tất cả các phòng ban từ service và trả về response với mã trạng thái OK.
      *
      * @return ResponseEntity<DepartmentResponse<List<DepartmentDTO>>> đối tượng chứa mã trạng thái và danh sách các phòng ban
      */
