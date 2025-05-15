@@ -58,6 +58,6 @@ export class SystemErrorComponent {
     this.errorCode = codeFromState || codeFromData || ERROR_CODES.SYSTEM_ERROR;
   
     // Dựa vào errorCode, tìm thông điệp lỗi trong ERROR_MESSAGES
-    this.errorMessage = ERROR_MESSAGES[this.errorCode];
+    this.errorMessage = ERROR_MESSAGES[this.errorCode]();
   }
 }

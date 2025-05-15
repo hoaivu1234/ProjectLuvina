@@ -9,12 +9,14 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ShortenTextPipe } from 'src/app/shared/custom-pipe/shorten-text';
 import { ADM004Component } from './adm004/adm004.component';
+import { Adm005Component } from './adm005/adm005.component';
 
 @NgModule({
   declarations: [
     UserListComponent,
     ShortenTextPipe,
-    ADM004Component
+    ADM004Component,
+    Adm005Component
   ],
   imports: [
     BrowserAnimationsModule,

@@ -11,6 +11,7 @@ import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
 import { CertificationService } from 'src/app/service/certification.service';
 import { DepartmentService } from 'src/app/service/department.service';
+import { ValidateFormService } from 'src/app/service/validate-form.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 
@@ -19,12 +20,21 @@ import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
   templateUrl: './adm004.component.html',
   styleUrls: ['./adm004.component.css']
 })
+
+/**
+ * Màn hình để thao tác với form thêm mới và edit employee
+ * Có các chức năng thực hiện validate các hạng mục trước khi chuyển dữ liệu sang màn ADM005
+ * Nếu có lỗi xảy ra trong quá trình thực hiện thì điều hướng đến màn System Error
+ * 
+ * @author hoaivd
+ */
+
 export class ADM004Component {
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
-  selectedDepartment: string = '';   // ID của phòng ban đang được chọn
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
-
-  employeeForm!: FormGroup;
+  generalErrorMessage: string = '';  // Lỗi chung của màn hình như gọi API lỗi, server trả về lỗi
+  employeeForm!: FormGroup; // Form để thao tác với employee
+  dataConfirmBack: any; // Dữ liệu từ ADM005 back về
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -39,8 +49,14 @@ export class ADM004Component {
     public departmentService: DepartmentService,
     public certificationService: CertificationService,
     private router: Router,
-    private fb: FormBuilder
-  ) { }
+    private fb: FormBuilder,
+    protected validationService: ValidateFormService
+  ) {
+    const nav = this.router.getCurrentNavigation();
+
+    // Lấy Dữ liệu từ ADM005 back về nếu được truyền qua navigation state
+    this.dataConfirmBack = nav?.extras?.state?.['dataConfirmBack'];
+  }
 
   /**
    * Lifecycle hook khởi chạy khi component được khởi tạo.
@@ -51,6 +67,41 @@ export class ADM004Component {
     this.addCertification();
     this.getListDepartment();
     this.getListCertification();
+    if (this.dataConfirmBack) this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
+  }
+
+  /**
+ * Patch dữ liệu cho form group
+ */
+  patchValueBack() {
+    this.employeeForm.patchValue(this.dataConfirmBack); // Patch dữ liệu cho form control
+    this.patchValueForCertifications(); // Gọi hàm patch dữ liệu cho form array
+  }
+
+  /**
+ * Patch dữ liệu cho form array
+ */
+  patchValueForCertifications(): void {
+    if (this.dataConfirmBack?.certifications) { // Nếu certifications có dữ liệu thì mới patch
+      const certificationsArray = this.certifications;
+
+      // Xóa các certifications cũ
+      while (certificationsArray.length > 0) {
+        certificationsArray.removeAt(0);
+      }
+
+      // Thêm certifications mới
+      this.dataConfirmBack.certifications.forEach((cert: any) => {
+        certificationsArray.push(
+          this.fb.group({
+            certificationId: [cert.certificationId],
+            certificationStartDate: [{ value: cert.certificationStartDate, disabled: false }],  // Bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
+            certificationEndDate: [{ value: cert.certificationEndDate, disabled: false }],
+            employeeCertificationScore: [{ value: cert.employeeCertificationScore, disabled: false }],
+          })
+        );
+      });
+    }
   }
 
   /**
@@ -58,10 +109,14 @@ export class ADM004Component {
   */
   initForm() {
     this.employeeForm = this.fb.group({
-      employeeLoginId: [null, Validators.required],
+      employeeLoginId: [null, [
+        Validators.required,
+        Validators.maxLength(50),
+        this.validationService.checkEnglishHalfSize()
+      ]],
       departmentId: [null, Validators.required],
-      employeeNameKana: [null, Validators.required],
-      employeeName: [null, Validators.required],
+      employeeNameKana: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkKanaHalfSize()]],
+      employeeName: [null, [Validators.required, Validators.maxLength(125)]],
       employeeBirthDate: [null, Validators.required],
       employeeEmail: [null, Validators.required],
       employeeTelephone: [null, Validators.required],
@@ -157,12 +212,13 @@ export class ADM004Component {
   getListDepartment() {
     this.departmentService.getListDepartment().subscribe({
       next: (value) => {
-        this.listDepartments = value?.departments;
+        this.listDepartments = value?.departments;  // gán giá trị cho listDepartments
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_SUCCESS);
       },
       error: () => {
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
-        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
+        this.generalErrorMessage = this.generalErrorMessage + ERROR_CODES.DEPARTMENT_FETCH_FAILED; // Hiển thị mess lỗi ở giao diện
+        // this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
       },
     });
   }
@@ -170,7 +226,7 @@ export class ADM004Component {
   /**
  * Gọi API để lấy danh sách trình độ tiếng nhật.
  * Nếu thành công, gán dữ liệu vào listCertifications.
- * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi tương ứng.
+ * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi   tương ứng.
  */
   getListCertification() {
     this.certificationService.getListCertifications().subscribe({
@@ -181,6 +237,7 @@ export class ADM004Component {
       error: () => {
         console.log(CONSOLE_MESSAGES.CERTIFICATION.FETCH_FAILED);
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } });
+        this.generalErrorMessage = this.generalErrorMessage + ' ' + ERROR_CODES.CERTIFICATION_FETCH_FAILED; // Hiển thị mess lỗi ở giao diện
       },
     });
   }
@@ -190,5 +247,12 @@ export class ADM004Component {
   */
   hanleBack() {
     this.router.navigate(['/user/list']);
+  }
+
+  /**
+ * Điều hướng về màn hình ADM005 và gửi kèm dữ liệu trong form
+ */
+  handleConfirm() {
+    this.router.navigate(['/user/confirm'], { state: { dataConfirm: this.employeeForm.value } });
   }
 }

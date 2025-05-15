@@ -1,0 +1,89 @@
+<main>
+    <div class="container">
+        <app-header></app-header>
+        <div class="content">
+            <div class="content-main">
+                <div class="row">
+                    <div class="c-form box-shadow was-validated">
+                        <ul>
+                            <li class="title">情報確認<br>入力された情報をＯＫボタンクリックでＤＢへ保存してください</li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">アカウント名:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeLoginId }}
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">グループ:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.departmentName }}
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">氏名:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeName }}
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">カタカナ氏名:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeNameKana }}
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">生年月日:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeBirthDate | date : "yyyy/MM/dd"
+                                    }}
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">メールアドレス:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeEmail }}
+                                </div>
+                            </li>
+                            <li class="form-group row d-flex">
+                                <label class="col-form-label col-sm-2">電話番号:</label>
+                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeTelephone }}
+                                </div>
+                            </li>
+                            <li class="title mt-12">日本語能力</li>
+                            <div *ngFor="let cer of dataConfirm.certifications">
+                                <li class="form-group row d-flex">
+                                    <label class="col-form-label col-sm-2">資格:</label>
+                                    <div class="col-sm col-sm-10"> {{ cer.certificationName }}
+                                    </div>
+                                </li>
+                                <li class="form-group row d-flex">
+                                    <label class="col-form-label col-sm-2">資格交付日:</label>
+                                    <div class="col-sm col-sm-10"> {{ cer.certificationStartDate | date : "yyyy/MM/dd"
+                                        }}
+                                    </div>
+                                </li>
+                                <li class="form-group row d-flex">
+                                    <label class="col-form-label col-sm-2">失効日:</label>
+                                    <div class="col-sm col-sm-10"> {{ cer.certificationEndDate | date : "yyyy/MM/dd" }}
+                                    </div>
+                                </li>
+                                <li class="form-group row d-flex">
+                                    <label class="col-form-label col-sm-2">点数:</label>
+                                    <div class="col-sm col-sm-10"> {{ cer.employeeCertificationScore
+                                        }}
+                                    </div>
+                                </li>
+                            </div>
+
+                            <li class="form-group row d-flex">
+                                <div class="btn-group col-sm col-sm-10 ml">
+                                    <button type="button" class="btn btn-primary btn-sm">
+                                        OK
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm" (click)="hanleBack()">
+                                        戻る
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <app-footer></app-footer>
+    </div>
+</main>

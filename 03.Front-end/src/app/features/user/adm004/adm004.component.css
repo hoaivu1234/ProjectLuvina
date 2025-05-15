@@ -1,0 +1,12 @@
+.is-invalid {
+  border-color: #e10020;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  font-size: 12px;
+  color: #e10020;
+  position: absolute;
+  bottom: -18px;
+}
