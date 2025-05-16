@@ -25,9 +25,9 @@ export class ValidateFormService {
    * - Chỉ chấp nhận các ký tự a-z, A-Z, 0-9 và dấu gạch dưới (_) → nếu vi phạm trả về lỗi 'invalidChars'
    * - Không được bắt đầu bằng số → nếu vi phạm trả về lỗi 'startsWithNumber'
    * - Không kiểm tra độ dài tại đây (độ dài nên kiểm tra bằng Validators.maxLength riêng biệt)
-   * 
+   *
    * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
- */
+  */
   checkValidateLoginId(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
@@ -50,7 +50,17 @@ export class ValidateFormService {
     };
   }
 
-
+  /**
+   * Validator kiểm tra trường chỉ chứa ký tự Katakana dạng half-width (半角カナ).
+   * Áp dụng các quy tắc kiểm tra sau:
+   * - Chỉ chấp nhận các ký tự từ Unicode U+FF66 đến U+FF9F (half-width Katakana)
+   * - Cho phép thêm ký tự kéo dài âm thanh half-width: 'ｰ' (U+FF70)
+   * - Cho phép khoảng trắng (space)
+   *
+   * Nếu vi phạm → trả về lỗi 'invalidKanaFormat'
+   *
+   * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
+  */
   checkKanaHalfSize(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
@@ -69,6 +79,15 @@ export class ValidateFormService {
     }
   }
 
+  /**
+   * Validator kiểm tra trường chỉ chứa các ký tự tiếng Anh dạng half-size (ASCII).
+   *
+   * Áp dụng các quy tắc sau:
+   * - Chấp nhận ký tự nằm trong bảng mã ASCII (từ U+0000 đến U+007F)
+   * - Nếu chuỗi chứa bất kỳ ký tự nào ngoài khoảng đó (ví dụ: full-size, Katakana, ký tự Unicode mở rộng) → lỗi 'nonAsciiCharacters'
+   *
+   * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
+ */
   checkEnglishHalfSize(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
@@ -84,6 +103,15 @@ export class ValidateFormService {
     }
   }
 
+  /**
+   * Validator kiểm tra chuỗi chỉ chứa chữ số half-size (0–9).
+   *
+   * Áp dụng các quy tắc sau:
+   * - Chấp nhận các chữ số từ 0 đến 9 dạng half-size (U+0030 đến U+0039)
+   * - Không cho phép chữ số full-size hoặc ký tự khác → lỗi 'numberNotHalfSize'
+   *
+   * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
+ */
   checkNumberHalfSize(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
@@ -97,6 +125,19 @@ export class ValidateFormService {
     }
   }
 
+  /**
+   * Validator kiểm tra định dạng email theo chuẩn cơ bản.
+   *
+   * Áp dụng các quy tắc sau:
+   * - Phần trước dấu @: không được chứa khoảng trắng hoặc ký tự @
+   * - Phần sau dấu @ và trước dấu chấm (.): không được chứa khoảng trắng hoặc @
+   * - Phải có ít nhất một dấu chấm (.) sau @
+   * - Phần sau dấu chấm không được chứa khoảng trắng hoặc @
+   *
+   * Lưu ý: Đây là kiểm tra đơn giản, chưa đầy đủ theo chuẩn RFC 5322 nhưng đáp ứng hầu hết các trường hợp thực tế.
+   *
+   * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
+ */
   checkValidateEmail(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
@@ -116,6 +157,15 @@ export class ValidateFormService {
     };
   }
 
+  /**
+   * Validator kiểm tra độ dài chuỗi nằm trong khoảng từ minLength đến maxLength (bao gồm cả hai).
+   *
+   * Áp dụng trong các trường hợp kiểm tra mật khẩu, tên đăng nhập, mã xác thực, v.v.
+   *
+   * @param minLength - Độ dài tối thiểu cho phép
+   * @param maxLength - Độ dài tối đa cho phép
+   * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
+ */
   checkLengthRangePassword(minLength: number, maxLength: number): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
@@ -130,6 +180,16 @@ export class ValidateFormService {
     };
   }
 
+  /**
+   * Validator dùng để kiểm tra 2 trường mật khẩu (`employeeLoginPassword`) và
+   * xác nhận mật khẩu (`employeeReLoginPassword`) có giống nhau hay không.
+   *
+   * - Nếu một trong hai trường chưa có giá trị, validator trả về null (không lỗi).
+   * - Nếu cả hai trường có giá trị và giống nhau → hợp lệ (null).
+   * - Nếu khác nhau → trả về lỗi { passwordNotMatch: true }
+   *
+   * @returns ValidatorFn - Áp dụng cho một FormGroup chứa 2 field trên.
+ */
   checkPasswordMatch(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const password = group.get('employeeLoginPassword')?.value;
@@ -141,6 +201,15 @@ export class ValidateFormService {
     };
   }
 
+  /**
+   * Validator dùng để kiểm tra `certificationEndDate` phải lớn hơn `certificationStartDate`.
+   *
+   * - Nếu một trong hai trường chưa có giá trị, validator trả về null (không lỗi).
+   * - Nếu `endDate` lớn hơn `startDate` → hợp lệ (null).
+   * - Nếu `endDate` bằng hoặc nhỏ hơn `startDate` → lỗi { invalidEndDate: true }
+   *
+   * @returns ValidatorFn - Áp dụng cho một FormGroup chứa 2 field ngày.
+ */
   checkLargerThanStartDate(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const startDate = group.get('certificationStartDate')?.value;
@@ -152,16 +221,17 @@ export class ValidateFormService {
     };
   }
 
-
   /**
    * Trả về thông điệp lỗi phù hợp với lỗi hiện tại của một FormControl.
-   * Áp dụng cho các lỗi đã khai báo trong validator, gồm:
+   * Áp dụng cho các lỗi đã khai báo trong validator, ví dụ:
    * - 'required' (bắt buộc nhập) → mã lỗi ER001
    * - 'maxlength' (vượt quá độ dài cho phép) → mã lỗi ER006
    * - 'invalidChars' hoặc 'startsWithNumber' (định dạng không hợp lệ) → mã lỗi ER019
    * 
    * @param control - FormControl đang kiểm tra lỗi
    * @param fieldName - Tên hiển thị của trường để đưa vào thông điệp lỗi (ví dụ: アカウント名)
+   * @param minLength - Độ dài tối thiểu của control (không bắt buộc)
+   * @param maxLength - Độ dài tối đa của control (không bắt buộc)
    * @returns Chuỗi thông điệp lỗi tương ứng, hoặc rỗng nếu không có lỗi
  */
   getErrorMessage(control: AbstractControl | null, fieldName: string, minLength?: number, maxLength?: number): string {

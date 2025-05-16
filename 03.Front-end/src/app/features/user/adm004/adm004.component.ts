@@ -74,6 +74,7 @@ export class ADM004Component {
     if (this.dataConfirmBack) this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
   }
 
+  // Focus vào hạng mục đầu tiên khi vào màn hình
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.firstInput.nativeElement.focus();
@@ -133,10 +134,12 @@ export class ADM004Component {
       validators: this.validationService.checkPasswordMatch()
     });
 
+    // update lại validatior của employeeLoginPassword khi có thay đổi giá trị
     this.employeeForm.get('employeeLoginPassword')?.valueChanges.subscribe(() => {
       this.employeeForm.updateValueAndValidity({ onlySelf: false });
     });
 
+    // update lại validatior của employeeReLoginPassword khi có thay đổi giá trị
     this.employeeForm.get('employeeReLoginPassword')?.valueChanges.subscribe(() => {
       this.employeeForm.updateValueAndValidity({ onlySelf: false });
     });
@@ -158,11 +161,13 @@ export class ADM004Component {
       validators: this.validationService.checkLargerThanStartDate()
     });
 
+    // update lại validatior của certificationStartDate trong certifications khi có thay đổi giá trị
     this.certifications.push(certificationGroup);
     this.certifications.get('certificationStartDate')?.valueChanges.subscribe(() => {
       this.certifications.updateValueAndValidity({ onlySelf: false });
     });
 
+    // update lại validatior của certificationEndDate trong certifications khi có thay đổi giá trị
     this.certifications.get('certificationEndDate')?.valueChanges.subscribe(() => {
       this.certifications.updateValueAndValidity({ onlySelf: false });
     });
@@ -227,7 +232,7 @@ export class ADM004Component {
         control?.enable();
         control?.setValidators(Validators.required);
         if (controlName === 'employeeCertificationScore') {
-          control?.addValidators(this.validationService.checkNumberHalfSize());
+          control?.addValidators(this.validationService.checkNumberHalfSize()); // Kiểm tra nếu là employeeCertificationScore thì thêm validator kiểm tra số half size
         }
         control?.updateValueAndValidity();
       });

@@ -7,10 +7,13 @@ package com.luvina.la.exception;
 
 import com.luvina.la.common.ErrorCodeConstants;
 import com.luvina.la.common.HttpStatusConstants;
+import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.payload.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -76,4 +79,24 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(code).body(baseResponse);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        List<String> fieldParams = new ArrayList<>();
+
+        // Lấy lỗi đầu tiên
+        FieldError fieldError = ex.getBindingResult().getFieldError();
+        String errorCode = ErrorCodeConstants.ER023; // mặc định nếu không có gì
+        if (fieldError != null) {
+            errorCode = fieldError.getDefaultMessage(); // Message của annotation (VD: "ER001", "ER019")
+            String displayName = ValidationFieldNameMapper.getDisplayName(fieldError.getField());
+            fieldParams.add(displayName);
+        }
+
+        ErrorMessage errorMessage = new ErrorMessage(errorCode, fieldParams);
+        BaseResponse response = new BaseResponse(HttpStatusConstants.BAD_REQUEST, errorMessage);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }

@@ -12,7 +12,7 @@ package com.luvina.la.common;
  *
  * @author hoaivd
  */
-public final class ValidationConstants {
+public final class InputValidationConstants {
 
     /**
      * Biểu thức chính quy cho các ký tự đặc biệt như "%", ",", "-", ".", "/", ";"
@@ -35,7 +35,7 @@ public final class ValidationConstants {
      *
      * @throws AssertionError luôn luôn ném lỗi nếu bị gọi.
      */
-    private ValidationConstants() {
+    private InputValidationConstants() {
         throw new AssertionError("Cannot instantiate constants class");
     }
 }

@@ -8,11 +8,10 @@ package com.luvina.la.controller;
 import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
-import com.luvina.la.payload.BaseResponse;
+import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.payload.EmployeeResponse;
-import com.luvina.la.payload.ErrorMessage;
-import com.luvina.la.repository.EmployeeRepository;
 import com.luvina.la.service.EmployeeService;
+import com.luvina.la.validator.EmployeeRequestValidator;
 import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -20,9 +19,8 @@ import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Sort;
 
-import java.sql.SQLException;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +38,9 @@ public class EmployeeController {
 
     @Autowired
     private InputValidator inputValidator;
+
+    @Autowired
+    private EmployeeRequestValidator employeeRequestValidator;
 
     /**
      * Lấy danh sách nhân viên dựa trên các tham số lọc và phân trang.
@@ -103,5 +104,11 @@ public class EmployeeController {
 
         // Trả về response với mã trạng thái OK và danh sách nhân viên
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<EmployeeResponse> addEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequest) {
+//        employeeRequestValidator.validateEmployeeLoginId(employeeRequest.getEmployeeLoginId());
+        return ResponseEntity.status(HttpStatus.OK).body(new EmployeeResponse());
     }
 }

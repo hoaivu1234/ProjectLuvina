@@ -34,6 +34,9 @@ public class EmployeeResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)  // Không bao gồm giá trị mặc định (0) trong JSON
     private int totalRecords;
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private Long employeeId;
+
     /**
      * Dữ liệu nhân viên trả về từ API.
      * Đây có thể là danh sách nhân viên hoặc một đối tượng nhân viên cụ thể, tùy thuộc vào kiểu dữ liệu T.

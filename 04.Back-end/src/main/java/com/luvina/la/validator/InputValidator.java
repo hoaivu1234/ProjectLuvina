@@ -8,12 +8,12 @@ package com.luvina.la.validator;
 import com.luvina.la.common.ErrorCodeConstants;
 import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.common.SortConstants;
-import com.luvina.la.common.ValidationConstants;
+import com.luvina.la.common.InputValidationConstants;
 import com.luvina.la.exception.BusinessException;
 import com.luvina.la.payload.ErrorMessage;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 @Component
 public class InputValidator {
     // Biểu thức chính quy dùng để kiểm tra ký tự đặc biệt không cho phép
-    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile(ValidationConstants.SPECIAL_CHAR_REGEX);
+    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile(InputValidationConstants.SPECIAL_CHAR_REGEX);
 
 
     /**
@@ -48,7 +48,7 @@ public class InputValidator {
             throw buildBusinessException(
                     HttpStatusConstants.BAD_REQUEST,
                     ErrorCodeConstants.ER005,
-                    ValidationConstants.FIELD_DEPARTMENT_ID
+                    InputValidationConstants.FIELD_DEPARTMENT_ID
             );
         }
 
@@ -58,7 +58,7 @@ public class InputValidator {
             throw buildBusinessException(
                     HttpStatusConstants.BAD_REQUEST,
                     ErrorCodeConstants.ER005,
-                    ValidationConstants.FIELD_DEPARTMENT_ID
+                    InputValidationConstants.FIELD_DEPARTMENT_ID
             );
         }
     }
@@ -80,7 +80,7 @@ public class InputValidator {
             throw buildBusinessException(
                     HttpStatusConstants.BAD_REQUEST,
                     ErrorCodeConstants.ER005,
-                    ValidationConstants.FIELD_EMPLOYEE_NAME
+                    InputValidationConstants.FIELD_EMPLOYEE_NAME
             );
         }
 
@@ -134,7 +134,11 @@ public class InputValidator {
      * @return {@link BusinessException}
      */
     private BusinessException buildBusinessException(int code, String errCode, String field) {
-        return new BusinessException(code, new ErrorMessage(errCode, List.of(field)));
+        List<String> params = (field != null && !field.trim().isEmpty())
+                ? List.of(field)
+                : Collections.emptyList(); // Trả về mảng rỗng
+
+        return new BusinessException(code, new ErrorMessage(errCode, params));
     }
 }
 
