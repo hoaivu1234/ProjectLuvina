@@ -10,11 +10,13 @@
               <li *ngIf="generalErrorMessage" class="box-err">
                 <div class="box-err-content">{{ generalErrorMessage }}</div>
               </li>
+
+              <!-- アカウント名: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">アカウント名:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input type="text" class="form-control" formControlName="employeeLoginId"
+                  <input #firstInput type="text" class="form-control" formControlName="employeeLoginId"
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeLoginId'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeLoginId'))"
                     class="invalid-feedback">
@@ -22,6 +24,8 @@
                   </div>
                 </div>
               </li>
+
+              <!-- グループ: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">グループ:<span
                       class="note-red">*</span></i></label>
@@ -39,6 +43,8 @@
                   </div>
                 </div>
               </li>
+
+              <!-- 氏名: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">氏名:<span
                       class="note-red">*</span></i></label>
@@ -51,6 +57,8 @@
                   </div>
                 </div>
               </li>
+
+              <!-- カタカナ氏名: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">カタカナ氏名:<span
                       class="note-red">*</span></i></label>
@@ -63,6 +71,8 @@
                   </div>
                 </div>
               </li>
+
+              <!-- 生年月日: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2">
                   <i class="relative">生年月日:<span class="note-red">*</span></i>
@@ -72,7 +82,12 @@
                     <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                         dateInputFormat: 'YYYY/MM/DD',
                         containerClass: 'theme-green'
-                      }" formControlName="employeeBirthDate" readonly #birthDate="bsDatepicker" />
+                      }" formControlName="employeeBirthDate" #birthDate="bsDatepicker"
+                      [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeBirthDate'))" />
+                    <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeBirthDate'))"
+                      class="invalid-feedback">
+                      {{ validationService.getErrorMessage(employeeForm.get('employeeBirthDate'), '生年月日:') }}
+                    </div>
                     <span class="input-group-addon" (click)="birthDate.toggle()" style="cursor: pointer">
                       <i class="glyphicon glyphicon-calendar"></i>
                     </span>
@@ -80,37 +95,75 @@
                 </div>
               </li>
 
+              <!-- メールアドレス: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">メールアドレス:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input type="text" class="form-control" formControlName="employeeEmail" />
+                  <input type="text" class="form-control" formControlName="employeeEmail"
+                    [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeEmail'))" />
+                  <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeEmail'))"
+                    class="invalid-feedback">
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeEmail'), 'メールアドレス:') }}
+                  </div>
                 </div>
               </li>
+
+              <!-- 電話番号: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">電話番号:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input type="text" class="form-control" formControlName="employeeTelephone" />
+                  <input type="text" class="form-control" formControlName="employeeTelephone"
+                    [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeTelephone'))" />
+                  <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeTelephone'))"
+                    class="invalid-feedback">
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeTelephone'), '電話番号:') }}
+                  </div>
                 </div>
               </li>
+
+              <!-- パスワード: -->
               <li class="form-group row d-flex">
                 <label class="col-form-label col-sm-2"><i class="relative">パスワード:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input type="text" class="form-control" formControlName="employeeLoginPassword" />
+                  <input type="text" class="form-control" formControlName="employeeLoginPassword"
+                    [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeLoginPassword'))" />
+                  <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeLoginPassword'))"
+                    class="invalid-feedback">
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeLoginPassword'), 'パスワード:', 8, 50) }}
+                  </div>
                 </div>
               </li>
+
+              <!-- パスワード（確認）: -->
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2"><i class="relative">パスワード（確認）:</i></label>
+                <label class="col-form-label col-sm-2"><i class="relative">パスワード（確認）:<span
+                      class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input type="text" class="form-control" formControlName="employeeReLoginPassword" />
+                  <input type="text" class="form-control" formControlName="employeeReLoginPassword"
+                    [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeReLoginPassword'))" />
+                  <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeReLoginPassword'))"
+                    class="invalid-feedback">
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeReLoginPassword'), 'パスワード（確認）:') }}
+                  </div>
+                  <div
+                    *ngIf="employeeForm.errors?.['passwordNotMatch'] && employeeForm.get('employeeReLoginPassword')?.dirty"
+                    class="invalid-feedback">
+                    {{ ERROR_MESSAGES[ERROR_CODES.PASSWORD_MISMATCH]('パスワード（確認）:') }}
+                  </div>
+
                 </div>
               </li>
+
               <li class="title mt-12">日本語能力</li>
+
+              <!-- 日本語能力 -->
               <div formArrayName="certifications">
                 <div *ngFor="let cert of certifications.controls; let i = index" [formGroupName]="i">
-                  <!-- Select chứng chỉ -->
+
+                  <!-- 資格: -->
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2"><i class="relative">資格:</i></label>
                     <div class="col-sm col-sm-10">
@@ -124,7 +177,7 @@
                     </div>
                   </li>
 
-                  <!-- Ngày bắt đầu -->
+                  <!-- 資格交付日: -->
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2">
                       <i class="relative">資格交付日:<span *ngIf="isRequired(i)" class="note-red">*</span></i>
@@ -134,8 +187,12 @@
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="certificationStartDate" [readonly]="true" [disabled]="!isCertSelected(i)"
+                          }" formControlName="certificationStartDate" [disabled]="!isCertSelected(i)"
                           #startDate="bsDatepicker" />
+                        <div *ngIf="validationService.shouldShowError(cert.get('certificationStartDate'))"
+                          class="invalid-feedback">
+                          {{ validationService.getErrorMessage(cert.get('certificationStartDate'), '資格交付日:') }}
+                        </div>
                         <span class="input-group-addon" (click)="startDate.toggle()" style="cursor: pointer">
                           <i class="glyphicon glyphicon-calendar"></i>
                         </span>
@@ -143,7 +200,7 @@
                     </div>
                   </li>
 
-                  <!-- Ngày hết hạn -->
+                  <!-- 失効日: -->
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2">
                       <i class="relative">失効日:<span *ngIf="isRequired(i)" class="note-red">*</span></i>
@@ -153,8 +210,17 @@
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="certificationEndDate" [readonly]="true" [disabled]="!isCertSelected(i)"
+                          }" formControlName="certificationEndDate" [disabled]="!isCertSelected(i)"
                           #endDate="bsDatepicker" />
+                        <div *ngIf="validationService.shouldShowError(cert.get('certificationEndDate'))"
+                          class="invalid-feedback">
+                          {{ validationService.getErrorMessage(cert.get('certificationEndDate'), '失効日:') }}
+                        </div>
+                        <div
+                          *ngIf="cert.errors?.['invalidEndDate'] && cert.get('certificationEndDate')?.dirty"
+                          class="invalid-feedback">
+                          {{ ERROR_MESSAGES[ERROR_CODES.DATE_ORDER_INVALID]() }}
+                        </div>
                         <span class="input-group-addon" (click)="endDate.toggle()" style="cursor: pointer">
                           <i class="glyphicon glyphicon-calendar"></i>
                         </span>
@@ -162,13 +228,17 @@
                     </div>
                   </li>
 
-                  <!-- Điểm số -->
+                  <!-- 点数: -->
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2"><i class="relative">点数:<span *ngIf="isRequired(i)"
                           class="note-red">*</span></i></label>
                     <div class="col-sm col-sm-10">
                       <input type="text" class="form-control" formControlName="employeeCertificationScore"
                         [disabled]="!isCertSelected(i)" />
+                      <div *ngIf="validationService.shouldShowError(cert.get('employeeCertificationScore'))"
+                        class="invalid-feedback">
+                        {{ validationService.getErrorMessage(cert.get('employeeCertificationScore'), '点数:') }}
+                      </div>
                     </div>
                   </li>
                 </div>

@@ -14,6 +14,7 @@ import { DepartmentService } from 'src/app/service/department.service';
 import { ValidateFormService } from 'src/app/service/validate-form.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
+import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
 
 @Component({
   selector: 'app-adm004',
@@ -30,11 +31,15 @@ import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
  */
 
 export class ADM004Component {
+  @ViewChild('firstInput') firstInput!: ElementRef;
+  
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   generalErrorMessage: string = '';  // Lỗi chung của màn hình như gọi API lỗi, server trả về lỗi
   employeeForm!: FormGroup; // Form để thao tác với employee
   dataConfirmBack: any; // Dữ liệu từ ADM005 back về
+  ERROR_MESSAGES = ERROR_MESSAGES;
+  ERROR_CODES = ERROR_CODES;
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -64,10 +69,15 @@ export class ADM004Component {
    */
   ngOnInit(): void {
     this.initForm();
-    this.addCertification();
     this.getListDepartment();
     this.getListCertification();
     if (this.dataConfirmBack) this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.firstInput.nativeElement.focus();
+    });
   }
 
   /**
@@ -109,21 +119,29 @@ export class ADM004Component {
   */
   initForm() {
     this.employeeForm = this.fb.group({
-      employeeLoginId: [null, [
-        Validators.required,
-        Validators.maxLength(50),
-        this.validationService.checkEnglishHalfSize()
-      ]],
+      employeeLoginId: [null, [Validators.required, Validators.maxLength(50), this.validationService.checkValidateLoginId()]],
       departmentId: [null, Validators.required],
       employeeNameKana: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkKanaHalfSize()]],
       employeeName: [null, [Validators.required, Validators.maxLength(125)]],
       employeeBirthDate: [null, Validators.required],
-      employeeEmail: [null, Validators.required],
-      employeeTelephone: [null, Validators.required],
-      employeeLoginPassword: [null, Validators.required],
+      employeeEmail: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkValidateEmail(), this.validationService.checkEnglishHalfSize()]],
+      employeeTelephone: [null, [Validators.required, Validators.maxLength(50), this.validationService.checkEnglishHalfSize()]],
+      employeeLoginPassword: [null, [Validators.required, this.validationService.checkLengthRangePassword(8, 50)]],
       employeeReLoginPassword: [null, Validators.required],
       certifications: this.fb.array([]),
+    }, {
+      validators: this.validationService.checkPasswordMatch()
     });
+
+    this.employeeForm.get('employeeLoginPassword')?.valueChanges.subscribe(() => {
+      this.employeeForm.updateValueAndValidity({ onlySelf: false });
+    });
+
+    this.employeeForm.get('employeeReLoginPassword')?.valueChanges.subscribe(() => {
+      this.employeeForm.updateValueAndValidity({ onlySelf: false });
+    });
+
+    this.addCertification();
   }
 
   /**
@@ -136,9 +154,18 @@ export class ADM004Component {
       certificationStartDate: [{ value: null, disabled: true }],
       certificationEndDate: [{ value: null, disabled: true }],
       employeeCertificationScore: [{ value: null, disabled: true }],
+    }, {
+      validators: this.validationService.checkLargerThanStartDate()
     });
 
     this.certifications.push(certificationGroup);
+    this.certifications.get('certificationStartDate')?.valueChanges.subscribe(() => {
+      this.certifications.updateValueAndValidity({ onlySelf: false });
+    });
+
+    this.certifications.get('certificationEndDate')?.valueChanges.subscribe(() => {
+      this.certifications.updateValueAndValidity({ onlySelf: false });
+    });
   }
 
   /**
@@ -199,6 +226,9 @@ export class ADM004Component {
         const control = certGroup.get(controlName);
         control?.enable();
         control?.setValidators(Validators.required);
+        if (controlName === 'employeeCertificationScore') {
+          control?.addValidators(this.validationService.checkNumberHalfSize());
+        }
         control?.updateValueAndValidity();
       });
     }

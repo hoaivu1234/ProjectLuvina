@@ -28,22 +28,28 @@ export class ValidateFormService {
    * 
    * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
  */
-  checkEnglishHalfSize(): ValidatorFn {
+  checkValidateLoginId(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
       if (!value) return null;
 
-      if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+      // Chỉ chứa a-z, A-Z, 0-9 và _
+      // Định dạng theo đúng thứ tự regex. có nghĩ là nếu để thành 0-9a-zA-Z thì có thể để số ở đầu
+      const formatLoginIdRegex = /^[a-zA-Z0-9_]+$/;
+      if (!formatLoginIdRegex.test(value)) {
         return { invalidChars: true };
       }
 
-      if (/^[0-9]/.test(value)) {
+      // Không được bắt đầu bằng số
+      const startsWithNumber = /^[0-9]/;
+      if (startsWithNumber.test(value)) {
         return { startsWithNumber: true };
       }
 
       return null;
     };
   }
+
 
   checkKanaHalfSize(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -63,6 +69,90 @@ export class ValidateFormService {
     }
   }
 
+  checkEnglishHalfSize(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      if (!value) return null;
+
+      // Check tất cả ký tự là ASCII (halfsize tiếng Anh)
+      const asciiOnlyRegex = /^[\x00-\x7F]+$/;
+      if (!asciiOnlyRegex.test(value)) {
+        return { nonAsciiCharacters: true }; // chứa ký tự fullsize hoặc Katakana
+      }
+
+      return null;
+    }
+  }
+
+  checkNumberHalfSize(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      if (!value) return null;
+      const halfSizeNumberRegex = /^[0-9]+$/;
+      if (!halfSizeNumberRegex.test(value)) {
+        return { numberNotHalfSize: true };
+      }
+
+      return null;
+    }
+  }
+
+  checkValidateEmail(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      if (!value) return null;
+
+      // ^[^\s@]+: không chứa khoảng trắng hoặc @ ở phần trước @.
+      // @[^\s@]+: phần sau @ cũng không chứa khoảng trắng hoặc @.
+      //\.: phải có một dấu chấm.
+      //[^\s@]+$: phần sau dấu . cũng không chứa khoảng trắng hoặc @.
+      const formatEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!formatEmailRegex.test(value)) {
+        return { invalidEmailFormat: true };
+      }
+
+      return null;
+    };
+  }
+
+  checkLengthRangePassword(minLength: number, maxLength: number): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      if (!value) return null;
+
+      const lenghtValue = value.length;
+      if (lenghtValue < minLength || maxLength < lenghtValue) {
+        return { invalidLengthRange: true }
+      }
+
+      return null;
+    };
+  }
+
+  checkPasswordMatch(): ValidatorFn {
+    return (group: AbstractControl): { [key: string]: any } | null => {
+      const password = group.get('employeeLoginPassword')?.value;
+      const confirmPassword = group.get('employeeReLoginPassword')?.value;
+
+      if (!password || !confirmPassword) return null;
+
+      return password === confirmPassword ? null : { passwordNotMatch: true };
+    };
+  }
+
+  checkLargerThanStartDate(): ValidatorFn {
+    return (group: AbstractControl): { [key: string]: any } | null => {
+      const startDate = group.get('certificationStartDate')?.value;
+      const endDate = group.get('certificationEndDate')?.value;
+
+      if (!startDate || !endDate) return null;
+
+      return startDate < endDate ? null : { invalidEndDate: true };
+    };
+  }
+
+
   /**
    * Trả về thông điệp lỗi phù hợp với lỗi hiện tại của một FormControl.
    * Áp dụng cho các lỗi đã khai báo trong validator, gồm:
@@ -74,11 +164,11 @@ export class ValidateFormService {
    * @param fieldName - Tên hiển thị của trường để đưa vào thông điệp lỗi (ví dụ: アカウント名)
    * @returns Chuỗi thông điệp lỗi tương ứng, hoặc rỗng nếu không có lỗi
  */
-  getErrorMessage(control: AbstractControl | null, fieldName: string): string {
+  getErrorMessage(control: AbstractControl | null, fieldName: string, minLength?: number, maxLength?: number): string {
     if (!control || !control.errors) return '';
-  
+
     let errorMessage = '';
-  
+
     for (const [errorKey, errorValue] of Object.entries(control.errors)) {
       switch (errorKey) {
         case ERROR_KEYS.REQUIRED:
@@ -94,13 +184,31 @@ export class ValidateFormService {
         case ERROR_KEYS.INVALID_KANA_FORMAT:
           errorMessage = ERROR_MESSAGES[ERROR_CODES.KANA_REQUIRED](fieldName);
           break;
+        case ERROR_KEYS.INVALID_EMAIL_FORMAT:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.INVALID_FORMAT](fieldName);
+          break;
+        case ERROR_KEYS.NONASCIICHARACTERS:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.HALF_WIDTH_CHAR_REQUIRED](fieldName);
+          break;
+        case ERROR_KEYS.INVALID_LENGTH_RANGE:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.LENGTH_RANGE](fieldName, minLength, maxLength);
+          break;
+        case ERROR_KEYS.PASSWORD_NOT_MATHCH:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.PASSWORD_MISMATCH]();
+          break;
+        case ERROR_KEYS.INVALID_END_DATE:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.DATE_ORDER_INVALID]();
+          break;
+        case ERROR_KEYS.NUMBERNOTHALFSIZE:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.HALF_WIDTH_NUMBER_REQUIRED](fieldName);
+          break;
       }
-  
+
       if (errorMessage) break; // Dừng vòng lặp ngay khi có lỗi đầu tiên
     }
-  console.log(errorMessage)
+
     return errorMessage;
-  } 
+  }
 
   /**
    * Xác định xem có nên hiển thị thông điệp lỗi cho một FormControl hay không.
