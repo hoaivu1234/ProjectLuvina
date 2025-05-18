@@ -11,7 +11,6 @@ import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.service.EmployeeService;
-import com.luvina.la.validator.EmployeeRequestValidator;
 import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -38,9 +37,6 @@ public class EmployeeController {
 
     @Autowired
     private InputValidator inputValidator;
-
-    @Autowired
-    private EmployeeRequestValidator employeeRequestValidator;
 
     /**
      * Lấy danh sách nhân viên dựa trên các tham số lọc và phân trang.
@@ -106,9 +102,16 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    /**
+     * API thêm mới một nhân viên.
+     * Nhận vào một đối tượng {@link EmployeeRequestDTO} chứa thông tin của nhân viên như:
+     * mã đăng nhập, mật khẩu, email, mã phòng ban,... và thực hiện lưu vào cơ sở dữ liệu
+     * @param employeeRequest Đối tượng chứa thông tin nhân viên cần thêm mới.
+     * @return {@link ResponseEntity} chứa {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
+     */
     @PostMapping("")
     public ResponseEntity<EmployeeResponse> addEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequest) {
-//        employeeRequestValidator.validateEmployeeLoginId(employeeRequest.getEmployeeLoginId());
-        return ResponseEntity.status(HttpStatus.OK).body(new EmployeeResponse());
+        EmployeeResponse<Long> response = employeeService.addEmployee(employeeRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

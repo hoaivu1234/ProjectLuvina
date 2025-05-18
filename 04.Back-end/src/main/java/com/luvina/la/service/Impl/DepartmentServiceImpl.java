@@ -52,5 +52,16 @@ public class DepartmentServiceImpl implements DepartmentService {
         // Chuyển đổi danh sách phòng ban từ Entity sang DTO và trả về kết quả
         return departmentMapper.toList(departmentList);
     }
+
+    /**
+     * Kiểm tra xem phòng ban với ID được truyền vào có tồn tại trong hệ thống hay không.
+     *
+     * @param id ID của phòng ban cần kiểm tra.
+     * @return true nếu tồn tại, false nếu không tồn tại.
+     */
+    @Override
+    public boolean existsById(Long id) {
+        return departmentRepository.existsById(id);
+    }
 }
 

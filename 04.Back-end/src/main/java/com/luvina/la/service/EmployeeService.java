@@ -1,11 +1,9 @@
 package com.luvina.la.service;
 
 import com.luvina.la.dto.EmployeeDTO;
-import com.luvina.la.payload.BaseResponse;
+import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.payload.EmployeeResponse;
-import org.springframework.data.domain.Sort;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface EmployeeService {
@@ -20,4 +18,10 @@ public interface EmployeeService {
             int limit);
 
     int getCountEmployee(String employeeName, Long departmentId);
+
+    EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO);
+
+    boolean existsByEmployeeLoginId(String employeeLoginId);
+
+    boolean existsByEmployeeEmail(String employeeEmail);;
 }

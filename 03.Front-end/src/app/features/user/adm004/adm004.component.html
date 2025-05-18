@@ -187,7 +187,7 @@
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="certificationStartDate" [disabled]="!isCertSelected(i)"
+                          }" formControlName="certificationStartDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
                           #startDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('certificationStartDate'))"
                           class="invalid-feedback">
@@ -210,7 +210,7 @@
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="certificationEndDate" [disabled]="!isCertSelected(i)"
+                          }" formControlName="certificationEndDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
                           #endDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('certificationEndDate'))"
                           class="invalid-feedback">

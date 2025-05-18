@@ -33,11 +33,27 @@ public class CertificationServiceImpl implements CertificationService {
     @Autowired
     private CertificationMapper certificationMapper;
 
+    /**
+     * Lấy danh sách tất cả chứng chỉ trong hệ thống.
+     *
+     * @return Danh sách các chứng chỉ dưới dạng {@link CertificationDTO}.
+     */
     @Override
     public List<CertificationDTO> getAllCertification() {
         List<Certification> certificationList = certificationRepository.findAll();
 
         // Chuyển đổi danh sách trình độ tiếng nhật từ Entity sang DTO và trả về kết quả
         return certificationMapper.toList(certificationList);
+    }
+
+    /**
+     * Kiểm tra xem chứng chỉ với ID được truyền vào có tồn tại trong hệ thống hay không.
+     *
+     * @param id ID của chứng chỉ cần kiểm tra.
+     * @return true nếu tồn tại, false nếu không tồn tại.
+     */
+    @Override
+    public boolean existsById(Long id) {
+        return certificationRepository.existsById(id);
     }
 }

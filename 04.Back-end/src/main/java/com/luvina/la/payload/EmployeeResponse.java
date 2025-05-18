@@ -47,7 +47,7 @@ public class EmployeeResponse<T> {
      * Thông điệp lỗi nếu có (dành cho các trường hợp thất bại).
      * Được sử dụng để gửi thông tin chi tiết về lỗi xảy ra trong quá trình xử lý.
      */
-    private ErrorMessage message;
+    private ResponseMessage message;
 
     /**
      * Constructor khởi tạo với mã trạng thái và dữ liệu nhân viên trả về.
@@ -79,8 +79,14 @@ public class EmployeeResponse<T> {
      * @param code Mã trạng thái của phản hồi.
      * @param message Thông điệp lỗi.
      */
-    public EmployeeResponse(int code, ErrorMessage message) {
+    public EmployeeResponse(int code, ResponseMessage message) {
         this.code = code;
+        this.message = message;
+    }
+
+    public EmployeeResponse(int code, Long employeeId, ResponseMessage message) {
+        this.code = code;
+        this.employeeId = employeeId;
         this.message = message;
     }
 }

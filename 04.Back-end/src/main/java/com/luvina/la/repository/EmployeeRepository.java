@@ -21,6 +21,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
 
     Optional<Employee> findByEmployeeId(Long employeeId);
 
+    boolean existsByEmployeeLoginId(String employeeLoginId);
+
+    boolean existsByEmployeeEmail(String employeeEmail);
+
     @Query("""
             SELECT COUNT(e) 
             FROM Employee e

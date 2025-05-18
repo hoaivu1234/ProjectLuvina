@@ -6,13 +6,10 @@
 package com.luvina.la.controller;
 
 import com.luvina.la.common.HttpStatusConstants;
-import com.luvina.la.payload.BaseResponse;
 import com.luvina.la.dto.DepartmentDTO;
 import com.luvina.la.payload.DepartmentResponse;
-import com.luvina.la.payload.ErrorMessage;
 import com.luvina.la.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

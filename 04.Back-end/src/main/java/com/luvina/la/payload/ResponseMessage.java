@@ -1,6 +1,6 @@
 /**
  * Copyright(C) 2025  Luvina Software Company
- * ErrorMessage.java, 5/2/2025 hoaivd
+ * ResponseMessage.java, 5/2/2025 hoaivd
  */
 
 package com.luvina.la.payload;
@@ -22,11 +22,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor  // Tạo constructor không tham số
 @AllArgsConstructor // Tạo constructor có tất cả tham số
-public class ErrorMessage {
+public class ResponseMessage {
 
     /**
-     * Mã lỗi được định danh để xác định loại lỗi.
-     * Ví dụ: "404" cho lỗi không tìm thấy, "500" cho lỗi server.
+     * Mã code message trả về
+     * Ví dụ: MSG001, ER001, ...
      */
     private String code;
 
