@@ -79,11 +79,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeResponseDTO getEmployeeById(Long id) {
-        Optional<Employee> employee = employeeRepository.findByEmployeeId(id);
-        if (employee.isEmpty()) {
-            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-                    new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>()));
-        }
+        Employee employee = employeeRepository.findByEmployeeId(id);
+//        if (employee) {
+//            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
+//                    new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>()));
+//        }
+
+        Optional<EmployeeCertification> employeeCertification = employeeCertificationRepository.findByEmployee(employee);
         return null;
     }
 

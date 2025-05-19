@@ -12,6 +12,12 @@ import { MSG } from 'src/app/shared/utils/messages.constants';
   templateUrl: './adm006.component.html',
   styleUrls: ['./adm006.component.css']
 })
+
+/**
+ * Màn hình để hiển thị thông báo complete khi thực hiện thêm sửa xóa nhân viên
+ * 
+ * @author hoaivd
+ */
 export class ADM006Component {
   completeMessage: string = '';   // Thông điệp lỗi tương ứng với completeCode
   completeCode: string = '' // Mã thông báo được lấy từ navigation state
