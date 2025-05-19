@@ -108,7 +108,7 @@ export class Adm005Component {
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
         return throwError(() => err);
       })
-    ).subscribe();
+    );
   }
 
   /**
@@ -127,7 +127,7 @@ export class Adm005Component {
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } });
         return throwError(() => err);
       })
-    ).subscribe();
+    );
   }
 
   /**
@@ -137,6 +137,14 @@ export class Adm005Component {
     this.router.navigate(['/user/add'], { state: { dataConfirmBack: this.dataConfirm } });
   }
 
+   /**
+   * Chuẩn hóa và chuyển đổi dữ liệu trước khi submit
+   * - Format ngày sinh theo định dạng 'yyyy/MM/dd'
+   * - Kiểm tra danh sách chứng chỉ:
+   *    + Nếu có chứng chỉ nhưng `certificationId` rỗng, loại bỏ toàn bộ danh sách chứng chỉ
+   *    + Nếu hợp lệ, format ngày bắt đầu và ngày kết thúc của từng chứng chỉ
+   * @returns clonedData - Dữ liệu đã được xử lý sẵn để gửi lên server
+   */
   transformDataSubmit(): any {
     const clonedData = { ...this.dataConfirm };
 
@@ -160,24 +168,28 @@ export class Adm005Component {
     return clonedData;
   }
 
+    /**
+     * Gửi dữ liệu đăng ký nhân viên lên server
+     * - Nếu thành công: điều hướng sang màn hình hoàn tất và truyền mã xác nhận
+     * - Nếu thất bại: điều hướng sang màn hình lỗi và truyền mã lỗi + thông tin trường bị lỗi
+   */
   submitForm() {
     const clonedData = this.transformDataSubmit();
-
-    this.employeeService.addEmployee(clonedData).pipe(
-      tap((data) => {
+  
+    this.employeeService.addEmployee(clonedData).subscribe({
+      next: (data: any) => {
         console.log(data);
         this.router.navigate(['user/complete'], {
           state: { completeCode: data?.message?.code }
         });
-      }),
-      catchError((err) => {
+      },
+      error: (err) => {
         console.log(err);
         this.router.navigate(['error'], {
-          state: { errorCode: ERROR_CODES.DATABASE_ERROR }
+          state: { errorCode: err?.error?.message?.code, fieldError: err?.error?.message?.params[0] }
         });
-        return throwError(() => err);
-      })
-    ).subscribe();
-  }
+      }
+    });
+  }  
 
 }

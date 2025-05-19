@@ -5,6 +5,7 @@ import {
   HttpEvent,
   HttpInterceptor,
   HTTP_INTERCEPTORS,
+  HttpErrorResponse,
 } from "@angular/common/http";
 import { Observable, throwError, } from "rxjs";
 import { catchError } from "rxjs/operators";
@@ -34,8 +35,10 @@ export class AuthInterceptorService implements HttpInterceptor {
     request = this.addContentType(request, 'application/json');
 
     return next.handle(request).pipe(
-      catchError((error) => {
-        return throwError(() => new Error(error?.message));
+      catchError((error: HttpErrorResponse) => {
+        console.error('HTTP error in interceptor:', error);
+    
+        return throwError(() => error);
       })
     );
   }

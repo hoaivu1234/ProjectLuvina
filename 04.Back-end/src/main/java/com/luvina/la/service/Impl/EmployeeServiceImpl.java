@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -209,6 +210,8 @@ public class EmployeeServiceImpl implements EmployeeService {
      *
      * @throws BusinessException nếu không tìm thấy phòng ban hoặc chứng chỉ tương ứng với ID được truyền vào.
      */
+
+    @Transactional
     @Override
     public EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO) {
         Employee employee = new Employee();

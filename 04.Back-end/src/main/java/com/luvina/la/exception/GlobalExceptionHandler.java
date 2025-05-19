@@ -121,9 +121,9 @@ public class GlobalExceptionHandler {
         }
 
         MessageResponse messageResponse = new MessageResponse(errorCode, fieldParams);
-        ErrorResponse response = new ErrorResponse(HttpStatusConstants.BAD_REQUEST, messageResponse);
+        ErrorResponse response = new ErrorResponse(HttpStatusConstants.INTERNAL_SERVER_ERROR, messageResponse);
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**

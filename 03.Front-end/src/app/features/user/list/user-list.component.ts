@@ -38,6 +38,7 @@ export class UserListComponent {
   pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE;  // Số lượng bản ghi trên mỗi trang, giá trị mặc định lấy từ PAGINATION
   totalRecords!: number; // Tổng số bản ghi nhân viên (để tính tổng số trang trong phân trang)
   MSG = MSG;  // Hằng chứa các thông điệp (message), có thể là lỗi, cảnh báo, hoặc thông báo thành công
+  isShowMessage: boolean = false; // Kiểm soát trạng thái hiển thị mess khi không có dữ liệu
 
   // Đối tượng chứa icon sắp xếp hiện tại cho từng cột
   sortIcons: { [key: string]: string } = {
@@ -162,7 +163,8 @@ export class UserListComponent {
           );
           return;
         }
-
+        this.isShowMessage = true;
+        
         console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS);
       },
       error: () => {
