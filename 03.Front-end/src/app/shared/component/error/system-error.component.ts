@@ -60,4 +60,8 @@ export class SystemErrorComponent {
     // Dựa vào errorCode, tìm thông điệp lỗi trong ERROR_MESSAGES
     this.errorMessage = ERROR_MESSAGES[this.errorCode]();
   }
+
+  hanldeClick() {
+    this.router.navigate(['user/list']);
+  }
 }

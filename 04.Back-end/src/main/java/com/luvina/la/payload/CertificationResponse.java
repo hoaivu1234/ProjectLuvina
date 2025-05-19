@@ -44,7 +44,7 @@ public class CertificationResponse<T> {
      * Thông điệp lỗi nếu có (dành cho các trường hợp thất bại).
      * Được sử dụng để gửi thông tin chi tiết về lỗi xảy ra trong quá trình xử lý.
      */
-    private ResponseMessage message;
+    private MessageResponse message;
 
     /**
      * Constructor khởi tạo với mã trạng thái và dữ liệu trình độ tiếng nhật trả về.
@@ -76,7 +76,7 @@ public class CertificationResponse<T> {
      * @param code Mã trạng thái của phản hồi.
      * @param message Thông điệp lỗi.
      */
-    public CertificationResponse(int code, ResponseMessage message) {
+    public CertificationResponse(int code, MessageResponse message) {
         this.code = code;
         this.message = message;
     }

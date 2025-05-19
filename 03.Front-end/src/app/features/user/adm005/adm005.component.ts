@@ -3,6 +3,7 @@
   adm005.component.ts 15/5/2025 hoaivd
 */
 
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -12,13 +13,15 @@ import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
 import { CertificationService } from 'src/app/service/certification.service';
 import { DepartmentService } from 'src/app/service/department.service';
+import { EmployeeService } from 'src/app/service/employee.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 
 @Component({
   selector: 'app-adm005',
   templateUrl: './adm005.component.html',
-  styleUrls: ['./adm005.component.css']
+  styleUrls: ['./adm005.component.css'],
+  providers: [DatePipe]
 })
 
 /**
@@ -45,8 +48,10 @@ export class Adm005Component {
     public http: HttpClient,
     public departmentService: DepartmentService,
     public certificationService: CertificationService,
+    public employeeService: EmployeeService,
     private router: Router,
     private fb: FormBuilder,
+    private datePipe: DatePipe
   ) {
     const nav = this.router.getCurrentNavigation();
 
@@ -59,6 +64,8 @@ export class Adm005Component {
    * Gọi các hàm để lấy dữ liệu phòng ban, trình độ tiếng nhật và tạo dữ liệu cho form.
    */
   ngOnInit(): void {
+    console.log(this.dataConfirm.certifications)
+
     forkJoin([
       this.getListDepartment(),
       this.getListCertification()
@@ -70,6 +77,7 @@ export class Adm005Component {
         console.error('Error loading data:', err);
       }
     });
+    console.log(this.dataConfirm.certifications)
   }
 
   /**
@@ -98,9 +106,9 @@ export class Adm005Component {
       catchError((err) => {
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
-        return throwError(err); 
+        return throwError(() => err);
       })
-    );
+    ).subscribe();
   }
 
   /**
@@ -117,9 +125,9 @@ export class Adm005Component {
       catchError((err) => {
         console.log(CONSOLE_MESSAGES.CERTIFICATION.FETCH_FAILED);
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } });
-        return throwError(err); 
+        return throwError(() => err);
       })
-    );
+    ).subscribe();
   }
 
   /**
@@ -128,4 +136,48 @@ export class Adm005Component {
   hanleBack() {
     this.router.navigate(['/user/add'], { state: { dataConfirmBack: this.dataConfirm } });
   }
+
+  transformDataSubmit(): any {
+    const clonedData = { ...this.dataConfirm };
+
+    clonedData.employeeBirthDate = this.datePipe.transform(clonedData.employeeBirthDate, 'yyyy/MM/dd');
+
+    if (clonedData.certifications) {
+      const hasEmptyCertId = clonedData.certifications.some(
+        (cert: any) => cert.certificationId === "" || !cert.certificationId
+      );
+
+      if (hasEmptyCertId) {
+        delete clonedData.certifications;
+      } else {
+        clonedData.certifications.forEach((cert: any) => {
+          cert.certificationStartDate = this.datePipe.transform(cert.certificationStartDate, 'yyyy/MM/dd');
+          cert.certificationEndDate = this.datePipe.transform(cert.certificationEndDate, 'yyyy/MM/dd');
+        });
+      }
+    }
+
+    return clonedData;
+  }
+
+  submitForm() {
+    const clonedData = this.transformDataSubmit();
+
+    this.employeeService.addEmployee(clonedData).pipe(
+      tap((data) => {
+        console.log(data);
+        this.router.navigate(['user/complete'], {
+          state: { completeCode: data?.message?.code }
+        });
+      }),
+      catchError((err) => {
+        console.log(err);
+        this.router.navigate(['error'], {
+          state: { errorCode: ERROR_CODES.DATABASE_ERROR }
+        });
+        return throwError(() => err);
+      })
+    ).subscribe();
+  }
+
 }

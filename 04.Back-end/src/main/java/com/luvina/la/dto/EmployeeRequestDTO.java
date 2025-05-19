@@ -7,10 +7,7 @@ package com.luvina.la.dto;
 
 import com.luvina.la.common.EmployeeValidationConstant;
 import com.luvina.la.common.ErrorCodeConstants;
-import com.luvina.la.validator.ExistsDepartmentId;
-import com.luvina.la.validator.UniqueEmployeeEmail;
-import com.luvina.la.validator.UniqueEmployeeLoginId;
-import com.luvina.la.validator.ValidDate;
+import com.luvina.la.validator.*;
 import lombok.Data;
 
 import javax.validation.Valid;

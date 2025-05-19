@@ -14,7 +14,7 @@ import com.luvina.la.entity.Employee;
 import com.luvina.la.entity.EmployeeCertification;
 import com.luvina.la.exception.BusinessException;
 import com.luvina.la.payload.EmployeeResponse;
-import com.luvina.la.payload.ResponseMessage;
+import com.luvina.la.payload.MessageResponse;
 import com.luvina.la.repository.CertificationRepository;
 import com.luvina.la.repository.DepartmentRepository;
 import com.luvina.la.repository.EmployeeRepository;
@@ -233,7 +233,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Long deptId = Long.parseLong(requestDTO.getDepartmentId());
         Department department = departmentRepository.findById(deptId)
                 .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-                        new ResponseMessage(ErrorCodeConstants.ER015, new ArrayList<>())));
+                        new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
         employee.setDepartment(department);
 
         // Gán danh sách chứng chỉ nếu có
@@ -251,7 +251,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 Long certificationId = Long.parseLong(certDTO.getCertificationId());
                 Certification certification = certificationRepository.findById(certificationId)
                         .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-                                new ResponseMessage(ErrorCodeConstants.ER015, new ArrayList<>())));
+                                new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
                 cert.setCertification(certification);
 
                 BigDecimal score = new BigDecimal(certDTO.getEmployeeCertificationScore());
@@ -267,7 +267,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // Lưu vào DB
         employeeRepository.save(employee);
-        return new EmployeeResponse<>(HttpStatusConstants.OK, employee.getEmployeeId(), new ResponseMessage(MsgCodeConstants.MSG001, new ArrayList<>()));
+        return new EmployeeResponse<>(HttpStatusConstants.OK, employee.getEmployeeId(), new MessageResponse(MsgCodeConstants.MSG001, new ArrayList<>()));
     }
 
     /**

@@ -34,7 +34,7 @@ public class ErrorResponse<T> {
      * Thông điệp lỗi nếu có (dành cho các trường hợp thất bại).
      * Được sử dụng để gửi thông tin chi tiết về lỗi xảy ra trong quá trình xử lý.
      */
-    private ResponseMessage message;
+    private MessageResponse message;
 }
 
 

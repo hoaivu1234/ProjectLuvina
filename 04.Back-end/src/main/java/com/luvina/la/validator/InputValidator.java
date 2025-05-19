@@ -10,7 +10,7 @@ import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.common.SortConstants;
 import com.luvina.la.common.InputValidationConstants;
 import com.luvina.la.exception.BusinessException;
-import com.luvina.la.payload.ResponseMessage;
+import com.luvina.la.payload.MessageResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -138,7 +138,7 @@ public class InputValidator {
                 ? List.of(field)
                 : Collections.emptyList(); // Trả về mảng rỗng
 
-        return new BusinessException(code, new ResponseMessage(errCode, params));
+        return new BusinessException(code, new MessageResponse(errCode, params));
     }
 }
 

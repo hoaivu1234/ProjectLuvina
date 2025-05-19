@@ -10,7 +10,7 @@ import com.luvina.la.common.ErrorCodeConstants;
 import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.ErrorResponse;
-import com.luvina.la.payload.ResponseMessage;
+import com.luvina.la.payload.MessageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -42,8 +42,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ErrorResponse> handlingRuntimeException(Exception exception) {
-        ResponseMessage responseMessage = new ResponseMessage(ErrorCodeConstants.ER023, new ArrayList<>());
-        ErrorResponse response = new ErrorResponse(HttpStatusConstants.INTERNAL_SERVER_ERROR, responseMessage);
+        MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER023, new ArrayList<>());
+        ErrorResponse response = new ErrorResponse(HttpStatusConstants.INTERNAL_SERVER_ERROR, messageResponse);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -55,8 +55,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(Exception ex) {
-        ResponseMessage responseMessage = new ResponseMessage(ErrorCodeConstants.ER022, new ArrayList<>());
-        ErrorResponse response = new ErrorResponse(HttpStatusConstants.NOT_FOUND, responseMessage);
+        MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER022, new ArrayList<>());
+        ErrorResponse response = new ErrorResponse(HttpStatusConstants.NOT_FOUND, messageResponse);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -68,12 +68,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = BusinessException.class)
     ResponseEntity<ErrorResponse> handlingAppException(BusinessException exception) {
-        ResponseMessage responseMessage = exception.getResponseMessage();
+        MessageResponse messageResponse = exception.getMessageResponse();
         int code = exception.getCode();
         ErrorResponse errorResponse = new ErrorResponse();
 
         errorResponse.setCode(code);
-        errorResponse.setMessage(responseMessage);
+        errorResponse.setMessage(messageResponse);
 
         return ResponseEntity.status(code).body(errorResponse);
     }
@@ -120,8 +120,8 @@ public class GlobalExceptionHandler {
             }
         }
 
-        ResponseMessage responseMessage = new ResponseMessage(errorCode, fieldParams);
-        ErrorResponse response = new ErrorResponse(HttpStatusConstants.BAD_REQUEST, responseMessage);
+        MessageResponse messageResponse = new MessageResponse(errorCode, fieldParams);
+        ErrorResponse response = new ErrorResponse(HttpStatusConstants.BAD_REQUEST, messageResponse);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

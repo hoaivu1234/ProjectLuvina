@@ -5,7 +5,7 @@
 
  package com.luvina.la.exception;
 
-import com.luvina.la.payload.ResponseMessage;
+import com.luvina.la.payload.MessageResponse;
 import lombok.Data;
 
 /**
@@ -15,7 +15,7 @@ import lombok.Data;
  *
  * Ngoại lệ này kế thừa từ {@link RuntimeException}, cho phép không cần khai báo trong throws.
  *
- * Bao gồm thông tin mã lỗi (HTTP hoặc custom code) và {@link ResponseMessage} mô tả lỗi.
+ * Bao gồm thông tin mã lỗi (HTTP hoặc custom code) và {@link MessageResponse} mô tả lỗi.
  *
  * @author hoaivd
  */
@@ -30,18 +30,18 @@ public class BusinessException extends RuntimeException {
     /**
      * Thông tin chi tiết về lỗi, bao gồm mã lỗi và thông điệp hiển thị.
      */
-    private ResponseMessage responseMessage;
+    private MessageResponse messageResponse;
 
     /**
      * Khởi tạo một ngoại lệ BusinessException với mã lỗi và thông tin lỗi chi tiết.
      *
      * @param code Mã lỗi trả về
-     * @param responseMessage Thông tin lỗi bao gồm mã lỗi và nội dung hiển thị
+     * @param messageResponse Thông tin lỗi bao gồm mã lỗi và nội dung hiển thị
      */
-    public BusinessException(int code, ResponseMessage responseMessage) {
+    public BusinessException(int code, MessageResponse messageResponse) {
         // Gọi constructor của RuntimeException với chuỗi mã lỗi từ ResponseMessage
-        super(responseMessage.getCode());
-        this.responseMessage = responseMessage;
+        super(messageResponse.getCode());
+        this.messageResponse = messageResponse;
         this.code = code;
     }
 }

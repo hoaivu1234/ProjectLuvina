@@ -69,7 +69,7 @@ export class ValidateFormService {
       // \uFF66-\uFF9F: Các ký tự Katakana Halfwidth theo chuẩn Unicode (U+FF66 đến U+FF9F)
       // \uFF70	Dấu kéo dài âm halfwidth (ｰ, mã Unicode U+FF70)
       // \s	Khoảng trắng (space, tab, line break...)
-      const halfwidthKatakanaRegex = /^[\uFF66-\uFF9F\uFF70\s]$/;
+      const halfwidthKatakanaRegex = /^[\uFF66-\uFF9F\uFF70]+$/;
 
       if (!halfwidthKatakanaRegex.test(value)) {
         return { invalidKanaFormat: true };

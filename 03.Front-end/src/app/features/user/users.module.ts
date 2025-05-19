@@ -10,13 +10,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ShortenTextPipe } from 'src/app/shared/custom-pipe/shorten-text';
 import { ADM004Component } from './adm004/adm004.component';
 import { Adm005Component } from './adm005/adm005.component';
+import { ADM006Component } from './adm006/adm006.component';
 
 @NgModule({
   declarations: [
     UserListComponent,
     ShortenTextPipe,
     ADM004Component,
-    Adm005Component
+    Adm005Component,
+    ADM006Component
   ],
   imports: [
     BrowserAnimationsModule,

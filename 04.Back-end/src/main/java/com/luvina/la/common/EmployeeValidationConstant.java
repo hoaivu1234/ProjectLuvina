@@ -14,7 +14,7 @@ public final class EmployeeValidationConstant {
     public static final String POSITIVE_INTEGER = "^[1-9]\\d*$";
 
     /** Regex: Katakana Halfwidth characters (Unicode \uFF66 - \uFF9F + \uFF70) */
-    public static final String HALF_WIDTH_KANA_REGEX = "^[\\uFF66-\\uFF9F\\uFF70\\s]+$";
+    public static final String HALF_WIDTH_KANA_REGEX = "^[\\uFF66-\\uFF9F\\uFF70]+$";
 
     /** Regex: Chỉ cho phép ký tự tiếng Anh halfsize (ASCII từ 0x00 đến 0x7F) */
     public static final String ENGLISH_HALF_SIZE_REGEX = "^[\\x00-\\x7F]+$";

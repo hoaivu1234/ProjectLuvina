@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConstants } from 'src/app/app-constants';
-import { EmployeeResponse } from '../model/employee-response.model';
+import { AddEmployeeResponse, EmployeeResponse } from '../model/employee-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -64,6 +64,10 @@ export class EmployeeService {
     if (limit) params = params.append('limit', limit);
 
     return this.http.get<EmployeeResponse>(AppConstants.BASE_URL_API + "/employees", { params });
+  }
+
+  addEmployee(payload: any): Observable<AddEmployeeResponse> {
+    return this.http.post<AddEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
   }
 }
 

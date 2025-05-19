@@ -32,7 +32,7 @@ import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
 
 export class ADM004Component {
   @ViewChild('firstInput') firstInput!: ElementRef;
-  
+
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   generalErrorMessage: string = '';  // Lỗi chung của màn hình như gọi API lỗi, server trả về lỗi
@@ -285,9 +285,11 @@ export class ADM004Component {
   }
 
   /**
- * Điều hướng về màn hình ADM005 và gửi kèm dữ liệu trong form
- */
+    * Điều hướng về màn hình ADM005 và gửi kèm dữ liệu trong form
+  */
   handleConfirm() {
-    this.router.navigate(['/user/confirm'], { state: { dataConfirm: this.employeeForm.value } });
+    if (this.employeeForm.valid) {
+      this.router.navigate(['/user/confirm'], { state: { dataConfirm: this.employeeForm.value } });
+    }
   }
 }

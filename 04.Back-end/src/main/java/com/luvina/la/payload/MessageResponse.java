@@ -22,7 +22,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor  // Tạo constructor không tham số
 @AllArgsConstructor // Tạo constructor có tất cả tham số
-public class ResponseMessage {
+public class MessageResponse {
 
     /**
      * Mã code message trả về
