@@ -271,6 +271,10 @@ export class UserListComponent {
     this.router.navigate(['/user/add']);
   }
 
+  /**
+   * Điều hướng đến màn lấy chi tiết nhân viên với Id đã chọn
+   * @param id Id của employee tương ứng cần xem dữ liệu chi tiết
+   */
   getDetailEmployee(id: number | undefined) {
     this.router.navigate(['/user/detail'], { state : { employeeId: id}} );
   }

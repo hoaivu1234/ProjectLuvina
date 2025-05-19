@@ -9,6 +9,7 @@ import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
+import com.luvina.la.dto.EmployeeResponseDTO;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.service.EmployeeService;
 import com.luvina.la.validator.InputValidator;
@@ -113,5 +114,16 @@ public class EmployeeController {
     public ResponseEntity<EmployeeResponse> addEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequest) {
         EmployeeResponse<Long> response = employeeService.addEmployee(employeeRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * API lấy thông tin chi tiết của một nhân viên theo ID.
+     *
+     * @param id ID của nhân viên cần lấy thông tin.
+     * @return Đối tượng {@link EmployeeResponseDTO} chứa thông tin chi tiết của nhân viên.
+     */
+    @GetMapping("/{id}")
+    public EmployeeResponseDTO getEmployeeById(@PathVariable Long id) {
+        return employeeService.getEmployeeById(id);
     }
 }

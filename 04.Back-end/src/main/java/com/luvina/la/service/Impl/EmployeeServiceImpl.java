@@ -6,10 +6,7 @@
 package com.luvina.la.service.Impl;
 
 import com.luvina.la.common.*;
-import com.luvina.la.dto.EmployeeCertificationRequestDTO;
-import com.luvina.la.dto.EmployeeDTO;
-import com.luvina.la.dto.EmployeeRequestDTO;
-import com.luvina.la.dto.EmployeeResponseDTO;
+import com.luvina.la.dto.*;
 import com.luvina.la.entity.Certification;
 import com.luvina.la.entity.Department;
 import com.luvina.la.entity.Employee;
@@ -68,6 +65,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private CertificationRepository certificationRepository;
 
+    /**
+     * Repository để tương tác với bảng chứng chỉ nhân viên trong cơ sở dữ liệu.
+     */
     @Autowired
     private EmployeeCertificationRepository employeeCertificationRepository;
 
@@ -77,16 +77,51 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Trả về thông tin chi tiết của một nhân viên theo ID, bao gồm cả thông tin chứng chỉ (certifications).
+     *
+     * Nếu nhân viên không tồn tại, phương thức sẽ ném ra {@link BusinessException} với mã lỗi ER013.
+     *
+     * @param id ID của nhân viên cần lấy thông tin.
+     * @return Đối tượng {@link EmployeeResponseDTO} chứa thông tin nhân viên và danh sách chứng chỉ (nếu có).
+     * @throws BusinessException nếu không tìm thấy nhân viên tương ứng với ID truyền vào.
+     */
     @Override
     public EmployeeResponseDTO getEmployeeById(Long id) {
-        Employee employee = employeeRepository.findByEmployeeId(id);
-//        if (employee) {
-//            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-//                    new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>()));
-//        }
+        Employee employee = employeeRepository.findByEmployeeId(id)
+                .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
+                        new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>())));
 
-        Optional<EmployeeCertification> employeeCertification = employeeCertificationRepository.findByEmployee(employee);
-        return null;
+
+        List<EmployeeCertification> certifications = employeeCertificationRepository.findByEmployee(employee);
+
+        EmployeeResponseDTO response = new EmployeeResponseDTO();
+        response.setCode(HttpStatusConstants.OK);
+        response.setEmployeeId(employee.getEmployeeId());
+        response.setEmployeeName(employee.getEmployeeName());
+        response.setEmployeeBirthDate(employee.getEmployeeBirthDate());
+        response.setEmployeeEmail(employee.getEmployeeEmail());
+        response.setDepartmentId(employee.getDepartment().getDepartmentId());
+        response.setDepartmentName(employee.getDepartment().getDepartmentName());
+        response.setEmployeeTelephone(employee.getEmployeeTelephone());
+        response.setEmployeeNameKana(employee.getEmployeeNameKana());
+        response.setEmployeeLoginId(employee.getEmployeeLoginId());
+
+        List<EmployeeCertificationResponseDTO> certificationDTOs = certifications.stream().map(cert -> {
+            EmployeeCertificationResponseDTO dto = new EmployeeCertificationResponseDTO();
+            dto.setCertificationId(cert.getCertification().getCertificationId());
+            dto.setCertificationName(cert.getCertification().getCertificationName());
+            dto.setStartDate(cert.getStartDate());
+            dto.setEndDate(cert.getEndDate());
+            dto.setScore(cert.getScore());
+            return dto;
+        }).collect(Collectors.toList());
+
+        if (!certifications.isEmpty()) {
+            response.setCertifications(certificationDTOs);
+        }
+
+        return response;
     }
 
     /**

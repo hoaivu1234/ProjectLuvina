@@ -1,5 +1,8 @@
 package com.luvina.la.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +10,9 @@ import java.util.List;
  * Copyright(C) 2025  Luvina Software Company
  * EmployeeResponseDTO.java, 5/19/2025 hoaivd
  */
+
+@Getter
+@Setter
 public class EmployeeResponseDTO {
     private int code;
     private Long employeeId;

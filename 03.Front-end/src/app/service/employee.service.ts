@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConstants } from 'src/app/app-constants';
-import { AddEmployeeResponse, EmployeeResponse } from '../model/employee-response.model';
+import { AddEmployeeResponse, EmployeeResponse, EmployeeResponseDTO } from '../model/employee-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -75,5 +75,16 @@ export class EmployeeService {
   addEmployee(payload: any): Observable<AddEmployeeResponse> {
     return this.http.post<AddEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
   }
+
+  /**
+   * Gửi yêu cầu GET đến API để lấy thông tin chi tiết của một nhân viên theo ID.
+   *
+   * @param {number} employeeId - ID của nhân viên cần truy vấn.
+   * @returns {Observable<EmployeeResponseDTO>} - Observable chứa dữ liệu phản hồi của nhân viên.
+ */
+  getEmployeeById(employeeId: number): Observable<EmployeeResponseDTO> {
+    return this.http.get<EmployeeResponseDTO>(AppConstants.BASE_URL_API + "/employees/" + `${employeeId}`);
+  }
+
 }
 

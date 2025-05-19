@@ -17,6 +17,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.*;
@@ -76,6 +77,29 @@ public class GlobalExceptionHandler {
         errorResponse.setMessage(messageResponse);
 
         return ResponseEntity.status(code).body(errorResponse);
+    }
+
+    /**
+     * Xử lý ngoại lệ khi tham số truyền vào không đúng kiểu dữ liệu, ví dụ như truyền chuỗi thay vì số.
+     *
+     * Ví dụ: Khi gọi API với URL `/employees/abc` thay vì `/employees/1`,
+     * sẽ ném ra {@link MethodArgumentTypeMismatchException} do `abc` không phải là kiểu `Long` hợp lệ.
+     *
+     * @param ex Ngoại lệ {@link MethodArgumentTypeMismatchException} bị ném khi không thể chuyển đổi kiểu tham số.
+     * @return Đối tượng {@link ResponseEntity} chứa thông tin lỗi và mã lỗi nội bộ.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        List<String> params = new ArrayList<>();
+        params.add("ＩＤ");
+
+        MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER013, params);
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setCode(HttpStatusConstants.INTERNAL_SERVER_ERROR);
+        errorResponse.setMessage(messageResponse);
+
+        return ResponseEntity.status(HttpStatusConstants.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     /**
