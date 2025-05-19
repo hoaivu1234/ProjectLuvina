@@ -66,6 +66,12 @@ export class EmployeeService {
     return this.http.get<EmployeeResponse>(AppConstants.BASE_URL_API + "/employees", { params });
   }
 
+  /**
+   * Gửi yêu cầu POST để thêm mới nhân viên
+   * 
+   * @param payload - Dữ liệu nhân viên cần thêm.
+   * @returns Observable<AddEmployeeResponse> - Kết quả phản hồi từ server
+ */
   addEmployee(payload: any): Observable<AddEmployeeResponse> {
     return this.http.post<AddEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
   }

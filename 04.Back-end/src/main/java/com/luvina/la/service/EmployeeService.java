@@ -2,6 +2,7 @@ package com.luvina.la.service;
 
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
+import com.luvina.la.dto.EmployeeResponseDTO;
 import com.luvina.la.payload.EmployeeResponse;
 
 import java.util.List;
@@ -23,5 +24,7 @@ public interface EmployeeService {
 
     boolean existsByEmployeeLoginId(String employeeLoginId);
 
-    boolean existsByEmployeeEmail(String employeeEmail);;
+    boolean existsByEmployeeEmail(String employeeEmail);
+
+    EmployeeResponseDTO getEmployeeById(Long id);
 }

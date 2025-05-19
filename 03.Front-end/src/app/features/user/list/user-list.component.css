@@ -1,6 +1,6 @@
 /* CSS cho nút phân trang hiện tại (active) */
 .pagin .btn-falcon-default.active {
-  color: #2c7be5; /* Màu chữ xanh */
+  color: #57b846; /* Màu chữ xanh */
   text-decoration: underline; /* Gạch chân */
   text-underline-offset: 4px; /* Điều chỉnh khoảng cách gạch chân với chữ */
   font-weight: 600; /* Tăng độ đậm nếu cần */
@@ -8,7 +8,7 @@
 
 /* Tùy chọn: Thêm hiệu ứng khi hover */
 .pagin .btn-falcon-default:not(.active):hover {
-  color: #2c7be5; /* Màu xanh khi hover */
+  color: #57b846; /* Màu xanh khi hover */
   background-color: rgba(44, 123, 229, 0.1); /* Nền nhạt */
 }
 
@@ -17,4 +17,14 @@
   white-space: normal;      /* Cho phép xuống dòng */
   overflow-wrap: break-word;
   max-width: 100%;          /* Đảm bảo không tràn */
+}
+
+.employee-id-cell {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.employee-id-cell:not(.active):hover {
+  color: #57b846;
+  background-color: rgba(44, 123, 229, 0.1);
 }

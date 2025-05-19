@@ -1,3 +1,8 @@
+/*
+  Copyright(C) 2025 Luvina Software Company
+  adm006.component.ts 15/5/2025 hoaivd
+*/
+
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MSG } from 'src/app/shared/utils/messages.constants';
@@ -8,9 +13,9 @@ import { MSG } from 'src/app/shared/utils/messages.constants';
   styleUrls: ['./adm006.component.css']
 })
 export class ADM006Component {
-  completeMessage: string = '';
-  completeCode: string = ''
-  navigation: any;
+  completeMessage: string = '';   // Thông điệp lỗi tương ứng với completeCode
+  completeCode: string = '' // Mã thông báo được lấy từ navigation state
+  navigation: any; // Thông tin điều hướng hiện tại từ Router
   /**
  * Constructor khởi tạo component, inject các service cần thiết.
  *

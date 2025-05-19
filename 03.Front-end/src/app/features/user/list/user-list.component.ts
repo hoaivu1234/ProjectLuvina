@@ -270,4 +270,8 @@ export class UserListComponent {
   openADM004() {
     this.router.navigate(['/user/add']);
   }
+
+  getDetailEmployee(id: number | undefined) {
+    this.router.navigate(['/user/detail'], { state : { employeeId: id}} );
+  }
 }

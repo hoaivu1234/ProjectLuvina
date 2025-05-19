@@ -202,7 +202,7 @@ export class ValidateFormService {
   }
 
   /**
-   * Validator dùng để kiểm tra `certificationEndDate` phải lớn hơn `certificationStartDate`.
+   * Validator dùng để kiểm tra `endDate` phải lớn hơn `startDate`.
    *
    * - Nếu một trong hai trường chưa có giá trị, validator trả về null (không lỗi).
    * - Nếu `endDate` lớn hơn `startDate` → hợp lệ (null).
@@ -212,8 +212,8 @@ export class ValidateFormService {
  */
   checkLargerThanStartDate(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
-      const startDate = group.get('certificationStartDate')?.value;
-      const endDate = group.get('certificationEndDate')?.value;
+      const startDate = group.get('startDate')?.value;
+      const endDate = group.get('endDate')?.value;
 
       if (!startDate || !endDate) return null;
 

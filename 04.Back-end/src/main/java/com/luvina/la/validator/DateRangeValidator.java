@@ -38,13 +38,13 @@ public class DateRangeValidator implements ConstraintValidator<ValidDateRange, E
      */
     @Override
     public boolean isValid(EmployeeCertificationRequestDTO dto, ConstraintValidatorContext context) {
-        if (dto.getCertificationStartDate() == null || dto.getCertificationEndDate() == null) {
+        if (dto.getStartDate() == null || dto.getEndDate() == null) {
             return true; // Để NotEmpty và Pattern xử lý
         }
 
         try {
-            LocalDate start = LocalDate.parse(dto.getCertificationStartDate(), FORMATTER);
-            LocalDate end = LocalDate.parse(dto.getCertificationEndDate(), FORMATTER);
+            LocalDate start = LocalDate.parse(dto.getStartDate(), FORMATTER);
+            LocalDate end = LocalDate.parse(dto.getEndDate(), FORMATTER);
 
             if (!end.isAfter(start)) {
                 context.disableDefaultConstraintViolation();

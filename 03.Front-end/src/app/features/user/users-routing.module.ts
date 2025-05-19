@@ -7,10 +7,12 @@ import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 import { ADM004Component } from './adm004/adm004.component';
 import { Adm005Component } from './adm005/adm005.component';
 import { ADM006Component } from './adm006/adm006.component';
+import { ADM003Component } from './adm003/adm003.component';
 
 const routes: Routes = [
   { path: 'user', redirectTo: 'user/list', pathMatch: 'full'},
   { path: 'user/list', component: UserListComponent, canActivate: [AuthorizeGuard] },
+  { path: 'user/detail', component: ADM003Component, canActivate: [AuthorizeGuard] },
   { path: 'user/add', component: ADM004Component, canActivate: [AuthorizeGuard] },
   { path: 'user/confirm', component: Adm005Component, canActivate: [AuthorizeGuard] },
   { path: 'user/complete', component: ADM006Component, canActivate: [AuthorizeGuard] },

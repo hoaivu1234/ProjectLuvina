@@ -6,45 +6,45 @@
                 <div class="row">
                     <div class="c-form box-shadow was-validated">
                         <ul>
-                            <li class="title">情報確認<br>入力された情報をＯＫボタンクリックでＤＢへ保存してください</li>
+                            <li class="title">情報確認</li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">アカウント名:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeLoginId }}
+                                <div class="col-sm col-sm-10"> {{ employeeData?.employeeLoginId }}
                                 </div>
                             </li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">グループ:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.departmentName }}
+                                <div class="col-sm col-sm-10"> {{ employeeData?.departmentName }}
                                 </div>
                             </li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">氏名:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeName }}
+                                <div class="col-sm col-sm-10"> {{ employeeData?.employeeName }}
                                 </div>
                             </li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">カタカナ氏名:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeNameKana }}
+                                <div class="col-sm col-sm-10"> {{ employeeData?.employeeNameKana }}
                                 </div>
                             </li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">生年月日:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeBirthDate | date : "yyyy/MM/dd"
+                                <div class="col-sm col-sm-10"> {{ employeeData?.employeeBirthDate | date : "yyyy/MM/dd"
                                     }}
                                 </div>
                             </li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">メールアドレス:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeEmail }}
+                                <div class="col-sm col-sm-10"> {{ employeeData?.employeeEmail }}
                                 </div>
                             </li>
                             <li class="form-group row d-flex">
                                 <label class="col-form-label col-sm-2">電話番号:</label>
-                                <div class="col-sm col-sm-10"> {{ dataConfirm?.employeeTelephone }}
+                                <div class="col-sm col-sm-10"> {{ employeeData?.employeeTelephone }}
                                 </div>
                             </li>
                             <li class="title mt-12">日本語能力</li>
-                            <div *ngFor="let cer of dataConfirm.certifications">
+                            <div *ngFor="let cer of employeeData?.certifications">
                                 <li class="form-group row d-flex">
                                     <label class="col-form-label col-sm-2">資格:</label>
                                     <div class="col-sm col-sm-10"> {{ cer.certificationName }}
@@ -71,8 +71,11 @@
 
                             <li class="form-group row d-flex">
                                 <div class="btn-group col-sm col-sm-10 ml">
-                                    <button type="button" class="btn btn-primary btn-sm" (click)="submitForm()">
-                                        OK
+                                    <button type="button" class="btn btn-primary btn-sm" (click)="handleEdit()">
+                                        編集
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm" (click)="handleDelete()">
+                                        削除
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-sm" (click)="hanleBack()">
                                         戻る

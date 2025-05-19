@@ -62,7 +62,7 @@
 
             </div>
             <div class="css-grid-table-body" *ngFor="let employee of listEmployees">
-              <div>{{ employee?.employeeId }}</div>
+              <div (click)="getDetailEmployee(employee?.employeeId)" class="employee-id-cell">{{ employee?.employeeId }}</div>
               <div>{{ employee?.employeeName | shortenText }}</div>
               <div>{{ employee?.employeeBirthDate | date : "yyyy/MM/dd" }}</div>
               <div>{{ employee?.departmentName | shortenText }}</div>

@@ -133,8 +133,8 @@ public class GlobalExceptionHandler {
     private static Map<String, List<String>> createFieldErrorParamsMap() {
         Map<String, List<String>> map = new HashMap<>();
         map.put("employeeBirthDate:" + ErrorCodeConstants.ER005, List.of(EmployeeValidationConstant.DATE_FORMAT));
-        map.put("certificationStartDate:" + ErrorCodeConstants.ER005, List.of(EmployeeValidationConstant.DATE_FORMAT));
-        map.put("certificationEndDate:" + ErrorCodeConstants.ER005, List.of(EmployeeValidationConstant.DATE_FORMAT));
+        map.put("startDate:" + ErrorCodeConstants.ER005, List.of(EmployeeValidationConstant.DATE_FORMAT));
+        map.put("endDate:" + ErrorCodeConstants.ER005, List.of(EmployeeValidationConstant.DATE_FORMAT));
         map.put("employeeLoginPassword:" + ErrorCodeConstants.ER007,
                 List.of(Integer.toString(EmployeeValidationConstant.LENGTH_8),
                         Integer.toString(EmployeeValidationConstant.LENGTH_50)));

@@ -34,16 +34,16 @@ public class EmployeeCertificationRequestDTO {
     // Kiểm tra định dạng hợp lệ: yyyy/MM/dd
     @Pattern(regexp = EmployeeValidationConstant.DATE_FORMAT_REGEX, message = ErrorCodeConstants.ER005)
     @ValidDate(message = ErrorCodeConstants.ER011) // Kiểm tra ngày tháng hợp lệ. Ví dụ 2025/02/31 không hợp lệ nhưng đúng format
-    private String certificationStartDate;
+    private String startDate;
 
     @NotEmpty(message = ErrorCodeConstants.ER001) // Kiểm tra bắt buộc nhập
     // Kiểm tra định dạng hợp lệ: yyyy/MM/dd
     @Pattern(regexp = EmployeeValidationConstant.DATE_FORMAT_REGEX, message = ErrorCodeConstants.ER005)
     @ValidDate(message = ErrorCodeConstants.ER011) // Kiểm tra ngày tháng hợp lệ. Ví dụ 2025/02/31 không hợp lệ nhưng đúng format
-    private String certificationEndDate;
+    private String endDate;
 
     @NotEmpty(message = ErrorCodeConstants.ER001) // Kiểm tra bắt buộc nhập
     // Kiểm tra có là số nguyên dương không
     @Pattern(regexp = EmployeeValidationConstant.POSITIVE_INTEGER, message = ErrorCodeConstants.ER018)
-    private String employeeCertificationScore;
+    private String score;
 }

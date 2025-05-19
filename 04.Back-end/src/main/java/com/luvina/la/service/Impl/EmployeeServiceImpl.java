@@ -6,8 +6,10 @@
 package com.luvina.la.service.Impl;
 
 import com.luvina.la.common.*;
+import com.luvina.la.dto.EmployeeCertificationRequestDTO;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
+import com.luvina.la.dto.EmployeeResponseDTO;
 import com.luvina.la.entity.Certification;
 import com.luvina.la.entity.Department;
 import com.luvina.la.entity.Employee;
@@ -17,6 +19,7 @@ import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.payload.MessageResponse;
 import com.luvina.la.repository.CertificationRepository;
 import com.luvina.la.repository.DepartmentRepository;
+import com.luvina.la.repository.EmployeeCertificationRepository;
 import com.luvina.la.repository.EmployeeRepository;
 import com.luvina.la.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -64,11 +68,24 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private CertificationRepository certificationRepository;
 
+    @Autowired
+    private EmployeeCertificationRepository employeeCertificationRepository;
+
     /**
      * Interface này dùng để encode mật khẩu trước khi lưu vào cơ sở dữ liệu.
      */
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Override
+    public EmployeeResponseDTO getEmployeeById(Long id) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(id);
+        if (employee.isEmpty()) {
+            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
+                    new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>()));
+        }
+        return null;
+    }
 
     /**
      * Lấy danh sách nhân viên từ cơ sở dữ liệu dựa trên các tiêu chí lọc và sắp xếp.
@@ -245,10 +262,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 // Khởi tạo chứng chỉ
                 EmployeeCertification cert = new EmployeeCertification();
 
-                LocalDate startDate = LocalDate.parse(certDTO.getCertificationStartDate(), formatter);
+                LocalDate startDate = LocalDate.parse(certDTO.getStartDate(), formatter);
                 cert.setStartDate(Date.valueOf(startDate));
 
-                LocalDate endDate = LocalDate.parse(certDTO.getCertificationEndDate(), formatter);
+                LocalDate endDate = LocalDate.parse(certDTO.getEndDate(), formatter);
                 cert.setEndDate(Date.valueOf(endDate));
 
                 Long certificationId = Long.parseLong(certDTO.getCertificationId());
@@ -257,7 +274,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
                 cert.setCertification(certification);
 
-                BigDecimal score = new BigDecimal(certDTO.getEmployeeCertificationScore());
+                BigDecimal score = new BigDecimal(certDTO.getScore());
                 cert.setScore(score);
 
                 cert.setEmployee(employee); // Liên kết ngược

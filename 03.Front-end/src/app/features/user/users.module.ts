@@ -11,6 +11,7 @@ import { ShortenTextPipe } from 'src/app/shared/custom-pipe/shorten-text';
 import { ADM004Component } from './adm004/adm004.component';
 import { Adm005Component } from './adm005/adm005.component';
 import { ADM006Component } from './adm006/adm006.component';
+import { ADM003Component } from './adm003/adm003.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { ADM006Component } from './adm006/adm006.component';
     ShortenTextPipe,
     ADM004Component,
     Adm005Component,
-    ADM006Component
+    ADM006Component,
+    ADM003Component
   ],
   imports: [
     BrowserAnimationsModule,

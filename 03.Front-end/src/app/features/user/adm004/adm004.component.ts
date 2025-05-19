@@ -3,7 +3,6 @@
   adm004.component.ts 10/5/2025 hoaivd
 */
 
-import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -44,13 +43,13 @@ export class ADM004Component {
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
    *
-   * @param http Đối tượng HttpClient dùng để thực hiện các yêu cầu HTTP
    * @param departmentService Service lấy dữ liệu phòng ban
    * @param certificationService Service lấy dữ liệu trình độ tiếng nhật
    * @param router Service định tuyến Router để điều hướng khi xảy ra lỗi
+   * @param fb FormBuilder dùng để thao tác với form
+   * @param validationService Service chứa các hàm dùng để validate form
    */
   constructor(
-    public http: HttpClient,
     public departmentService: DepartmentService,
     public certificationService: CertificationService,
     private router: Router,
@@ -106,9 +105,9 @@ export class ADM004Component {
         certificationsArray.push(
           this.fb.group({
             certificationId: [cert.certificationId],
-            certificationStartDate: [{ value: cert.certificationStartDate, disabled: false }],  // Bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
-            certificationEndDate: [{ value: cert.certificationEndDate, disabled: false }],
-            employeeCertificationScore: [{ value: cert.employeeCertificationScore, disabled: false }],
+            startDate: [{ value: cert.startDate, disabled: false }],  // Bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
+            endDate: [{ value: cert.endDate, disabled: false }],
+            score: [{ value: cert.score, disabled: false }],
           })
         );
       });
@@ -154,21 +153,21 @@ export class ADM004Component {
   addCertification(): void {
     const certificationGroup = this.fb.group({
       certificationId: [null],
-      certificationStartDate: [{ value: null, disabled: true }],
-      certificationEndDate: [{ value: null, disabled: true }],
-      employeeCertificationScore: [{ value: null, disabled: true }],
+      startDate: [{ value: null, disabled: true }],
+      endDate: [{ value: null, disabled: true }],
+      score: [{ value: null, disabled: true }],
     }, {
       validators: this.validationService.checkLargerThanStartDate()
     });
 
-    // update lại validatior của certificationStartDate trong certifications khi có thay đổi giá trị
+    // update lại validatior của startDate trong certifications khi có thay đổi giá trị
     this.certifications.push(certificationGroup);
-    this.certifications.get('certificationStartDate')?.valueChanges.subscribe(() => {
+    this.certifications.get('startDate')?.valueChanges.subscribe(() => {
       this.certifications.updateValueAndValidity({ onlySelf: false });
     });
 
-    // update lại validatior của certificationEndDate trong certifications khi có thay đổi giá trị
-    this.certifications.get('certificationEndDate')?.valueChanges.subscribe(() => {
+    // update lại validatior của endDate trong certifications khi có thay đổi giá trị
+    this.certifications.get('endDate')?.valueChanges.subscribe(() => {
       this.certifications.updateValueAndValidity({ onlySelf: false });
     });
   }
@@ -211,9 +210,9 @@ export class ADM004Component {
     const selectedId = certGroup.get('certificationId')?.value;
 
     const controlsToUpdate = [
-      'certificationStartDate',
-      'certificationEndDate',
-      'employeeCertificationScore',
+      'startDate',
+      'endDate',
+      'score',
     ];
 
     if (!selectedId) {
@@ -231,8 +230,8 @@ export class ADM004Component {
         const control = certGroup.get(controlName);
         control?.enable();
         control?.setValidators(Validators.required);
-        if (controlName === 'employeeCertificationScore') {
-          control?.addValidators(this.validationService.checkNumberHalfSize()); // Kiểm tra nếu là employeeCertificationScore thì thêm validator kiểm tra số half size
+        if (controlName === 'score') {
+          control?.addValidators(this.validationService.checkNumberHalfSize()); // Kiểm tra nếu là score thì thêm validator kiểm tra số half size
         }
         control?.updateValueAndValidity();
       });

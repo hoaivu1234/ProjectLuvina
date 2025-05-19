@@ -4,7 +4,6 @@
 */
 
 import { DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -39,18 +38,17 @@ export class Adm005Component {
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
    *
-   * @param http Đối tượng HttpClient dùng để thực hiện các yêu cầu HTTP
    * @param departmentService Service lấy dữ liệu phòng ban
    * @param certificationService Service lấy dữ liệu trình độ tiếng nhật
+   * @param employeeService Service thêm dữ liệu nhân viên
    * @param router Service định tuyến Router để điều hướng khi xảy ra lỗi
+   * @param datePipe Pipe dùng để chuyển đổi dữ liệu các trường date
    */
   constructor(
-    public http: HttpClient,
     public departmentService: DepartmentService,
     public certificationService: CertificationService,
     public employeeService: EmployeeService,
     private router: Router,
-    private fb: FormBuilder,
     private datePipe: DatePipe
   ) {
     const nav = this.router.getCurrentNavigation();
@@ -159,8 +157,8 @@ export class Adm005Component {
         delete clonedData.certifications;
       } else {
         clonedData.certifications.forEach((cert: any) => {
-          cert.certificationStartDate = this.datePipe.transform(cert.certificationStartDate, 'yyyy/MM/dd');
-          cert.certificationEndDate = this.datePipe.transform(cert.certificationEndDate, 'yyyy/MM/dd');
+          cert.startDate = this.datePipe.transform(cert.startDate, 'yyyy/MM/dd');
+          cert.endDate = this.datePipe.transform(cert.endDate, 'yyyy/MM/dd');
         });
       }
     }
