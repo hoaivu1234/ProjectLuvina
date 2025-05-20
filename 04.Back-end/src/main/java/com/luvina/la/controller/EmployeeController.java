@@ -53,11 +53,11 @@ public class EmployeeController {
      * @param offset Vị trí bắt đầu lấy dữ liệu (có thể rỗng).
      * @param limit Số lượng bản ghi trả về (có thể rỗng).
      *
-     * @return ResponseEntity<EmployeeResponse<List<EmployeeDTO>>> đối tượng chứa mã trạng thái và danh sách nhân viên thỏa mãn điều kiện lọc.
+     * @return EmployeeResponse<List<EmployeeDTO>> đối tượng chứa mã trạng thái và danh sách nhân viên thỏa mãn điều kiện lọc.
      * @throws DataAccessException Nếu có lỗi xảy ra trong quá trình truy xuất dữ liệu.
      */
     @GetMapping("")
-    public ResponseEntity<EmployeeResponse<List<EmployeeDTO>>> getListEmployees(
+    public EmployeeResponse<List<EmployeeDTO>> getListEmployees(
             @RequestParam(name = "employee_name", required = false, defaultValue = "") String employeeName,
             @RequestParam(name = "department_id", required = false, defaultValue = "") String departmentId,
             @RequestParam(name = "ord_employee_name", required = false, defaultValue = "") String ordEmployeeName,
@@ -100,7 +100,7 @@ public class EmployeeController {
         }
 
         // Trả về response với mã trạng thái OK và danh sách nhân viên
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return response;
     }
 
     /**
@@ -108,12 +108,11 @@ public class EmployeeController {
      * Nhận vào một đối tượng {@link EmployeeRequestDTO} chứa thông tin của nhân viên như:
      * mã đăng nhập, mật khẩu, email, mã phòng ban,... và thực hiện lưu vào cơ sở dữ liệu
      * @param employeeRequest Đối tượng chứa thông tin nhân viên cần thêm mới.
-     * @return {@link ResponseEntity} chứa {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
+     * @return {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
      */
     @PostMapping("")
-    public ResponseEntity<EmployeeResponse> addEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequest) {
-        EmployeeResponse<Long> response = employeeService.addEmployee(employeeRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    public EmployeeResponse addEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequest) {
+        return employeeService.addEmployee(employeeRequest);
     }
 
     /**
@@ -129,13 +128,15 @@ public class EmployeeController {
 
     /**
      * Xóa một nhân viên dựa trên ID.
+     * Không cần bọc thêm ResponseEntity bởi vì controller chỉ nên xử lý nhiệm vụ duy nhất là trả về ok
+     * Nếu có lỗi xảy ra thì để ExceptionHandler xử lý
+     * Vì mặc định nếu không có lỗi thì ResponseEntity trả về OK 200
      *
      * @param id ID của nhân viên cần xóa.
-     * @return ResponseEntity chứa đối tượng {@link EmployeeResponse} với thông tin phản hồi từ service.
+     * @return {@link EmployeeResponse} với thông tin phản hồi từ service.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<EmployeeResponse> deleteEmployeeById(@PathVariable Long id) {
-        EmployeeResponse<Long> response = employeeService.deleteEmployeeById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    public EmployeeResponse deleteEmployeeById(@PathVariable Long id) {
+        return employeeService.deleteEmployeeById(id);
     }
 }
