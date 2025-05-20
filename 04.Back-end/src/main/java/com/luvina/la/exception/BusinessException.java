@@ -5,6 +5,7 @@
 
  package com.luvina.la.exception;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.luvina.la.payload.MessageResponse;
 import lombok.Data;
 
@@ -27,6 +28,8 @@ public class BusinessException extends RuntimeException {
      */
     private int code;
 
+    private Long employeeId;
+
     /**
      * Thông tin chi tiết về lỗi, bao gồm mã lỗi và thông điệp hiển thị.
      */
@@ -44,4 +47,12 @@ public class BusinessException extends RuntimeException {
         this.messageResponse = messageResponse;
         this.code = code;
     }
+    public BusinessException(int code, Long employeeId, MessageResponse messageResponse) {
+        // Gọi constructor của RuntimeException với chuỗi mã lỗi từ ResponseMessage
+        super(messageResponse.getCode());
+        this.messageResponse = messageResponse;
+        this.code = code;
+        this.employeeId = employeeId;
+    }
+
 }

@@ -126,4 +126,16 @@ public class EmployeeController {
     public EmployeeResponseDTO getEmployeeById(@PathVariable Long id) {
         return employeeService.getEmployeeById(id);
     }
+
+    /**
+     * Xóa một nhân viên dựa trên ID.
+     *
+     * @param id ID của nhân viên cần xóa.
+     * @return ResponseEntity chứa đối tượng {@link EmployeeResponse} với thông tin phản hồi từ service.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<EmployeeResponse> deleteEmployeeById(@PathVariable Long id) {
+        EmployeeResponse<Long> response = employeeService.deleteEmployeeById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

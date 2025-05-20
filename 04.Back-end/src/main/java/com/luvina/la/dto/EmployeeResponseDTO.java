@@ -1,3 +1,8 @@
+/**
+ * Copyright(C) 2025  Luvina Software Company
+ * EmployeeResponseDTO.java, 5/19/2025 hoaivd
+ */
+
 package com.luvina.la.dto;
 
 import lombok.Getter;
@@ -7,8 +12,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyright(C) 2025  Luvina Software Company
- * EmployeeResponseDTO.java, 5/19/2025 hoaivd
+ * DTO (Data Transfer Object) đại diện cho thông tin employee cần trả về.
+ * Được sử dụng để truyền dữ liệu nhân viên giữa các tầng trong hệ thống.
+ *
+ * @author hoaivd
  */
 
 @Getter

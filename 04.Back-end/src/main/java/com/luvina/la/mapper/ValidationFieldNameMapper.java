@@ -20,6 +20,7 @@ public class ValidationFieldNameMapper {
      * Value: tên hiển thị tương ứng (Japanese display name).
      */
     public static final Map<String, String> FIELD_DISPLAY_NAME_MAP = Map.ofEntries(
+            Map.entry("id", "ＩＤ"),
             Map.entry("employeeName", "氏名"),
             Map.entry("employeeLoginId", "アカウント名"),
             Map.entry("employeeEmail", "メールアドレス"),
@@ -29,9 +30,9 @@ public class ValidationFieldNameMapper {
             Map.entry("employeeNameKana", "カタカナ氏名"),
             Map.entry("employeeLoginPassword", "パスワード"),
             Map.entry("certificationId", "資格"),
-            Map.entry("certificationStartDate", "資格交付日"),
-            Map.entry("certificationEndDate", "失効日"),
-            Map.entry("employeeCertificationScore", "点数")
+            Map.entry("startDate", "資格交付日"),
+            Map.entry("endDate", "失効日"),
+            Map.entry("score", "点数")
     );
 
     /**

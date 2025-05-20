@@ -50,9 +50,7 @@
                 </div>
               </li>
               <li class="title mt-12">日本語能力</li>
-              <div
-                *ngIf="employeeData?.certifications?.length > 0; else noCert"
-              >
+              <div *ngIf="employeeData?.certifications?.length > 0; else noCert">
                 <div *ngFor="let cer of employeeData?.certifications">
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2">資格:</label>
@@ -78,6 +76,44 @@
                   </li>
                 </div>
               </div>
+              <li class="form-group row d-flex">
+                <div class="btn-group col-sm col-sm-10 ml">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="handleEdit()">
+                    編集
+                  </button>
+                  <!-- Nút xóa -->
+                  <button type="button" class="btn btn-secondary btn-sm" (click)="openConfirmModal(confirmTemplate)">
+                    削除
+                  </button>
+
+                  <ng-template #confirmTemplate>
+                    <div class="modal-overlay">
+                      <div class="modal-container">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">確認</h4>
+                            <button type="button" class="close" aria-label="Close" (click)="modalRef.hide()">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            {{ MSG['MSG004']}}
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-confirm" (click)="handleDelete()">OK</button>
+                            <button type="button" class="btn btn-cancel" (click)="modalRef.hide()">戻る</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+
+
+                  <button type="button" class="btn btn-secondary btn-sm" (click)="hanleBack()">
+                    戻る
+                  </button>
+                </div>
+              </li>
 
               <ng-template #noCert>
                 <div class="form-group">
@@ -98,32 +134,6 @@
                   </li>
                 </div>
               </ng-template>
-
-              <li class="form-group row d-flex">
-                <div class="btn-group col-sm col-sm-10 ml">
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm"
-                    (click)="handleEdit()"
-                  >
-                    編集
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary btn-sm"
-                    (click)="handleDelete()"
-                  >
-                    削除
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary btn-sm"
-                    (click)="hanleBack()"
-                  >
-                    戻る
-                  </button>
-                </div>
-              </li>
             </ul>
           </div>
         </div>

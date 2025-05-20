@@ -27,4 +27,6 @@ public interface EmployeeService {
     boolean existsByEmployeeEmail(String employeeEmail);
 
     EmployeeResponseDTO getEmployeeById(Long id);
+
+    EmployeeResponse<Long> deleteEmployeeById(Long id);
 }

@@ -31,10 +31,20 @@ public class ErrorResponse<T> {
     private int code;
 
     /**
+     * Mã nhân viên trả về.
+     */
+    private Long employeeId;
+
+    /**
      * Thông điệp lỗi nếu có (dành cho các trường hợp thất bại).
      * Được sử dụng để gửi thông tin chi tiết về lỗi xảy ra trong quá trình xử lý.
      */
     private MessageResponse message;
+
+    public ErrorResponse(int code, MessageResponse message) {
+        this.code = code;
+        this.message = message;
+    }
 }
 
 

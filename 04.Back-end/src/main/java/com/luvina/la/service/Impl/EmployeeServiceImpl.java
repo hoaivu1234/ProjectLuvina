@@ -12,6 +12,7 @@ import com.luvina.la.entity.Department;
 import com.luvina.la.entity.Employee;
 import com.luvina.la.entity.EmployeeCertification;
 import com.luvina.la.exception.BusinessException;
+import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.payload.MessageResponse;
 import com.luvina.la.repository.CertificationRepository;
@@ -79,7 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Trả về thông tin chi tiết của một nhân viên theo ID, bao gồm cả thông tin chứng chỉ (certifications).
-     *
+     * <p>
      * Nếu nhân viên không tồn tại, phương thức sẽ ném ra {@link BusinessException} với mã lỗi ER013.
      *
      * @param id ID của nhân viên cần lấy thông tin.
@@ -88,10 +89,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public EmployeeResponseDTO getEmployeeById(Long id) {
-        Employee employee = employeeRepository.findByEmployeeId(id)
-                .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-                        new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>())));
-
+        Employee employee = getEmployee(id, ErrorCodeConstants.ER013, false);
 
         List<EmployeeCertification> certifications = employeeCertificationRepository.findByEmployee(employee);
 
@@ -125,17 +123,35 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     /**
+     * Xóa nhân viên theo ID.
+     *
+     * Đánh dấu {@code @Transactional} để đảm bảo tính toàn vẹn dữ liệu.
+     * Nếu nhân viên tồn tại, tiến hành xóa khỏi cơ sở dữ liệu; nếu không, ném ra ngoại lệ BusinessException.
+     *
+     * @param id ID của nhân viên cần xóa.
+     * @return {@link EmployeeResponse} chứa ID đã xóa, mã trạng thái HTTP và thông báo thành công.
+     * @throws BusinessException nếu không tìm thấy nhân viên với ID tương ứng.
+     */
+    @Transactional
+    @Override
+    public EmployeeResponse<Long> deleteEmployeeById(Long id) {
+        Employee employee = getEmployee(id, ErrorCodeConstants.ER014, true);
+        employeeRepository.deleteById(employee.getEmployeeId());
+        return new EmployeeResponse<>(HttpStatusConstants.OK, id, new MessageResponse(MsgCodeConstants.MSG003, new ArrayList<>()));
+    }
+
+    /**
      * Lấy danh sách nhân viên từ cơ sở dữ liệu dựa trên các tiêu chí lọc và sắp xếp.
      * Cung cấp phân trang để tối ưu hóa việc lấy dữ liệu.
      *
-     * @param employeeName Tên nhân viên để lọc.
-     * @param departmentId ID của phòng ban để lọc.
-     * @param ordEmployeeName Cách sắp xếp tên nhân viên.
+     * @param employeeName         Tên nhân viên để lọc.
+     * @param departmentId         ID của phòng ban để lọc.
+     * @param ordEmployeeName      Cách sắp xếp tên nhân viên.
      * @param ordCertificationName Cách sắp xếp tên chứng chỉ.
-     * @param ordEndDate Cách sắp xếp ngày kết thúc chứng chỉ.
-     * @param sortPriority Tiêu chí sắp xếp ưu tiên.
-     * @param offset Vị trí bắt đầu của trang dữ liệu.
-     * @param limit Số lượng bản ghi trong mỗi trang.
+     * @param ordEndDate           Cách sắp xếp ngày kết thúc chứng chỉ.
+     * @param sortPriority         Tiêu chí sắp xếp ưu tiên.
+     * @param offset               Vị trí bắt đầu của trang dữ liệu.
+     * @param limit                Số lượng bản ghi trong mỗi trang.
      * @return Một đối tượng `EmployeeResponse` chứa danh sách nhân viên DTO cùng với tổng số bản ghi và mã trạng thái.
      */
     @Override
@@ -147,7 +163,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             String ordEndDate,
             String sortPriority,
             int offset,
-            int limit){
+            int limit) {
 
         // Tạo sort order
         List<Sort.Order> orders = buildSortOrders(
@@ -172,10 +188,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Phương thức buildSortOrders để tạo danh sách các Sort.Order dựa trên các tham số sắp xếp
-     * @param ordEmployeeName Cách sắp xếp tên nhân viên.
+     *
+     * @param ordEmployeeName      Cách sắp xếp tên nhân viên.
      * @param ordCertificationName Cách sắp xếp tên chứng chỉ.
-     * @param ordEndDate Cách sắp xếp ngày kết thúc chứng chỉ.
-     * @param sortPriority Tiêu chí sắp xếp ưu tiên.
+     * @param ordEndDate           Cách sắp xếp ngày kết thúc chứng chỉ.
+     * @param sortPriority         Tiêu chí sắp xếp ưu tiên.
      * @return Danh sách các Sort.Order dựa trên các tham số sắp xếp
      */
     private List<Sort.Order> buildSortOrders(
@@ -247,6 +264,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Đếm số lượng nhân viên theo các tiêu chí lọc
+     *
      * @param employeeName Tên nhân viên
      * @param departmentId Id phòng ban
      * @return Số lượng nhân viên thỏa mãn.
@@ -261,7 +279,6 @@ public class EmployeeServiceImpl implements EmployeeService {
      *
      * @param requestDTO Đối tượng chứa thông tin nhân viên cần thêm, bao gồm: tên, email, số điện thoại, tài khoản đăng nhập, mật khẩu, phòng ban, chứng chỉ,...
      * @return Đối tượng {@link EmployeeResponse} chứa mã trạng thái, ID nhân viên vừa được thêm và thông báo thành công.
-     *
      * @throws BusinessException nếu không tìm thấy phòng ban hoặc chứng chỉ tương ứng với ID được truyền vào.
      */
 
@@ -347,6 +364,30 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public boolean existsByEmployeeEmail(String employeeEmail) {
         return employeeRepository.existsByEmployeeEmail(employeeEmail);
+    }
+
+    /**
+     * Lấy thông tin nhân viên theo ID. Nếu không tồn tại, ném ra {@link BusinessException}.
+     *
+     * @param id ID của nhân viên cần tìm.
+     * @param errorCode Mã lỗi sẽ sử dụng nếu không tìm thấy nhân viên.
+     * @param includeIdInException Cờ xác định có nên đưa ID vào ngoại lệ hay không.
+     * @return Đối tượng {@link Employee} tương ứng với ID.
+     * @throws BusinessException nếu không tìm thấy nhân viên theo ID.
+     */
+    private Employee getEmployee(Long id, String errorCode, boolean includeIdInException) {
+        List<String> params = new ArrayList<>();
+        params.add(ValidationFieldNameMapper.getDisplayName("id"));
+
+        return employeeRepository.findByEmployeeId(id)
+                .orElseThrow(() -> {
+                    MessageResponse message = new MessageResponse(errorCode, params);
+                    if (includeIdInException) {
+                        return new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, id, message);
+                    } else {
+                        return new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, message);
+                    }
+                });
     }
 
 }

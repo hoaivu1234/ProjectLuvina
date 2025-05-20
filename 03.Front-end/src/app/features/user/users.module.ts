@@ -12,6 +12,7 @@ import { ADM004Component } from './adm004/adm004.component';
 import { Adm005Component } from './adm005/adm005.component';
 import { ADM006Component } from './adm006/adm006.component';
 import { ADM003Component } from './adm003/adm003.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { ADM003Component } from './adm003/adm003.component';
     SharedModule,
     UsersRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ModalModule.forRoot(),
   ]
 })
 export class UsersModule { }

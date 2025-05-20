@@ -7,7 +7,7 @@ export interface EmployeeResponse {
   employees: Employee[];
 }
 
-export interface AddEmployeeResponse {
+export interface CUDEmployeeResponse {
   code: number;
   employeeId: number;
   message: MessageResponse;

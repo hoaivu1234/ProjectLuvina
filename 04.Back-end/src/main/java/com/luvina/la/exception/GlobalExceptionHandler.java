@@ -11,10 +11,13 @@ import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.ErrorResponse;
 import com.luvina.la.payload.MessageResponse;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -57,7 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(Exception ex) {
         MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER022, new ArrayList<>());
-        ErrorResponse response = new ErrorResponse(HttpStatusConstants.NOT_FOUND, messageResponse);
+        ErrorResponse response = new ErrorResponse(HttpStatusConstants.NOT_FOUND , messageResponse);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -75,6 +78,9 @@ public class GlobalExceptionHandler {
 
         errorResponse.setCode(code);
         errorResponse.setMessage(messageResponse);
+        if (exception.getEmployeeId() != null) {
+            errorResponse.setEmployeeId(exception.getEmployeeId());
+        }
 
         return ResponseEntity.status(code).body(errorResponse);
     }
@@ -91,9 +97,32 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         List<String> params = new ArrayList<>();
-        params.add("ＩＤ");
+        String displayName = ValidationFieldNameMapper.getDisplayName(ex.getName());
+        params.add(displayName);
 
-        MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER013, params);
+        MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER005, params);
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setCode(HttpStatusConstants.INTERNAL_SERVER_ERROR);
+        errorResponse.setMessage(messageResponse);
+
+        return ResponseEntity.status(HttpStatusConstants.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+
+    /**
+     * Xử lý ngoại lệ khi thiếu biến trong đường dẫn (@PathVariable).
+     *
+     * @param ex Ngoại lệ {@link MissingPathVariableException} được ném ra khi biến đường dẫn bị thiếu.
+     * @return ResponseEntity chứa {@link ErrorResponse} với mã lỗi và thông báo tương ứng.
+     */
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<ErrorResponse> handleMissingPathVariable(MissingPathVariableException ex) {
+        List<String> params = new ArrayList<>();
+        String displayName = ValidationFieldNameMapper.getDisplayName(ex.getVariableName());
+        params.add(displayName);
+
+        MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER001, params);
 
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(HttpStatusConstants.INTERNAL_SERVER_ERROR);

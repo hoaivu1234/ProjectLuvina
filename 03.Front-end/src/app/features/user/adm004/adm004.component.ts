@@ -283,11 +283,11 @@ export class ADM004Component {
     this.router.navigate(['/user/list']);
   }
 
-    /**
-     * Điều hướng về màn hình ADM005 (xác nhận thông tin người dùng)
-     * Nếu form hợp lệ, chuyển sang trang xác nhận và truyền dữ liệu form.
-     * Nếu form không hợp lệ, đánh dấu các trường chưa hợp lệ để hiển thị thông báo lỗi.
-   */
+  /**
+   * Điều hướng về màn hình ADM005 (xác nhận thông tin người dùng)
+   * Nếu form hợp lệ, chuyển sang trang xác nhận và truyền dữ liệu form.
+   * Nếu form không hợp lệ, đánh dấu các trường chưa hợp lệ để hiển thị thông báo lỗi.
+ */
   handleConfirm() {
     if (this.employeeForm.valid) {
       this.router.navigate(['/user/confirm'], { state: { dataConfirm: this.employeeForm.value } });
@@ -297,10 +297,10 @@ export class ADM004Component {
     }
   }
 
-    /**
-     * Đệ quy đánh dấu tất cả các control trong FormGroup là 'touched' và 'dirty'.
-     * @param formGroup - FormGroup cần đánh dấu
-   */
+  /**
+   * Đệ quy đánh dấu tất cả các control trong FormGroup là 'touched' và 'dirty'.
+   * @param formGroup - FormGroup cần đánh dấu
+ */
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();

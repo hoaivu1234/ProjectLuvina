@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConstants } from 'src/app/app-constants';
-import { AddEmployeeResponse, EmployeeResponse, EmployeeResponseDTO } from '../model/employee-response.model';
+import { CUDEmployeeResponse, EmployeeResponse, EmployeeResponseDTO } from '../model/employee-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -70,10 +70,10 @@ export class EmployeeService {
    * Gửi yêu cầu POST để thêm mới nhân viên
    * 
    * @param payload - Dữ liệu nhân viên cần thêm.
-   * @returns Observable<AddEmployeeResponse> - Kết quả phản hồi từ server
+   * @returns Observable<CUDEmployeeResponse> - Kết quả phản hồi từ server
  */
-  addEmployee(payload: any): Observable<AddEmployeeResponse> {
-    return this.http.post<AddEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
+  addEmployee(payload: any): Observable<CUDEmployeeResponse> {
+    return this.http.post<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
   }
 
   /**
@@ -84,6 +84,10 @@ export class EmployeeService {
  */
   getEmployeeById(employeeId: number): Observable<EmployeeResponseDTO> {
     return this.http.get<EmployeeResponseDTO>(AppConstants.BASE_URL_API + "/employees/" + `${employeeId}`);
+  }
+
+  deleteEmployeeById(employeeId: number) : Observable<CUDEmployeeResponse> {
+    return this.http.delete<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees/" + `${employeeId}`);
   }
 
 }

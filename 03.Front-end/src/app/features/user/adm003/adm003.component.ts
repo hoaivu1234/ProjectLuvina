@@ -1,29 +1,51 @@
+/*
+  Copyright(C) 2025 Luvina Software Company
+  adm003.component.ts 20/5/2025 hoaivd
+*/
+
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { error } from 'jquery';
 import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
 import { EmployeeService } from 'src/app/service/employee.service';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { TemplateRef } from '@angular/core';
+import { MSG } from 'src/app/shared/utils/messages.constants';
 
 @Component({
   selector: 'app-adm003',
   templateUrl: './adm003.component.html',
   styleUrls: ['./adm003.component.css']
 })
+
+/**
+ * Màn hình để xem chi tiết thông tin employee
+ * Có các chức năng như chuyển sang mode edit và xóa bản ghi employee
+ * Nếu có lỗi xảy ra trong quá trình thực hiện thì điều hướng đến màn System Error
+ * 
+ * @author hoaivd
+ */
 export class ADM003Component {
+  modalRef!: BsModalRef; // Tham chiếu đến modal Bootstrap đang được hiển thị
+  MSG = MSG; // Hằng số chứa các message hiển thị
+
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   employeeData: any; // Dữ liệu thông tin của nhân viên
+  employeeId!: number; // Id của nhân viên được chuyển từ ADM002 sang
   navigation: any; // Thông tin điều hướng hiện tại từ Router
 
   /**
  * Constructor khởi tạo component, inject các service cần thiết.
  *
  * @param router Service định tuyến Router để điều hướng khi xảy ra lỗi
+ * @param employeeService Service dùng để thực hiện xóa employee trong cơ sở dữ liệu
+ * @param modalService Service dùng để thao tác với modal
  */
   constructor(
     private router: Router,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private modalService: BsModalService
   ) {
     // Lấy thông tin điều hướng hiện tại từ Router
     this.navigation = this.router.getCurrentNavigation();
@@ -38,12 +60,12 @@ export class ADM003Component {
  */
   ngOnInit(): void {
     // Lấy id nhân viên truyền sang từ ADM002
-    const employeeId = this.navigation?.extras?.state?.['employeeId'];
-    if (isNaN(Number(employeeId)) || !employeeId) {
+    this.employeeId = this.navigation?.extras?.state?.['employeeId'];
+    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
       this.router.navigate(['error']);
     }
 
-    this.getEmployeeById(employeeId)
+    this.getEmployeeById(this.employeeId);
   }
 
   /**
@@ -98,7 +120,45 @@ export class ADM003Component {
 
   }
 
+   /**
+     * Xử lý hành động xóa nhân viên.
+     * 
+     * - Thêm class `closing` để tạo hiệu ứng đóng modal.
+     * - Ẩn modal thông qua `BsModalRef`.
+     * - Sau 400ms (chờ hiệu ứng đóng), gọi API để xóa nhân viên theo `employeeId`.
+     * - Nếu thành công, điều hướng đến màn ADM006 với mã `completeCode`.
+     * - Nếu thất bại, điều hướng đến màn SystemError với mã `errorCode`.
+   */
   handleDelete() {
-
+    // Thêm hiệu ứng đóng trước
+    const modal = document.querySelector('.modal-content');
+    modal?.classList.add('closing');
+    this.modalRef?.hide();
+  
+    setTimeout(() => {
+      // Gọi API sau khi modal ẩn
+      this.employeeService.deleteEmployeeById(this.employeeId).subscribe({
+        next: (data) => {
+          this.router.navigate(['user/complete'], {
+            state: { completeCode: data?.message?.code }
+          });
+        },
+        error: (err) => {
+          this.router.navigate(['error'], {
+            state: { errorCode: err?.error?.message?.code }
+          });
+        }
+      });
+    }, 400);
+  }  
+  
+  /**
+     * Mở modal xác nhận xóa nhân viên.
+     * 
+     * @param template Template modal được truyền vào để hiển thị.
+   */
+  openConfirmModal(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template);
   }
+
 }
