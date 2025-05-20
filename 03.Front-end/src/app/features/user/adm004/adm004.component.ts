@@ -10,6 +10,7 @@ import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
 import { CertificationService } from 'src/app/service/certification.service';
 import { DepartmentService } from 'src/app/service/department.service';
+import { EmployeeService } from 'src/app/service/employee.service';
 import { ValidateFormService } from 'src/app/service/validate-form.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
@@ -39,6 +40,9 @@ export class ADM004Component {
   dataConfirmBack: any; // Dữ liệu từ ADM005 back về
   ERROR_MESSAGES = ERROR_MESSAGES;
   ERROR_CODES = ERROR_CODES;
+  navigation: any;
+  employeeId!: number;
+  mode!: string;
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -54,12 +58,10 @@ export class ADM004Component {
     public certificationService: CertificationService,
     private router: Router,
     private fb: FormBuilder,
-    protected validationService: ValidateFormService
+    protected validationService: ValidateFormService,
+    private employeeService: EmployeeService,
   ) {
-    const nav = this.router.getCurrentNavigation();
-
-    // Lấy Dữ liệu từ ADM005 back về nếu được truyền qua navigation state
-    this.dataConfirmBack = nav?.extras?.state?.['dataConfirmBack'];
+    this.navigation = this.router.getCurrentNavigation();
   }
 
   /**
@@ -68,8 +70,23 @@ export class ADM004Component {
    */
   ngOnInit(): void {
     this.initForm();
+    this.getDataNavigate();  
     this.getListDepartment();
     this.getListCertification();
+  }
+
+  getDataNavigate() {
+  // Lấy Dữ liệu từ ADM005 back về nếu được truyền qua navigation state
+    this.employeeId = this.navigation?.extras?.state?.['employeeId'];
+
+    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
+      this.mode = 'add';
+    } else {
+      this.mode = 'edit';
+    }
+
+    this.getEmployeeById(this.employeeId);
+    this.dataConfirmBack = this.navigation?.extras?.state?.['dataConfirmBack'];
     if (this.dataConfirmBack) this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
   }
 
@@ -119,6 +136,7 @@ export class ADM004Component {
   */
   initForm() {
     this.employeeForm = this.fb.group({
+      employeeId: [null],
       employeeLoginId: [null, [Validators.required, Validators.maxLength(50), this.validationService.checkValidateLoginId()]],
       departmentId: [null, Validators.required],
       employeeNameKana: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkKanaHalfSize()]],
@@ -238,6 +256,28 @@ export class ADM004Component {
     }
   }
 
+    /**
+   * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
+   *
+   * @param {number} employeeId - ID của nhân viên cần truy vấn.
+ */
+  getEmployeeById(employeeId: number) {
+    // Gọi service để lấy thông tin nhân viên theo ID.
+    this.employeeService.getEmployeeById(employeeId).subscribe({
+      next: (data) => {
+        // Xử lý dữ liệu để chỉ giữ chứng chỉ cao nhất.
+        this.dataConfirmBack = data;
+      },
+      error: (err) => {
+        console.log(err);
+        // Nếu xảy ra lỗi, điều hướng đến SystemError và truyền mã lỗi.
+        this.router.navigate(['error'], {
+          state: { errorCode: err?.error?.message?.code }
+        });
+      }
+    })
+  }
+
   /**
    * Gọi API để lấy danh sách phòng ban.
    * Nếu thành công, gán dữ liệu vào listDepartments.
@@ -280,7 +320,11 @@ export class ADM004Component {
   * Điều hướng về màn hình ADM002
   */
   hanleBack() {
-    this.router.navigate(['/user/list']);
+    if (this.mode == 'add') {
+      this.router.navigate(['/user/list']);
+    } else {
+      this.router.navigate(['/user/detail'], { state: { employeeId: this.employeeId }});
+    }
   }
 
   /**

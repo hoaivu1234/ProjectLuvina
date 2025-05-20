@@ -117,24 +117,26 @@ export class ADM003Component {
   }
 
   handleEdit() {
-
+    this.router.navigate(['/user/add'], {
+      state: { employeeId: this.employeeId }
+    });
   }
 
-   /**
-     * Xử lý hành động xóa nhân viên.
-     * 
-     * - Thêm class `closing` để tạo hiệu ứng đóng modal.
-     * - Ẩn modal thông qua `BsModalRef`.
-     * - Sau 400ms (chờ hiệu ứng đóng), gọi API để xóa nhân viên theo `employeeId`.
-     * - Nếu thành công, điều hướng đến màn ADM006 với mã `completeCode`.
-     * - Nếu thất bại, điều hướng đến màn SystemError với mã `errorCode`.
-   */
+  /**
+    * Xử lý hành động xóa nhân viên.
+    * 
+    * - Thêm class `closing` để tạo hiệu ứng đóng modal.
+    * - Ẩn modal thông qua `BsModalRef`.
+    * - Sau 400ms (chờ hiệu ứng đóng), gọi API để xóa nhân viên theo `employeeId`.
+    * - Nếu thành công, điều hướng đến màn ADM006 với mã `completeCode`.
+    * - Nếu thất bại, điều hướng đến màn SystemError với mã `errorCode`.
+  */
   handleDelete() {
     // Thêm hiệu ứng đóng trước
     const modal = document.querySelector('.modal-content');
     modal?.classList.add('closing');
     this.modalRef?.hide();
-  
+
     setTimeout(() => {
       // Gọi API sau khi modal ẩn
       this.employeeService.deleteEmployeeById(this.employeeId).subscribe({
@@ -150,8 +152,8 @@ export class ADM003Component {
         }
       });
     }, 400);
-  }  
-  
+  }
+
   /**
      * Mở modal xác nhận xóa nhân viên.
      * 
