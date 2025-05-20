@@ -35,7 +35,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -138,6 +137,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = getEmployee(id, ErrorCodeConstants.ER014, true);
         employeeRepository.deleteById(employee.getEmployeeId());
         return new EmployeeResponse<>(HttpStatusConstants.OK, id, new MessageResponse(MsgCodeConstants.MSG003, new ArrayList<>()));
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return employeeRepository.existsById(id);
     }
 
     /**
@@ -284,7 +288,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO) {
+    public EmployeeResponse<Long> addEmployee(EmployeeInsertDTO requestDTO) {
         Employee employee = new Employee();
 
         // Gán các thuộc tính đơn giản
@@ -339,6 +343,68 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setEmployeeCertifications(certList);
         }
 
+        // Lưu vào DB
+        employeeRepository.save(employee);
+        return new EmployeeResponse<>(HttpStatusConstants.OK, employee.getEmployeeId(), new MessageResponse(MsgCodeConstants.MSG001, new ArrayList<>()));
+    }
+
+    @Override
+    public EmployeeResponse<Long> updateEmployee(EmployeeUpdateDTO updateDTO) {
+        Long employeeId = Long.parseLong(updateDTO.getEmployeeId());
+        Employee employee = getEmployee(employeeId, ErrorCodeConstants.ER013, false);
+
+        // Gán các thuộc tính đơn giản
+        employee.setEmployeeName(updateDTO.getEmployeeName());
+        employee.setEmployeeEmail(updateDTO.getEmployeeEmail());
+        employee.setEmployeeTelephone(updateDTO.getEmployeeTelephone());
+        employee.setEmployeeNameKana(updateDTO.getEmployeeNameKana());
+        employee.setEmployeeLoginId(updateDTO.getEmployeeLoginId());
+
+        String rawPassword = employee.getEmployeeLoginPassword();
+        if (!rawPassword.isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(rawPassword);
+            employee.setEmployeeLoginPassword(encodedPassword);
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT);
+        LocalDate birthDate = LocalDate.parse(updateDTO.getEmployeeBirthDate(), formatter);
+        employee.setEmployeeBirthDate(Date.valueOf(birthDate));
+
+        // Tìm department có departmentId bằng departmentId truyền vào
+        Long deptId = Long.parseLong(updateDTO.getDepartmentId());
+        Department department = departmentRepository.findById(deptId)
+                .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
+                        new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
+        employee.setDepartment(department);
+
+        // Gán danh sách chứng chỉ nếu có
+        if (updateDTO.getCertifications() != null && !updateDTO.getCertifications().isEmpty()) {
+            List<EmployeeCertification> certList = updateDTO.getCertifications().stream().map(certDTO -> {
+                // Khởi tạo chứng chỉ
+                EmployeeCertification cert = new EmployeeCertification();
+
+                LocalDate startDate = LocalDate.parse(certDTO.getStartDate(), formatter);
+                cert.setStartDate(Date.valueOf(startDate));
+
+                LocalDate endDate = LocalDate.parse(certDTO.getEndDate(), formatter);
+                cert.setEndDate(Date.valueOf(endDate));
+
+                Long certificationId = Long.parseLong(certDTO.getCertificationId());
+                Certification certification = certificationRepository.findById(certificationId)
+                        .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
+                                new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
+                cert.setCertification(certification);
+
+                BigDecimal score = new BigDecimal(certDTO.getScore());
+                cert.setScore(score);
+
+                cert.setEmployee(employee); // Liên kết ngược
+
+                return cert;
+            }).collect(Collectors.toList());
+
+            employee.setEmployeeCertifications(certList);
+        }
         // Lưu vào DB
         employeeRepository.save(employee);
         return new EmployeeResponse<>(HttpStatusConstants.OK, employee.getEmployeeId(), new MessageResponse(MsgCodeConstants.MSG001, new ArrayList<>()));

@@ -21,7 +21,7 @@ import java.util.List;
  * @author hoaivd
  */
 @Data
-public class EmployeeRequestDTO {
+public class EmployeeInsertDTO {
     @NotEmpty(message = ErrorCodeConstants.ER001) // Kiểm tra bắt buộc nhập
     @Size(max = EmployeeValidationConstant.LENGTH_125, message = ErrorCodeConstants.ER006) // Kiểm tra max length
     private String employeeName;

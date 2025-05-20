@@ -8,16 +8,15 @@ package com.luvina.la.controller;
 import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
-import com.luvina.la.dto.EmployeeRequestDTO;
+import com.luvina.la.dto.EmployeeInsertDTO;
 import com.luvina.la.dto.EmployeeResponseDTO;
+import com.luvina.la.dto.EmployeeUpdateDTO;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.service.EmployeeService;
 import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -105,14 +104,19 @@ public class EmployeeController {
 
     /**
      * API thêm mới một nhân viên.
-     * Nhận vào một đối tượng {@link EmployeeRequestDTO} chứa thông tin của nhân viên như:
+     * Nhận vào một đối tượng {@link EmployeeInsertDTO} chứa thông tin của nhân viên như:
      * mã đăng nhập, mật khẩu, email, mã phòng ban,... và thực hiện lưu vào cơ sở dữ liệu
      * @param employeeRequest Đối tượng chứa thông tin nhân viên cần thêm mới.
      * @return {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
      */
     @PostMapping("")
-    public EmployeeResponse addEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequest) {
+    public EmployeeResponse addEmployee(@Valid @RequestBody EmployeeInsertDTO employeeRequest) {
         return employeeService.addEmployee(employeeRequest);
+    }
+
+    @PutMapping("")
+    public EmployeeResponse updateEmployee(@Valid @RequestBody EmployeeUpdateDTO employeeRequest) {
+        return employeeService.updateEmployee(employeeRequest);
     }
 
     /**

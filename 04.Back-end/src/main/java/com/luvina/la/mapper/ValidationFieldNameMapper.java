@@ -21,6 +21,7 @@ public class ValidationFieldNameMapper {
      */
     public static final Map<String, String> FIELD_DISPLAY_NAME_MAP = Map.ofEntries(
             Map.entry("id", "ＩＤ"),
+            Map.entry("employeeId", "ＩＤ"),
             Map.entry("employeeName", "氏名"),
             Map.entry("employeeLoginId", "アカウント名"),
             Map.entry("employeeEmail", "メールアドレス"),
