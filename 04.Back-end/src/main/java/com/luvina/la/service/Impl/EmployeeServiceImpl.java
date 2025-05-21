@@ -12,6 +12,8 @@ import com.luvina.la.entity.Department;
 import com.luvina.la.entity.Employee;
 import com.luvina.la.entity.EmployeeCertification;
 import com.luvina.la.exception.BusinessException;
+import com.luvina.la.mapper.EmployeeRequestMapper;
+import com.luvina.la.mapper.EmployeeResponseMapper;
 import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.payload.MessageResponse;
@@ -47,6 +49,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+    @Autowired
+    private EmployeeRequestMapper employeeRequestMapper;
+
+    @Autowired
+    private EmployeeResponseMapper employeeResponseMapper;
     /**
      * Repository để tương tác với bảng nhân viên trong cơ sở dữ liệu.
      */
@@ -92,30 +99,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         List<EmployeeCertification> certifications = employeeCertificationRepository.findByEmployee(employee);
 
-        EmployeeResponseDTO response = new EmployeeResponseDTO();
+        EmployeeResponseDTO response = employeeResponseMapper.toDto(employee);
         response.setCode(HttpStatusConstants.OK);
-        response.setEmployeeId(employee.getEmployeeId());
-        response.setEmployeeName(employee.getEmployeeName());
-        response.setEmployeeBirthDate(employee.getEmployeeBirthDate());
-        response.setEmployeeEmail(employee.getEmployeeEmail());
-        response.setDepartmentId(employee.getDepartment().getDepartmentId());
-        response.setDepartmentName(employee.getDepartment().getDepartmentName());
-        response.setEmployeeTelephone(employee.getEmployeeTelephone());
-        response.setEmployeeNameKana(employee.getEmployeeNameKana());
-        response.setEmployeeLoginId(employee.getEmployeeLoginId());
 
-        List<EmployeeCertificationResponseDTO> certificationDTOs = certifications.stream().map(cert -> {
-            EmployeeCertificationResponseDTO dto = new EmployeeCertificationResponseDTO();
-            dto.setCertificationId(cert.getCertification().getCertificationId());
-            dto.setCertificationName(cert.getCertification().getCertificationName());
-            dto.setStartDate(cert.getStartDate());
-            dto.setEndDate(cert.getEndDate());
-            dto.setScore(cert.getScore());
-            return dto;
-        }).collect(Collectors.toList());
-
-        if (!certifications.isEmpty()) {
-            response.setCertifications(certificationDTOs);
+        if (certifications != null && !certifications.isEmpty()) {
+            response.setCertifications(employeeResponseMapper.toCertificationDtos(certifications));
         }
 
         return response;
@@ -289,56 +277,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO) {
-        Employee employee = new Employee();
-
-        // Gán các thuộc tính đơn giản
-        employee.setEmployeeName(requestDTO.getEmployeeName());
-        employee.setEmployeeEmail(requestDTO.getEmployeeEmail());
-        employee.setEmployeeTelephone(requestDTO.getEmployeeTelephone());
-        employee.setEmployeeNameKana(requestDTO.getEmployeeNameKana());
-        employee.setEmployeeLoginId(requestDTO.getEmployeeLoginId());
+        Employee employee = employeeRequestMapper.toEntity(requestDTO);
 
         String encodedPassword = passwordEncoder.encode(requestDTO.getEmployeeLoginPassword());
         employee.setEmployeeLoginPassword(encodedPassword);
 
         employee.setEmployeeRole(EmployeeRole.USER);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT);
-        LocalDate birthDate = LocalDate.parse(requestDTO.getEmployeeBirthDate(), formatter);
-        employee.setEmployeeBirthDate(Date.valueOf(birthDate));
-
-        // Tìm department có departmentId bằng departmentId truyền vào
-        Long deptId = Long.parseLong(requestDTO.getDepartmentId());
-        Department department = departmentRepository.findById(deptId)
-                .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-                        new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
-        employee.setDepartment(department);
-
-        // Gán danh sách chứng chỉ nếu có
         if (requestDTO.getCertifications() != null && !requestDTO.getCertifications().isEmpty()) {
-            List<EmployeeCertification> certList = requestDTO.getCertifications().stream().map(certDTO -> {
-                // Khởi tạo chứng chỉ
-                EmployeeCertification cert = new EmployeeCertification();
-
-                LocalDate startDate = LocalDate.parse(certDTO.getStartDate(), formatter);
-                cert.setStartDate(Date.valueOf(startDate));
-
-                LocalDate endDate = LocalDate.parse(certDTO.getEndDate(), formatter);
-                cert.setEndDate(Date.valueOf(endDate));
-
-                Long certificationId = Long.parseLong(certDTO.getCertificationId());
-                Certification certification = certificationRepository.findById(certificationId)
-                        .orElseThrow(() -> new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR,
-                                new MessageResponse(ErrorCodeConstants.ER015, new ArrayList<>())));
-                cert.setCertification(certification);
-
-                BigDecimal score = new BigDecimal(certDTO.getScore());
-                cert.setScore(score);
-
-                cert.setEmployee(employee); // Liên kết ngược
-
-                return cert;
-            }).collect(Collectors.toList());
+            List<EmployeeCertification> certList = requestDTO.getCertifications().stream()
+                    .map(certDTO -> {
+                        EmployeeCertification cert = new EmployeeCertification();
+                        cert.setStartDate(employeeRequestMapper.parseDate(certDTO.getStartDate()));
+                        cert.setEndDate(employeeRequestMapper.parseDate(certDTO.getEndDate()));
+                        cert.setScore(new BigDecimal(certDTO.getScore()));
+                        cert.setCertification(new Certification(Long.parseLong(certDTO.getCertificationId())));
+                        cert.setEmployee(employee);
+                        return cert;
+                    })
+                    .collect(Collectors.toList());
 
             employee.setEmployeeCertifications(certList);
         }

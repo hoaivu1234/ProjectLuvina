@@ -6,6 +6,7 @@
 package com.luvina.la.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 @Entity
 @Table(name = "certifications")
 @Data
+@NoArgsConstructor
 public class Certification {
 
     @Id
@@ -35,5 +37,9 @@ public class Certification {
 
     @OneToMany(mappedBy = "certification", cascade = CascadeType.ALL)
     private List<EmployeeCertification> employeeCertifications = new ArrayList<>(); // Danh sách nhân viên có chứng chỉ này
+
+    public Certification(Long certificationId) {
+        this.certificationId = certificationId;
+    }
 }
 

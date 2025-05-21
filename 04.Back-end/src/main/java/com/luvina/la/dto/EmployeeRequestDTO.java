@@ -27,7 +27,5 @@ public class EmployeeRequestDTO {
     private String employeeLoginId;
     private String employeeLoginPassword;
     private String departmentId;
-
-    @Valid
     private List<EmployeeCertificationRequestDTO> certifications;
 }

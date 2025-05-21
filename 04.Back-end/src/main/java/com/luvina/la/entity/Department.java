@@ -6,6 +6,7 @@
 package com.luvina.la.entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -22,6 +23,7 @@ import java.util.List;
 @Table(name = "departments")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Department {
 
     @Id
@@ -34,5 +36,9 @@ public class Department {
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     private List<Employee> employees = new ArrayList<>(); // Danh sách nhân viên thuộc phòng ban
+
+    public Department(Long departmentId) {
+        this.departmentId = departmentId;
+    }
 }
 
