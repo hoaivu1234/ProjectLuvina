@@ -70,24 +70,28 @@ export class ADM004Component {
    */
   ngOnInit(): void {
     this.initForm();
-    this.getDataNavigate();  
+    this.getDataNavigate();
     this.getListDepartment();
     this.getListCertification();
   }
 
   getDataNavigate() {
-  // Lấy Dữ liệu từ ADM005 back về nếu được truyền qua navigation state
-    this.employeeId = this.navigation?.extras?.state?.['employeeId'];
-
-    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
-      this.mode = 'add';
+    this.dataConfirmBack = this.navigation?.extras?.state?.['dataConfirmBack'];
+    if (this.dataConfirmBack) {
+      this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
     } else {
-      this.mode = 'edit';
+      // Lấy Dữ liệu từ ADM003 chuyển sang nếu được truyền qua navigation state
+      this.employeeId = this.navigation?.extras?.state?.['employeeId'];
+
+      if (isNaN(Number(this.employeeId)) || !this.employeeId) {
+        this.mode = 'add';
+      } else {
+        this.mode = 'edit';
+      }
+
+      // this.getEmployeeById(this.employeeId);
     }
 
-    this.getEmployeeById(this.employeeId);
-    this.dataConfirmBack = this.navigation?.extras?.state?.['dataConfirmBack'];
-    if (this.dataConfirmBack) this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
   }
 
   // Focus vào hạng mục đầu tiên khi vào màn hình
@@ -139,6 +143,7 @@ export class ADM004Component {
       employeeId: [null],
       employeeLoginId: [null, [Validators.required, Validators.maxLength(50), this.validationService.checkValidateLoginId()]],
       departmentId: [null, Validators.required],
+      departmentName: [null],
       employeeNameKana: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkKanaHalfSize()]],
       employeeName: [null, [Validators.required, Validators.maxLength(125)]],
       employeeBirthDate: [null, Validators.required],
@@ -171,6 +176,7 @@ export class ADM004Component {
   addCertification(): void {
     const certificationGroup = this.fb.group({
       certificationId: [null],
+      certificationName: [null],
       startDate: [{ value: null, disabled: true }],
       endDate: [{ value: null, disabled: true }],
       score: [{ value: null, disabled: true }],
@@ -217,6 +223,22 @@ export class ADM004Component {
     return this.isCertSelected(index);
   }
 
+   /**
+   * Xử lý sự kiện khi người dùng chọn hoặc bỏ chọn phòng ban.
+   * Nếu có giá trị `item`, tìm thông tin phòng ban tương ứng và cập nhật `departmentName` trong form.
+   * Nếu không có giá trị `item`, đặt `departmentName` về `null`.
+   *
+   * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
+   */
+  handleChangeDepartmentId(item: any) {
+    if (item) {
+      const department = this.listDepartments.find((item: any) => item.departmentId);
+      this.employeeForm.get('departmentName')?.setValue(department?.departmentName);
+    } else {
+      this.employeeForm.get('departmentName')?.setValue(null);
+    }
+  }
+
   /**
     * Xử lý khi giá trị của dropdown `certificationId` thay đổi
     * - Nếu chọn rỗng: disable, reset và clear validators các trường liên quan
@@ -228,6 +250,7 @@ export class ADM004Component {
     const selectedId = certGroup.get('certificationId')?.value;
 
     const controlsToUpdate = [
+      'certificationName',
       'startDate',
       'endDate',
       'score',
@@ -243,24 +266,32 @@ export class ADM004Component {
         control?.updateValueAndValidity();
       });
     } else {
+
+      const certification = this.listCertifications.find((item: any) => item.certificationId == selectedId);
       // Khi chọn một chứng chỉ hợp lệ
       controlsToUpdate.forEach(controlName => {
         const control = certGroup.get(controlName);
         control?.enable();
-        control?.setValidators(Validators.required);
+        if (controlName != 'certificationName') control?.setValidators(Validators.required);
         if (controlName === 'score') {
           control?.addValidators(this.validationService.checkNumberHalfSize()); // Kiểm tra nếu là score thì thêm validator kiểm tra số half size
+        }
+
+        if (controlName === 'certificationName') {
+          control?.setValue(certification?.certificationName);
+        } else {
+          control?.setValue(null);
         }
         control?.updateValueAndValidity();
       });
     }
   }
 
-    /**
-   * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
-   *
-   * @param {number} employeeId - ID của nhân viên cần truy vấn.
- */
+  /**
+ * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
+ *
+ * @param {number} employeeId - ID của nhân viên cần truy vấn.
+*/
   getEmployeeById(employeeId: number) {
     // Gọi service để lấy thông tin nhân viên theo ID.
     this.employeeService.getEmployeeById(employeeId).subscribe({
@@ -291,8 +322,7 @@ export class ADM004Component {
       },
       error: () => {
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
-        this.generalErrorMessage = this.generalErrorMessage + ERROR_CODES.DEPARTMENT_FETCH_FAILED; // Hiển thị mess lỗi ở giao diện
-        // this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
+        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
       },
     });
   }
@@ -311,7 +341,6 @@ export class ADM004Component {
       error: () => {
         console.log(CONSOLE_MESSAGES.CERTIFICATION.FETCH_FAILED);
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } });
-        this.generalErrorMessage = this.generalErrorMessage + ' ' + ERROR_CODES.CERTIFICATION_FETCH_FAILED; // Hiển thị mess lỗi ở giao diện
       },
     });
   }
@@ -323,7 +352,7 @@ export class ADM004Component {
     if (this.mode == 'add') {
       this.router.navigate(['/user/list']);
     } else {
-      this.router.navigate(['/user/detail'], { state: { employeeId: this.employeeId }});
+      this.router.navigate(['/user/detail'], { state: { employeeId: this.employeeId } });
     }
   }
 

@@ -31,6 +31,7 @@
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
                   <select class="form-control" formControlName="departmentId" name="departmentSelect"
+                    (change)="handleChangeDepartmentId($event)"
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('departmentId'))">
                     <option value="">選択してください</option>
                     <option *ngFor="let dept of listDepartments" [value]="dept.departmentId">
@@ -189,8 +190,7 @@
                             containerClass: 'theme-green'
                           }" formControlName="startDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
                           #startDate="bsDatepicker" />
-                        <div *ngIf="validationService.shouldShowError(cert.get('startDate'))"
-                          class="invalid-feedback">
+                        <div *ngIf="validationService.shouldShowError(cert.get('startDate'))" class="invalid-feedback">
                           {{ validationService.getErrorMessage(cert.get('startDate'), '資格交付日:') }}
                         </div>
                         <span class="input-group-addon" (click)="startDate.toggle()" style="cursor: pointer">
@@ -212,12 +212,10 @@
                             containerClass: 'theme-green'
                           }" formControlName="endDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
                           #endDate="bsDatepicker" />
-                        <div *ngIf="validationService.shouldShowError(cert.get('endDate'))"
-                          class="invalid-feedback">
+                        <div *ngIf="validationService.shouldShowError(cert.get('endDate'))" class="invalid-feedback">
                           {{ validationService.getErrorMessage(cert.get('endDate'), '失効日:') }}
                         </div>
-                        <div
-                          *ngIf="cert.errors?.['invalidEndDate'] && cert.get('endDate')?.dirty"
+                        <div *ngIf="cert.errors?.['invalidEndDate'] && cert.get('endDate')?.dirty"
                           class="invalid-feedback">
                           {{ ERROR_MESSAGES[ERROR_CODES.DATE_ORDER_INVALID]() }}
                         </div>
@@ -233,10 +231,8 @@
                     <label class="col-form-label col-sm-2"><i class="relative">点数:<span *ngIf="isRequired(i)"
                           class="note-red">*</span></i></label>
                     <div class="col-sm col-sm-10">
-                      <input type="text" class="form-control" formControlName="score"
-                        [disabled]="!isCertSelected(i)" />
-                      <div *ngIf="validationService.shouldShowError(cert.get('score'))"
-                        class="invalid-feedback">
+                      <input type="text" class="form-control" formControlName="score" [disabled]="!isCertSelected(i)" />
+                      <div *ngIf="validationService.shouldShowError(cert.get('score'))" class="invalid-feedback">
                         {{ validationService.getErrorMessage(cert.get('score'), '点数:') }}
                       </div>
                     </div>

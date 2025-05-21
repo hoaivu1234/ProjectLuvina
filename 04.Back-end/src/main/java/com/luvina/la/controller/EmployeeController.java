@@ -8,18 +8,17 @@ package com.luvina.la.controller;
 import com.luvina.la.common.HttpStatusConstants;
 import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
-import com.luvina.la.dto.EmployeeInsertDTO;
+import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.dto.EmployeeResponseDTO;
-import com.luvina.la.dto.EmployeeUpdateDTO;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.service.EmployeeService;
+import com.luvina.la.validator.EmployeeRequestValidator;
 import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +36,9 @@ public class EmployeeController {
 
     @Autowired
     private InputValidator inputValidator;
+
+    @Autowired
+    private EmployeeRequestValidator employeeRequestValidator;
 
     /**
      * Lấy danh sách nhân viên dựa trên các tham số lọc và phân trang.
@@ -104,18 +106,20 @@ public class EmployeeController {
 
     /**
      * API thêm mới một nhân viên.
-     * Nhận vào một đối tượng {@link EmployeeInsertDTO} chứa thông tin của nhân viên như:
+     * Nhận vào một đối tượng {@link EmployeeRequestDTO} chứa thông tin của nhân viên như:
      * mã đăng nhập, mật khẩu, email, mã phòng ban,... và thực hiện lưu vào cơ sở dữ liệu
      * @param employeeRequest Đối tượng chứa thông tin nhân viên cần thêm mới.
      * @return {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
+     * Nếu không thành công thì sẽ throw ra lỗi ở được handle ở GlobalException
      */
     @PostMapping("")
-    public EmployeeResponse addEmployee(@Valid @RequestBody EmployeeInsertDTO employeeRequest) {
+    public EmployeeResponse addEmployee(@RequestBody EmployeeRequestDTO employeeRequest) {
+        employeeRequestValidator.validateAddEmployee(employeeRequest);
         return employeeService.addEmployee(employeeRequest);
     }
 
     @PutMapping("")
-    public EmployeeResponse updateEmployee(@Valid @RequestBody EmployeeUpdateDTO employeeRequest) {
+    public EmployeeResponse updateEmployee(@RequestBody EmployeeRequestDTO employeeRequest) {
         return employeeService.updateEmployee(employeeRequest);
     }
 

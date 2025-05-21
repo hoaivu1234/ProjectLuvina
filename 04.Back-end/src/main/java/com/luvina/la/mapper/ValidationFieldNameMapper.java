@@ -5,7 +5,11 @@
 
 package com.luvina.la.mapper;
 
+import com.luvina.la.common.FieldKey;
+
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Class tiện ích dùng để ánh xạ tên các trường dữ liệu (field name) trong mã nguồn
@@ -14,36 +18,21 @@ import java.util.Map;
  * Ví dụ: trường "employeeLoginId" sẽ được ánh xạ sang "アカウント名".
  */
 public class ValidationFieldNameMapper {
-    /**
-     * Map ánh xạ tên trường trong hệ thống sang tên hiển thị tiếng Nhật.
-     * Key: tên thuộc tính trong Java (field name).
-     * Value: tên hiển thị tương ứng (Japanese display name).
-     */
-    public static final Map<String, String> FIELD_DISPLAY_NAME_MAP = Map.ofEntries(
-            Map.entry("id", "ＩＤ"),
-            Map.entry("employeeId", "ＩＤ"),
-            Map.entry("employeeName", "氏名"),
-            Map.entry("employeeLoginId", "アカウント名"),
-            Map.entry("employeeEmail", "メールアドレス"),
-            Map.entry("employeeTelephone", "電話番号"),
-            Map.entry("departmentId", "グループ"),
-            Map.entry("employeeBirthDate", "生年月日"),
-            Map.entry("employeeNameKana", "カタカナ氏名"),
-            Map.entry("employeeLoginPassword", "パスワード"),
-            Map.entry("certificationId", "資格"),
-            Map.entry("startDate", "資格交付日"),
-            Map.entry("endDate", "失効日"),
-            Map.entry("score", "点数")
-    );
+
+    private static final Map<String, String> FIELD_DISPLAY_NAME_MAP = Arrays.stream(FieldKey.values())
+            .collect(Collectors.toMap(FieldKey::key, FieldKey::displayName));
 
     /**
-     * Trả về tên hiển thị tiếng Nhật tương ứng với tên trường được cung cấp.
-     *
-     * @param fieldName tên trường cần tra cứu (VD: "employeeEmail")
-     * @return tên hiển thị tương ứng nếu có trong map, ngược lại trả về null
+     * Trả về display name từ key.
      */
-    public static String getDisplayName(String fieldName) {
-        return FIELD_DISPLAY_NAME_MAP.get(fieldName);
+    public static String getDisplayName(String fieldKey) {
+        return FIELD_DISPLAY_NAME_MAP.get(fieldKey);
+    }
+
+    // Optional: lấy trực tiếp từ FieldKey enum
+    public static String getDisplayKey(FieldKey fieldKey) {
+        return fieldKey.displayName();
     }
 }
+
 

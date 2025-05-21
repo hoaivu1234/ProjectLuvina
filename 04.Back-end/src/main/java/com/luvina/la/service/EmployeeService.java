@@ -1,9 +1,8 @@
 package com.luvina.la.service;
 
 import com.luvina.la.dto.EmployeeDTO;
-import com.luvina.la.dto.EmployeeInsertDTO;
+import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.dto.EmployeeResponseDTO;
-import com.luvina.la.dto.EmployeeUpdateDTO;
 import com.luvina.la.payload.EmployeeResponse;
 
 import java.util.List;
@@ -21,9 +20,9 @@ public interface EmployeeService {
 
     int getCountEmployee(String employeeName, Long departmentId);
 
-    EmployeeResponse<Long> addEmployee(EmployeeInsertDTO requestDTO);
+    EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO);
 
-    EmployeeResponse<Long> updateEmployee(EmployeeUpdateDTO updateDTO);
+    EmployeeResponse<Long> updateEmployee(EmployeeRequestDTO updateDTO);
 
     boolean existsByEmployeeLoginId(String employeeLoginId);
 

@@ -288,7 +288,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponse<Long> addEmployee(EmployeeInsertDTO requestDTO) {
+    public EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO) {
         Employee employee = new Employee();
 
         // Gán các thuộc tính đơn giản
@@ -349,7 +349,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeResponse<Long> updateEmployee(EmployeeUpdateDTO updateDTO) {
+    public EmployeeResponse<Long> updateEmployee(EmployeeRequestDTO updateDTO) {
         Long employeeId = Long.parseLong(updateDTO.getEmployeeId());
         Employee employee = getEmployee(employeeId, ErrorCodeConstants.ER013, false);
 
