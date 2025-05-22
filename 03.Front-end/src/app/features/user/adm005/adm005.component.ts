@@ -50,18 +50,18 @@ export class Adm005Component {
     public employeeService: EmployeeService,
     private router: Router,
     private datePipe: DatePipe
-  ) {
-    const nav = this.router.getCurrentNavigation();
+  ) { }
 
+  ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
-    this.dataConfirm = nav?.extras?.state?.['dataConfirm'];
+    this.dataConfirm = history.state?.['dataConfirm'];
   }
 
   /**
   * Điều hướng về màn hình ADM002
   */
   hanleBack() {
-    this.router.navigate(['/user/add'], { state: { dataConfirmBack: this.dataConfirm } });
+    this.router.navigate(['/user/adm004'], { state: { dataConfirmBack: this.dataConfirm } });
   }
 
    /**
@@ -77,6 +77,8 @@ export class Adm005Component {
 
     clonedData.employeeBirthDate = this.datePipe.transform(clonedData.employeeBirthDate, 'yyyy/MM/dd');
 
+    if(clonedData?.departmentName) delete clonedData.departmentName;
+
     if (clonedData.certifications) {
       const hasEmptyCertId = clonedData.certifications.some(
         (cert: any) => cert.certificationId === "" || !cert.certificationId
@@ -84,8 +86,9 @@ export class Adm005Component {
 
       if (hasEmptyCertId) {
         delete clonedData.certifications;
-      } else {
+      } else {       
         clonedData.certifications.forEach((cert: any) => {
+          if(cert?.certificationName) delete cert.certificationName;
           cert.startDate = this.datePipe.transform(cert.startDate, 'yyyy/MM/dd');
           cert.endDate = this.datePipe.transform(cert.endDate, 'yyyy/MM/dd');
         });
@@ -106,7 +109,7 @@ export class Adm005Component {
     this.employeeService.addEmployee(clonedData).subscribe({
       next: (data: any) => {
         console.log(data);
-        this.router.navigate(['user/complete'], {
+        this.router.navigate(['user/adm006'], {
           state: { completeCode: data?.message?.code }
         });
       },

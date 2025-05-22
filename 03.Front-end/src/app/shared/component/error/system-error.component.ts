@@ -29,19 +29,13 @@ export class SystemErrorComponent {
   // Thông điệp lỗi tương ứng với errorCode
   errorMessage: string = '';
 
-  // Thông tin điều hướng hiện tại từ Router
-  navigation: any;
-
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
    *
    * @param route Đối tượng ActivatedRoute dùng để lấy dữ liệu từ route hiện tại
    * @param router Đối tượng Router dùng để lấy thông tin từ navigation state
    */
-  constructor(private route: ActivatedRoute, private router: Router) {
-    // Lấy thông tin điều hướng hiện tại từ Router
-    this.navigation = this.router.getCurrentNavigation();
-  }
+  constructor(private route: ActivatedRoute, private router: Router) { }
 
   /**
    * Lifecycle hook khởi tạo component.
@@ -50,18 +44,18 @@ export class SystemErrorComponent {
    *
    * @return void
    */
-  ngOnInit(): void {  
+  ngOnInit(): void {
     // Lấy errorCode nếu được truyền qua navigation state
-    const codeFromState = this.navigation?.extras?.state?.['errorCode'];
+    const codeFromState = history.state?.['errorCode'];
 
-    const fieldError = this.navigation?.extras?.state?.['fieldError'];
-  
+    const fieldError = history.state?.['fieldError'];
+
     // Lấy errorCode nếu được định nghĩa trong data của route
     const codeFromData = this.route.snapshot.data['errorCode'];
-  
+
     // Ưu tiên errorCode từ state, nếu không có thì dùng từ route, nếu không có nữa thì dùng mã lỗi mặc định SYSTEM_ERROR
     this.errorCode = codeFromState || codeFromData || ERROR_CODES.SYSTEM_ERROR;
-  
+
     // Dựa vào errorCode và fieldError, tìm thông điệp lỗi trong ERROR_MESSAGES
     this.errorMessage = fieldError ? ERROR_MESSAGES[this.errorCode](fieldError) : ERROR_MESSAGES[this.errorCode]();
 

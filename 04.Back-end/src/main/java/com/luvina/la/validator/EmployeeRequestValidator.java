@@ -8,6 +8,7 @@ package com.luvina.la.validator;
 import com.luvina.la.common.*;
 import com.luvina.la.dto.EmployeeCertificationRequestDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
+import com.luvina.la.entity.Employee;
 import com.luvina.la.exception.BusinessException;
 import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.MessageResponse;
@@ -20,10 +21,13 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Validator component dùng để kiểm tra hợp lệ các trường dữ liệu
@@ -64,19 +68,31 @@ public class EmployeeRequestValidator {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT_FOR_STRICT);
 
     /**
-     * Thực hiện validate toàn bộ thông tin khi thêm mới một nhân viên.
+     * Thực hiện validate toàn bộ thông tin khi thêm mới hoặc cập nhật một nhân viên.
      *
      * @param employeeRequestDTO đối tượng chứa thông tin nhân viên cần validate.
+     * @param mode Đang validate cho chế độ update hoặc add
      * @throws BusinessException nếu có bất kỳ lỗi nào trong dữ liệu đầu vào.
      */
-    public void validateAddEmployee(EmployeeRequestDTO employeeRequestDTO) {
-        validateEmployeeLoginId(employeeRequestDTO.getEmployeeLoginId());
+    public void validateEmployee(EmployeeRequestDTO employeeRequestDTO, String mode) {
+        if (ModeConstants.MODE_UPDATE.equals(mode)) { // Mode update
+            String employeeId = employeeRequestDTO.getEmployeeId();
+            validateEmployeeId(employeeId);
+            validateEmployeeLoginId(employeeRequestDTO.getEmployeeLoginId(), employeeId, mode); // Validate employeeId với mode update
+            // Thêm điều kiện kiểm tra employeeEmail nếu khác employeeEmail ứng với employeeId thì check trùng email
+            validateEmployeeEmail(employeeRequestDTO.getEmployeeEmail(), employeeId, mode);
+
+        } else {
+            validateEmployeeLoginId(employeeRequestDTO.getEmployeeLoginId(), null, mode);
+            validateEmployeeEmail(employeeRequestDTO.getEmployeeEmail(), null, mode);
+        }
+
+
         validateEmployeeName(employeeRequestDTO.getEmployeeName());
         validateEmployeeNameKana(employeeRequestDTO.getEmployeeNameKana());
         validateEmployeeBirthDate(employeeRequestDTO.getEmployeeBirthDate());
-        validateEmployeeEmail(employeeRequestDTO.getEmployeeEmail());
         validateEmployeeTelephone(employeeRequestDTO.getEmployeeTelephone());
-        validateEmployeeLoginPassword(employeeRequestDTO.getEmployeeLoginPassword());
+        validateEmployeeLoginPassword(employeeRequestDTO.getEmployeeLoginPassword(), mode);
         validateDepartmentId(employeeRequestDTO.getDepartmentId());
 
         // Validate chứng chỉ
@@ -103,20 +119,49 @@ public class EmployeeRequestValidator {
     }
 
     /**
+     * Thực hiện kiểm tra Id nhân viên có khác rỗng và có tồn tại trong cơ sở dữ liệu hay không.
+     * Nếu không thì throw ra {@link BusinessException} với mã lỗi ER023.
+     *
+     * @param employeeId Id của nhân viên cần kiểm tra
+     */
+    private void validateEmployeeId(String employeeId) {
+        String fieldName = FieldKey.EMPLOYEE_ID.key();
+        validateEmptyFieldTyping(fieldName, employeeId);
+
+        Long employeeIdCheck = Long.parseLong(employeeId);
+        validateMustExistField(fieldName, employeeIdCheck,
+                employeeService::existsById,
+                ErrorCodeConstants.ER013);
+    }
+
+    /**
      * Kiểm tra hợp lệ mã đăng nhập của nhân viên.
      * Gồm kiểm tra: không rỗng, độ dài tối đa, pattern, và trùng lặp.
      *
      * @param employeeLoginId Mã đăng nhập cần kiểm tra.
      * @throws BusinessException nếu mã đăng nhập không hợp lệ hoặc đã tồn tại.
      */
-    private void validateEmployeeLoginId(String employeeLoginId) {
+    private void validateEmployeeLoginId(String employeeLoginId, String employeeId, String mode) {
         String fieldName = FieldKey.EMPLOYEE_LOGIN_ID.key();
         validateEmptyFieldTyping(fieldName, employeeLoginId);
         validateMaxLength(fieldName, employeeLoginId, EmployeeValidationConstant.LENGTH_50);
         validatePattern(fieldName, employeeLoginId, EmployeeValidationConstant.LOGIN_ID_REGEX, ErrorCodeConstants.ER019);
-        validateDuplicateField(fieldName, employeeLoginId,
-                employeeService::existsByEmployeeLoginId,
-                ErrorCodeConstants.ER003);
+
+        // Nếu là add thì kiểm tra trùng employeeLoginId
+        if (ModeConstants.MODE_ADD.equals(mode)) {
+            validateDuplicateField(fieldName, employeeLoginId,
+                    employeeService::existsByEmployeeLoginId,
+                    ErrorCodeConstants.ER003);
+            // Nếu là mode edit và tồn tại employeeLoginId thì kiểm tra currentLoginId hiện tại tương ứng với employeeId
+            // Nếu currentLoginId và employeeLoginId khác nhau thì throw BusinessException
+        } else if (ModeConstants.MODE_UPDATE.equals(mode) && employeeId != null) {
+            String currentLoginId = employeeService.getEmployeeLoginIdById(Long.parseLong(employeeId));
+
+            if (!employeeLoginId.equals(currentLoginId)) {
+                throw buildBusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, ErrorCodeConstants.ER023,
+                        ValidationFieldNameMapper.getDisplayName(fieldName));
+            }
+        }
     }
 
     /**
@@ -167,14 +212,25 @@ public class EmployeeRequestValidator {
      * @param employeeEmail Địa chỉ email của nhân viên cần kiểm tra.
      * @throws BusinessException nếu email không hợp lệ hoặc đã tồn tại.
      */
-    private void validateEmployeeEmail(String employeeEmail) {
+    private void validateEmployeeEmail(String employeeEmail, String employeeId, String mode) {
         String fieldName = FieldKey.EMPLOYEE_EMAIL.key();
         validateEmptyFieldTyping(fieldName, employeeEmail);
         validateMaxLength(fieldName, employeeEmail, EmployeeValidationConstant.LENGTH_125);
         validatePattern(fieldName, employeeEmail, EmployeeValidationConstant.EMAIL_FORMAT_REGEX, ErrorCodeConstants.ER005);
-        validateDuplicateField(fieldName, employeeEmail,
-                employeeService::existsByEmployeeEmail,
-                ErrorCodeConstants.ER003);
+
+        if (ModeConstants.MODE_ADD.equals(mode)) {
+            validateDuplicateField(fieldName, employeeEmail,
+                    employeeService::existsByEmployeeEmail,
+                    ErrorCodeConstants.ER003);
+        } else if (ModeConstants.MODE_UPDATE.equals(mode) && employeeId != null) {
+            String currentEmail = employeeService.getEmployeeEmailById(Long.parseLong(employeeId));
+
+            if (!employeeEmail.equals(currentEmail)) {
+                validateDuplicateField(fieldName, employeeEmail,
+                        employeeService::existsByEmployeeEmail,
+                        ErrorCodeConstants.ER003);
+            }
+        }
     }
 
     /**
@@ -199,11 +255,20 @@ public class EmployeeRequestValidator {
      * @param employeeLoginPassword Mật khẩu đăng nhập của nhân viên.
      * @throws BusinessException nếu mật khẩu không hợp lệ.
      */
-    private void validateEmployeeLoginPassword(String employeeLoginPassword) {
+    private void validateEmployeeLoginPassword(String employeeLoginPassword, String mode) {
         String fieldName = FieldKey.EMPLOYEE_LOGIN_PASSWORD.key();
-        validateEmptyFieldTyping(fieldName, employeeLoginPassword);
-        validateLengthRange(fieldName, employeeLoginPassword, EmployeeValidationConstant.LENGTH_50, EmployeeValidationConstant.LENGTH_8);
+
+        boolean hasPassword = employeeLoginPassword != null && !employeeLoginPassword.isEmpty();
+
+        if (ModeConstants.MODE_ADD.equals(mode)) {
+            validateEmptyFieldTyping(fieldName, employeeLoginPassword);
+        }
+
+        if ((ModeConstants.MODE_ADD.equals(mode)) || (ModeConstants.MODE_UPDATE.equals(mode) && hasPassword)) {
+            validateLengthRange(fieldName, employeeLoginPassword, EmployeeValidationConstant.LENGTH_50, EmployeeValidationConstant.LENGTH_8);
+        }
     }
+
 
     /**
      * Kiểm tra hợp lệ mã phòng ban của nhân viên.
@@ -270,7 +335,7 @@ public class EmployeeRequestValidator {
         validateEmptyFieldTyping(fieldName, endDate);
         validatePattern(fieldName, endDate, EmployeeValidationConstant.DATE_FORMAT_REGEX, ErrorCodeConstants.ER005);
         validateDateValid(fieldName, endDate);
-        validateDateRange(fieldName, startDate, endDate);
+        validateDateRange(startDate, endDate);
     }
 
     /**
@@ -289,12 +354,11 @@ public class EmployeeRequestValidator {
     /**
      * Kiểm tra ngày kết thúc phải sau ngày bắt đầu.
      *
-     * @param fieldName Tên trường hiển thị trong thông báo lỗi.
      * @param startDate Ngày bắt đầu (định dạng yyyy/MM/dd).
      * @param endDate Ngày kết thúc (định dạng yyyy/MM/dd).
      * @throws BusinessException nếu ngày kết thúc không sau ngày bắt đầu.
      */
-    private void validateDateRange(String fieldName, String startDate, String endDate) {
+    private void validateDateRange(String startDate, String endDate) {
         LocalDate start = LocalDate.parse(startDate, FORMATTER);
         LocalDate end = LocalDate.parse(endDate, FORMATTER);
 
@@ -316,7 +380,7 @@ public class EmployeeRequestValidator {
         int length = fieldValue.length();
         if (length < minLength || maxLength < length) {
             throw buildBusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, ErrorCodeConstants.ER007,
-                    ValidationFieldNameMapper.getDisplayName(fieldName));
+                    ValidationFieldNameMapper.getDisplayName(fieldName), EmployeeValidationConstant.LENGTH_8, EmployeeValidationConstant.LENGTH_50);
         }
     }
 
@@ -447,13 +511,15 @@ public class EmployeeRequestValidator {
      *
      * @param code    mã HTTP (ví dụ: 400)
      * @param errCode mã lỗi hệ thống
-     * @param field   tên trường lỗi
+     * @param fields các param cần trả về
      * @return {@link BusinessException}
      */
-    private BusinessException buildBusinessException(int code, String errCode, String field) {
-        List<String> params = (field != null && !field.trim().isEmpty())
-                ? List.of(field)
-                : Collections.emptyList(); // Trả về mảng rỗng
+    private BusinessException buildBusinessException(int code, String errCode, Object... fields) {
+        List<String> params = Arrays.stream(fields)
+                .filter(Objects::nonNull) // Loại bỏ null
+                .map(Object::toString)    // Chuyển tất cả thành String
+                .filter(s -> !s.trim().isEmpty()) // Loại bỏ chuỗi rỗng
+                .collect(Collectors.toList());
 
         return new BusinessException(code, new MessageResponse(errCode, params));
     }

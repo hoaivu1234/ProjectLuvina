@@ -21,7 +21,7 @@ import { MSG } from 'src/app/shared/utils/messages.constants';
 export class ADM006Component {
   completeMessage: string = '';   // Thông điệp lỗi tương ứng với completeCode
   completeCode: string = '' // Mã thông báo được lấy từ navigation state
-  navigation: any; // Thông tin điều hướng hiện tại từ Router
+
   /**
  * Constructor khởi tạo component, inject các service cần thiết.
  *
@@ -29,10 +29,7 @@ export class ADM006Component {
  */
   constructor(
     private router: Router,
-  ) { 
-    // Lấy thông tin điều hướng hiện tại từ Router
-    this.navigation = this.router.getCurrentNavigation();
-  }
+  ) { }
 
   /**
 * Lifecycle hook khởi tạo component.
@@ -43,7 +40,7 @@ export class ADM006Component {
 */
   ngOnInit(): void {
     // Lấy completeCode nếu được truyền qua navigation state
-    const codeFromState = this.navigation?.extras?.state?.['completeCode'];
+    const codeFromState = history.state?.['completeCode'];
 
     // Ưu tiên completeCode từ state
     this.completeCode = codeFromState;

@@ -268,7 +268,7 @@ export class UserListComponent {
    * Điều hướng đến màn hình ADM004
    */
   openADM004() {
-    this.router.navigate(['/user/add']);
+    this.router.navigate(['/user/adm004']);
   }
 
   /**
@@ -276,6 +276,6 @@ export class UserListComponent {
    * @param id Id của employee tương ứng cần xem dữ liệu chi tiết
    */
   getDetailEmployee(id: number | undefined) {
-    this.router.navigate(['/user/detail'], { state : { employeeId: id}} );
+    this.router.navigate(['/user/adm003'], { state : { employeeId: id}} );
   }
 }

@@ -16,7 +16,7 @@
                 <label class="col-form-label col-sm-2"><i class="relative">アカウント名:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input #firstInput type="text" class="form-control" formControlName="employeeLoginId"
+                  <input #firstInput type="text" class="form-control" [readOnly]="mode == 'edit'" [disabled]="mode == 'edit'" formControlName="employeeLoginId"
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeLoginId'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeLoginId'))"
                     class="invalid-feedback">
@@ -126,7 +126,7 @@
 
               <!-- パスワード: -->
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2"><i class="relative">パスワード:<span
+                <label class="col-form-label col-sm-2"><i class="relative">パスワード:<span *ngIf="mode == 'add'"
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
                   <input type="text" class="form-control" formControlName="employeeLoginPassword"
@@ -140,7 +140,7 @@
 
               <!-- パスワード（確認）: -->
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2"><i class="relative">パスワード（確認）:<span
+                <label class="col-form-label col-sm-2"><i class="relative">パスワード（確認）:<span *ngIf="mode == 'add'"
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
                   <input type="text" class="form-control" formControlName="employeeReLoginPassword"

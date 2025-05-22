@@ -6,6 +6,7 @@
 package com.luvina.la.controller;
 
 import com.luvina.la.common.HttpStatusConstants;
+import com.luvina.la.common.ModeConstants;
 import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
@@ -114,12 +115,13 @@ public class EmployeeController {
      */
     @PostMapping("")
     public EmployeeResponse addEmployee(@RequestBody EmployeeRequestDTO employeeRequest) {
-        employeeRequestValidator.validateAddEmployee(employeeRequest);
+        employeeRequestValidator.validateEmployee(employeeRequest, ModeConstants.MODE_ADD);
         return employeeService.addEmployee(employeeRequest);
     }
 
     @PutMapping("")
     public EmployeeResponse updateEmployee(@RequestBody EmployeeRequestDTO employeeRequest) {
+        employeeRequestValidator.validateEmployee(employeeRequest, ModeConstants.MODE_UPDATE);
         return employeeService.updateEmployee(employeeRequest);
     }
 

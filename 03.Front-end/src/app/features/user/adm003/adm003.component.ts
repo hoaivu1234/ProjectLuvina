@@ -33,7 +33,6 @@ export class ADM003Component {
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   employeeData: any; // Dữ liệu thông tin của nhân viên
   employeeId!: number; // Id của nhân viên được chuyển từ ADM002 sang
-  navigation: any; // Thông tin điều hướng hiện tại từ Router
 
   /**
  * Constructor khởi tạo component, inject các service cần thiết.
@@ -46,10 +45,7 @@ export class ADM003Component {
     private router: Router,
     private employeeService: EmployeeService,
     private modalService: BsModalService
-  ) {
-    // Lấy thông tin điều hướng hiện tại từ Router
-    this.navigation = this.router.getCurrentNavigation();
-  }
+  ) { }
 
   /**
    * Lifecycle hook được gọi khi component được khởi tạo.
@@ -60,7 +56,7 @@ export class ADM003Component {
  */
   ngOnInit(): void {
     // Lấy id nhân viên truyền sang từ ADM002
-    this.employeeId = this.navigation?.extras?.state?.['employeeId'];
+    this.employeeId = history.state?.['employeeId'];
     if (isNaN(Number(this.employeeId)) || !this.employeeId) {
       this.router.navigate(['error']);
     }
@@ -117,7 +113,7 @@ export class ADM003Component {
   }
 
   handleEdit() {
-    this.router.navigate(['/user/add'], {
+    this.router.navigate(['/user/adm004'], {
       state: { employeeId: this.employeeId }
     });
   }

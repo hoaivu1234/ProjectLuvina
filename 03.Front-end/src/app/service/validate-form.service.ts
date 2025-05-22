@@ -190,16 +190,33 @@ export class ValidateFormService {
    *
    * @returns ValidatorFn - Áp dụng cho một FormGroup chứa 2 field trên.
  */
-  checkPasswordMatch(): ValidatorFn {
+  checkPasswordMatch(mode: string): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const password = group.get('employeeLoginPassword')?.value;
       const confirmPassword = group.get('employeeReLoginPassword')?.value;
-
-      if (!password || !confirmPassword) return null;
-
+  
+      if (mode === 'add') {
+        if (!password || !confirmPassword) return { passwordNotMatch: true };
+        return password === confirmPassword ? null : { passwordNotMatch: true };
+      }
+  
+      // mode === 'update'
+      if (!password && !confirmPassword) {
+        return null; // không nhập gì thì không lỗi
+      }
+  
+      if (!password && confirmPassword) {
+        return { passwordNotMatch: true };
+      }
+  
+      if (password && !confirmPassword) {
+        return { passwordNotMatch: true };
+      }
+  
       return password === confirmPassword ? null : { passwordNotMatch: true };
     };
   }
+  
 
   /**
    * Validator dùng để kiểm tra `endDate` phải lớn hơn `startDate`.

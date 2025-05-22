@@ -4,7 +4,7 @@
 */
 
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
@@ -40,7 +40,6 @@ export class ADM004Component {
   dataConfirmBack: any; // Dữ liệu từ ADM005 back về
   ERROR_MESSAGES = ERROR_MESSAGES;
   ERROR_CODES = ERROR_CODES;
-  navigation: any;
   employeeId!: number;
   mode!: string;
 
@@ -60,38 +59,39 @@ export class ADM004Component {
     private fb: FormBuilder,
     protected validationService: ValidateFormService,
     private employeeService: EmployeeService,
-  ) {
-    this.navigation = this.router.getCurrentNavigation();
-  }
+  ) { }
 
   /**
    * Lifecycle hook khởi chạy khi component được khởi tạo.
    * Gọi các hàm để lấy dữ liệu phòng ban, trình độ tiếng nhật và tạo dữ liệu cho form.
    */
   ngOnInit(): void {
-    this.initForm();
     this.getDataNavigate();
+
+    this.initForm();
+    if (this.dataConfirmBack) {
+      this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
+    }
+
+    if (this.mode === 'add') {
+      this.setValidatorsForAddMode();
+    } else {
+      this.setValidatorsForUpdateMode();
+    }
+    
     this.getListDepartment();
     this.getListCertification();
   }
 
   getDataNavigate() {
-    this.dataConfirmBack = this.navigation?.extras?.state?.['dataConfirmBack'];
-    if (this.dataConfirmBack) {
-      this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
+    this.employeeId = history.state?.['employeeId'];
+
+    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
+      this.mode = 'add';
     } else {
-      // Lấy Dữ liệu từ ADM003 chuyển sang nếu được truyền qua navigation state
-      this.employeeId = this.navigation?.extras?.state?.['employeeId'];
-
-      if (isNaN(Number(this.employeeId)) || !this.employeeId) {
-        this.mode = 'add';
-      } else {
-        this.mode = 'edit';
-      }
-
-      // this.getEmployeeById(this.employeeId);
+      this.mode = 'edit';
+      this.getEmployeeById(this.employeeId);
     }
-
   }
 
   // Focus vào hạng mục đầu tiên khi vào màn hình
@@ -135,6 +135,27 @@ export class ADM004Component {
     }
   }
 
+  setValidatorsForAddMode(): void {
+    this.employeeForm.get('employeeLoginPassword')?.setValidators([
+      Validators.required,
+      this.validationService.checkLengthRangePassword(8, 50)
+    ]);
+    this.employeeForm.get('employeeReLoginPassword')?.setValidators([
+      Validators.required
+    ]);
+    this.employeeForm.updateValueAndValidity();
+  }
+
+  setValidatorsForUpdateMode(): void {
+    this.employeeForm.get('employeeLoginPassword')?.setValidators([
+      this.validationService.checkLengthRangePassword(8, 50)
+    ]);
+    this.employeeForm.get('employeeReLoginPassword')?.clearValidators(); // không cần required
+
+    this.employeeForm.updateValueAndValidity();
+  }
+
+
   /**
     * Khởi tạo form chính với các trường thông tin nhân viên và danh sách chứng chỉ (certifications)
   */
@@ -149,12 +170,14 @@ export class ADM004Component {
       employeeBirthDate: [null, Validators.required],
       employeeEmail: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkValidateEmail(), this.validationService.checkEnglishHalfSize()]],
       employeeTelephone: [null, [Validators.required, Validators.maxLength(50), this.validationService.checkEnglishHalfSize()]],
-      employeeLoginPassword: [null, [Validators.required, this.validationService.checkLengthRangePassword(8, 50)]],
-      employeeReLoginPassword: [null, Validators.required],
+      employeeLoginPassword: [null],
+      employeeReLoginPassword: [null],
       certifications: this.fb.array([]),
     }, {
-      validators: this.validationService.checkPasswordMatch()
+      validators: this.validationService.checkPasswordMatch(this.mode)
     });
+
+    this.addCertification();
 
     // update lại validatior của employeeLoginPassword khi có thay đổi giá trị
     this.employeeForm.get('employeeLoginPassword')?.valueChanges.subscribe(() => {
@@ -165,8 +188,6 @@ export class ADM004Component {
     this.employeeForm.get('employeeReLoginPassword')?.valueChanges.subscribe(() => {
       this.employeeForm.updateValueAndValidity({ onlySelf: false });
     });
-
-    this.addCertification();
   }
 
   /**
@@ -223,13 +244,15 @@ export class ADM004Component {
     return this.isCertSelected(index);
   }
 
-   /**
-   * Xử lý sự kiện khi người dùng chọn hoặc bỏ chọn phòng ban.
-   * Nếu có giá trị `item`, tìm thông tin phòng ban tương ứng và cập nhật `departmentName` trong form.
-   * Nếu không có giá trị `item`, đặt `departmentName` về `null`.
-   *
-   * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
-   */
+  /**
+  * Xử lý sự kiện khi người dùng chọn hoặc bỏ chọn phòng ban.
+  * Nếu có giá trị `item`, tìm thông tin phòng ban tương ứng và cập nhật `departmentName` trong form.
+  * Nếu không có giá trị `item`, đặt `departmentName` về `null`.
+  * Vì this.listDepartments chứa dữ liệu department đã được phân trang nên có thể duyệt qua this.listDepartments mà không ảnh hưởng đến hiệu năng
+  * Nếu không phân trang thì nên lưu value ở html là cả object Department thay vì chỉ lưu mỗi departmentId để không phải tìm departmentName chuyển qua ADM005
+  *
+  * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
+  */
   handleChangeDepartmentId(item: any) {
     if (item) {
       const department = this.listDepartments.find((item: any) => item.departmentId);
@@ -352,7 +375,7 @@ export class ADM004Component {
     if (this.mode == 'add') {
       this.router.navigate(['/user/list']);
     } else {
-      this.router.navigate(['/user/detail'], { state: { employeeId: this.employeeId } });
+      this.router.navigate(['/user/adm003'], { state: { employeeId: this.employeeId } });
     }
   }
 
@@ -363,7 +386,7 @@ export class ADM004Component {
  */
   handleConfirm() {
     if (this.employeeForm.valid) {
-      this.router.navigate(['/user/confirm'], { state: { dataConfirm: this.employeeForm.value } });
+      this.router.navigate(['/user/adm005'], { state: { dataConfirm: this.employeeForm.value } });
     } else {
       // Đánh dấu tất cả các control là touched và dirty
       this.markFormGroupTouched(this.employeeForm);

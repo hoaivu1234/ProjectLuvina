@@ -33,4 +33,8 @@ public interface EmployeeService {
     EmployeeResponse<Long> deleteEmployeeById(Long id);
 
     boolean existsById(Long id);
+
+    String getEmployeeLoginIdById(Long id);
+
+    String getEmployeeEmailById(Long id);
 }

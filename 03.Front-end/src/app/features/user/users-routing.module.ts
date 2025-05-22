@@ -12,10 +12,10 @@ import { ADM003Component } from './adm003/adm003.component';
 const routes: Routes = [
   { path: 'user', redirectTo: 'user/list', pathMatch: 'full'},
   { path: 'user/list', component: UserListComponent, canActivate: [AuthorizeGuard] },
-  { path: 'user/detail', component: ADM003Component, canActivate: [AuthorizeGuard] },
-  { path: 'user/add', component: ADM004Component, canActivate: [AuthorizeGuard] },
-  { path: 'user/confirm', component: Adm005Component, canActivate: [AuthorizeGuard] },
-  { path: 'user/complete', component: ADM006Component, canActivate: [AuthorizeGuard] },
+  { path: 'user/adm003', component: ADM003Component, canActivate: [AuthorizeGuard] },
+  { path: 'user/adm004', component: ADM004Component, canActivate: [AuthorizeGuard] },
+  { path: 'user/adm005', component: Adm005Component, canActivate: [AuthorizeGuard] },
+  { path: 'user/adm006', component: ADM006Component, canActivate: [AuthorizeGuard] },
   { path: '**', component: SystemErrorComponent, data: { errorCode: ERROR_CODES.PAGE_NOT_FOUND} },
 ];
 
