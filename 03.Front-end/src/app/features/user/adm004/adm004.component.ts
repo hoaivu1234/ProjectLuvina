@@ -78,7 +78,7 @@ export class ADM004Component {
     } else {
       this.setValidatorsForUpdateMode();
     }
-    
+
     this.getListDepartment();
     this.getListCertification();
   }
@@ -321,6 +321,11 @@ export class ADM004Component {
       next: (data) => {
         // Xử lý dữ liệu để chỉ giữ chứng chỉ cao nhất.
         this.dataConfirmBack = data;
+
+        // Đợi init xong employeeForm thì mới patch
+        if (this.employeeForm) {
+          this.patchValueBack();
+        }
       },
       error: (err) => {
         console.log(err);
