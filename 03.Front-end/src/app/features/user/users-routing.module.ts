@@ -16,7 +16,8 @@ const routes: Routes = [
   { path: 'user/adm004', component: ADM004Component, canActivate: [AuthorizeGuard] },
   { path: 'user/adm005', component: Adm005Component, canActivate: [AuthorizeGuard] },
   { path: 'user/adm006', component: ADM006Component, canActivate: [AuthorizeGuard] },
-  { path: '**', component: SystemErrorComponent, data: { errorCode: ERROR_CODES.PAGE_NOT_FOUND} },
+  { path: 'error', component: SystemErrorComponent, canActivate: [AuthorizeGuard], data: { errorCode: ERROR_CODES.SYSTEM_ERROR} },
+  { path: '**', component: SystemErrorComponent, canActivate: [AuthorizeGuard], data: { errorCode: ERROR_CODES.PAGE_NOT_FOUND} },
 ];
 
 @NgModule({

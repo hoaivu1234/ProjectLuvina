@@ -15,6 +15,8 @@ import { DepartmentService } from 'src/app/service/department.service';
 import { EmployeeService } from 'src/app/service/employee.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
+import { EmployeeFormControls } from 'src/app/shared/utils/form-control-names.constant';
+import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
 
 @Component({
   selector: 'app-adm005',
@@ -34,6 +36,8 @@ export class Adm005Component {
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   dataConfirm: any; // Dữ liệu gửi từ ADM004 sang
+  employeeId!: number;
+  mode!: string;
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -55,29 +59,69 @@ export class Adm005Component {
   ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
     this.dataConfirm = history.state?.['dataConfirm'];
+    if (!this.dataConfirm) {
+      this.router.navigate(['error']);
+    }
+
+    this.employeeId = history.state?.['employeeId'];
+    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
+      this.mode = MODE.MODE_ADD;
+    } else {
+      this.mode = MODE.MODE_UPDATE;
+      this.getEmployeeById(this.employeeId);
+    }
+  }
+
+  /**
+* Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
+*
+* @param {number} employeeId - ID của nhân viên cần truy vấn.
+*/
+  getEmployeeById(employeeId: number) {
+    // Gọi service để lấy thông tin nhân viên theo ID.
+    this.employeeService.getEmployeeById(employeeId).subscribe({
+      next: (data) => {
+        console.log(data);
+      },
+      error: (err) => {
+        console.log(err);
+        // Nếu xảy ra lỗi, điều hướng đến SystemError và truyền mã lỗi.
+        this.router.navigate(['error'], {
+          state: { errorCode: err?.error?.message?.code }
+        });
+      }
+    })
   }
 
   /**
   * Điều hướng về màn hình ADM002
   */
   hanleBack() {
-    this.router.navigate(['/user/adm004'], { state: { dataConfirmBack: this.dataConfirm } });
+    if (this.mode == MODE.MODE_ADD) {
+      this.router.navigate(['/user/adm004'], { state: { dataReceived: this.dataConfirm } });
+    } else if (this.mode == MODE.MODE_UPDATE) {
+      this.router.navigate(['/user/adm004'], { state: { employeeId: this.employeeId, dataReceived: this.dataConfirm, fromPage: PAGE.ADM005 } });
+    }
   }
 
-   /**
-   * Chuẩn hóa và chuyển đổi dữ liệu trước khi submit
-   * - Format ngày sinh theo định dạng 'yyyy/MM/dd'
-   * - Kiểm tra danh sách chứng chỉ:
-   *    + Nếu có chứng chỉ nhưng `certificationId` rỗng, loại bỏ toàn bộ danh sách chứng chỉ
-   *    + Nếu hợp lệ, format ngày bắt đầu và ngày kết thúc của từng chứng chỉ
-   * @returns clonedData - Dữ liệu đã được xử lý sẵn để gửi lên server
-   */
+  /**
+  * Chuẩn hóa và chuyển đổi dữ liệu trước khi submit
+  * - Format ngày sinh theo định dạng 'yyyy/MM/dd'
+  * - Kiểm tra danh sách chứng chỉ:
+  *    + Nếu có chứng chỉ nhưng `certificationId` rỗng, loại bỏ toàn bộ danh sách chứng chỉ
+  *    + Nếu hợp lệ, format ngày bắt đầu và ngày kết thúc của từng chứng chỉ
+  * @returns clonedData - Dữ liệu đã được xử lý sẵn để gửi lên server
+  */
   transformDataSubmit(): any {
     const clonedData = { ...this.dataConfirm };
 
     clonedData.employeeBirthDate = this.datePipe.transform(clonedData.employeeBirthDate, 'yyyy/MM/dd');
 
-    if(clonedData?.departmentName) delete clonedData.departmentName;
+    if (clonedData?.departmentName) delete clonedData.departmentName;
+
+    if (this.mode == MODE.MODE_ADD) delete clonedData.employeeId;
+
+    delete clonedData.employeeReLoginPassword;
 
     if (clonedData.certifications) {
       const hasEmptyCertId = clonedData.certifications.some(
@@ -86,9 +130,9 @@ export class Adm005Component {
 
       if (hasEmptyCertId) {
         delete clonedData.certifications;
-      } else {       
+      } else {
         clonedData.certifications.forEach((cert: any) => {
-          if(cert?.certificationName) delete cert.certificationName;
+          if (cert?.certificationName) delete cert.certificationName;
           cert.startDate = this.datePipe.transform(cert.startDate, 'yyyy/MM/dd');
           cert.endDate = this.datePipe.transform(cert.endDate, 'yyyy/MM/dd');
         });
@@ -98,28 +142,45 @@ export class Adm005Component {
     return clonedData;
   }
 
-    /**
-     * Gửi dữ liệu đăng ký nhân viên lên server
-     * - Nếu thành công: điều hướng sang màn hình hoàn tất và truyền mã xác nhận
-     * - Nếu thất bại: điều hướng sang màn hình lỗi và truyền mã lỗi + thông tin trường bị lỗi
-   */
+  /**
+   * Gửi dữ liệu đăng ký nhân viên lên server
+   * - Nếu thành công: điều hướng sang màn hình hoàn tất và truyền mã xác nhận
+   * - Nếu thất bại: điều hướng sang màn hình lỗi và truyền mã lỗi + thông tin trường bị lỗi
+ */
   submitForm() {
     const clonedData = this.transformDataSubmit();
-  
-    this.employeeService.addEmployee(clonedData).subscribe({
-      next: (data: any) => {
-        console.log(data);
-        this.router.navigate(['user/adm006'], {
-          state: { completeCode: data?.message?.code }
-        });
-      },
-      error: (err) => {
-        console.log(err);
-        this.router.navigate(['error'], {
-          state: { errorCode: err?.error?.message?.code, fieldError: err?.error?.message?.params[0] }
-        });
-      }
-    });
-  }  
+
+    if (this.mode == MODE.MODE_ADD) {
+      this.employeeService.addEmployee(clonedData).subscribe({
+        next: (data: any) => {
+          console.log(data);
+          this.router.navigate(['user/adm006'], {
+            state: { completeCode: data?.message?.code }
+          });
+        },
+        error: (err) => {
+          console.log(err);
+          this.router.navigate(['error'], {
+            state: { errorCode: err?.error?.message?.code, fieldError: err?.error?.message?.params[0] }
+          });
+        }
+      });
+    } else {
+      this.employeeService.updateEmployee(clonedData).subscribe({
+        next: (data: any) => {
+          console.log(data);
+          this.router.navigate(['user/adm006'], {
+            state: { completeCode: data?.message?.code }
+          });
+        },
+        error: (err) => {
+          console.log(err);
+          this.router.navigate(['error'], {
+            state: { errorCode: err?.error?.message?.code, fieldError: err?.error?.message?.params[0] }
+          });
+        }
+      });
+    }
+  }
 
 }

@@ -16,7 +16,8 @@
                 <label class="col-form-label col-sm-2"><i class="relative">アカウント名:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <input #firstInput type="text" class="form-control" [readOnly]="mode == 'edit'" [disabled]="mode == 'edit'" formControlName="employeeLoginId"
+                  <input #firstInput type="text" class="form-control" [readOnly]="mode == 'update'"
+                    [disabled]="mode == 'update'" formControlName="employeeLoginId"
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeLoginId'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeLoginId'))"
                     class="invalid-feedback">
@@ -30,7 +31,7 @@
                 <label class="col-form-label col-sm-2"><i class="relative">グループ:<span
                       class="note-red">*</span></i></label>
                 <div class="col-sm col-sm-10">
-                  <select class="form-control" formControlName="departmentId" name="departmentSelect"
+                  <select #secondInput class="form-control" formControlName="departmentId" name="departmentSelect"
                     (change)="handleChangeDepartmentId($event)"
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('departmentId'))">
                     <option value="">選択してください</option>
@@ -150,7 +151,9 @@
                     {{ validationService.getErrorMessage(employeeForm.get('employeeReLoginPassword'), 'パスワード（確認）:') }}
                   </div>
                   <div
-                    *ngIf="employeeForm.errors?.['passwordNotMatch'] && employeeForm.get('employeeReLoginPassword')?.dirty"
+                    *ngIf="employeeForm.errors?.['passwordNotMatch'] && 
+                    ((employeeForm.get('employeeReLoginPassword')?.dirty && employeeForm.get('employeeReLoginPassword')?.value && mode == 'add') 
+                    || (employeeForm.get('employeeReLoginPassword')?.dirty && mode == 'update'))"
                     class="invalid-feedback">
                     {{ ERROR_MESSAGES[ERROR_CODES.PASSWORD_MISMATCH]('パスワード（確認）:') }}
                   </div>

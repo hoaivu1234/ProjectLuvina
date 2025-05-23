@@ -11,6 +11,8 @@ import { EmployeeService } from 'src/app/service/employee.service';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { TemplateRef } from '@angular/core';
 import { MSG } from 'src/app/shared/utils/messages.constants';
+import { EmployeeFormControls } from 'src/app/shared/utils/form-control-names.constant';
+import { PAGE } from 'src/app/shared/utils/mode-constant';
 
 @Component({
   selector: 'app-adm003',
@@ -56,7 +58,7 @@ export class ADM003Component {
  */
   ngOnInit(): void {
     // Lấy id nhân viên truyền sang từ ADM002
-    this.employeeId = history.state?.['employeeId'];
+    this.employeeId = history.state?.[EmployeeFormControls.EmployeeId];
     if (isNaN(Number(this.employeeId)) || !this.employeeId) {
       this.router.navigate(['error']);
     }
@@ -114,7 +116,7 @@ export class ADM003Component {
 
   handleEdit() {
     this.router.navigate(['/user/adm004'], {
-      state: { employeeId: this.employeeId }
+      state: { employeeId: this.employeeId, fromPage: PAGE.ADM003 }
     });
   }
 
@@ -137,7 +139,7 @@ export class ADM003Component {
       // Gọi API sau khi modal ẩn
       this.employeeService.deleteEmployeeById(this.employeeId).subscribe({
         next: (data) => {
-          this.router.navigate(['user/complete'], {
+          this.router.navigate(['user/adm006'], {
             state: { completeCode: data?.message?.code }
           });
         },

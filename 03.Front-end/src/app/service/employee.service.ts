@@ -76,6 +76,16 @@ export class EmployeeService {
     return this.http.post<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
   }
 
+    /**
+   * Gửi yêu cầu POST để thêm mới nhân viên
+   * 
+   * @param payload - Dữ liệu nhân viên cần thêm.
+   * @returns Observable<CUDEmployeeResponse> - Kết quả phản hồi từ server
+ */
+    updateEmployee(payload: any): Observable<CUDEmployeeResponse> {
+      return this.http.put<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
+    }
+
   /**
    * Gửi yêu cầu GET đến API để lấy thông tin chi tiết của một nhân viên theo ID.
    *

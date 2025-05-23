@@ -40,10 +40,11 @@ export class ADM006Component {
 */
   ngOnInit(): void {
     // Lấy completeCode nếu được truyền qua navigation state
-    const codeFromState = history.state?.['completeCode'];
+    this.completeCode = history.state?.['completeCode'];
 
-    // Ưu tiên completeCode từ state
-    this.completeCode = codeFromState;
+    if (!this.completeCode) {
+      this.router.navigate(['error']);
+    }
 
     // Dựa vào completeCode, tìm thông điệp thông báo trong ERROR_MESSAGES
     this.completeMessage = MSG[this.completeCode];

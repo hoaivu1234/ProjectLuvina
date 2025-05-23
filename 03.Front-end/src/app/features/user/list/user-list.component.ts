@@ -15,6 +15,7 @@ import { PAGINATION } from 'src/app/shared/utils/pagination.constants';
 import { SORT } from 'src/app/shared/utils/sort.constants';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
+import { PAGE } from 'src/app/shared/utils/mode-constant';
 
 @Component({
   selector: 'app-user-list',
@@ -164,7 +165,7 @@ export class UserListComponent {
           return;
         }
         this.isShowMessage = true;
-        
+
         console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS);
       },
       error: () => {
@@ -268,7 +269,7 @@ export class UserListComponent {
    * Điều hướng đến màn hình ADM004
    */
   openADM004() {
-    this.router.navigate(['/user/adm004']);
+    this.router.navigate(['/user/adm004'], { state: { fromPage: PAGE.ADM002 } });
   }
 
   /**
@@ -276,6 +277,6 @@ export class UserListComponent {
    * @param id Id của employee tương ứng cần xem dữ liệu chi tiết
    */
   getDetailEmployee(id: number | undefined) {
-    this.router.navigate(['/user/adm003'], { state : { employeeId: id}} );
+    this.router.navigate(['/user/adm003'], { state: { employeeId: id } });
   }
 }

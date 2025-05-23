@@ -15,6 +15,8 @@ import { ValidateFormService } from 'src/app/service/validate-form.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
+import { EmployeeFormControls } from 'src/app/shared/utils/form-control-names.constant';
+import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
 
 @Component({
   selector: 'app-adm004',
@@ -32,16 +34,18 @@ import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
 
 export class ADM004Component {
   @ViewChild('firstInput') firstInput!: ElementRef;
+  @ViewChild('secondInput') secondInput!: ElementRef;
 
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   generalErrorMessage: string = '';  // Lỗi chung của màn hình như gọi API lỗi, server trả về lỗi
   employeeForm!: FormGroup; // Form để thao tác với employee
-  dataConfirmBack: any; // Dữ liệu từ ADM005 back về
+  dataReceived: any; // Dữ liệu từ ADM005 back về
   ERROR_MESSAGES = ERROR_MESSAGES;
   ERROR_CODES = ERROR_CODES;
   employeeId!: number;
   mode!: string;
+  fromPage!: string;
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -66,14 +70,18 @@ export class ADM004Component {
    * Gọi các hàm để lấy dữ liệu phòng ban, trình độ tiếng nhật và tạo dữ liệu cho form.
    */
   ngOnInit(): void {
-    this.getDataNavigate();
-
+    this.extractNavigationState();
     this.initForm();
-    if (this.dataConfirmBack) {
-      this.patchValueBack(); // Nếu có dữ liệu back về thì patch vào form
+
+    if (this.fromPage === PAGE.ADM003 && this.employeeId) {
+      this.getEmployeeById(this.employeeId);
     }
 
-    if (this.mode === 'add') {
+    if (this.fromPage === PAGE.ADM005 && this.dataReceived) {
+      this.patchValueToForm();
+    }
+
+    if (this.mode === MODE.MODE_ADD) {
       this.setValidatorsForAddMode();
     } else {
       this.setValidatorsForUpdateMode();
@@ -83,29 +91,43 @@ export class ADM004Component {
     this.getListCertification();
   }
 
-  getDataNavigate() {
-    this.employeeId = history.state?.['employeeId'];
+  extractNavigationState() {
+    const state = history.state;
+    this.fromPage = state?.fromPage;
+    this.employeeId = state?.employeeId;
+    this.dataReceived = state?.dataReceived;
 
-    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
-      this.mode = 'add';
-    } else {
-      this.mode = 'edit';
-      this.getEmployeeById(this.employeeId);
+    switch (this.fromPage) {
+      case PAGE.ADM002:
+        this.mode = MODE.MODE_ADD;
+        break;
+
+      case PAGE.ADM003:
+        this.mode = MODE.MODE_UPDATE;
+        break;
+
+      case PAGE.ADM005:
+        this.mode = (this.employeeId && !isNaN(Number(this.employeeId)))
+          ? MODE.MODE_UPDATE
+          : MODE.MODE_ADD;
+        break;
+
+      default:
+        this.mode = MODE.MODE_ADD;
+        break;
     }
   }
 
   // Focus vào hạng mục đầu tiên khi vào màn hình
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.firstInput.nativeElement.focus();
-    });
+    this.mode == MODE.MODE_ADD ? this.firstInput.nativeElement.focus() : this.secondInput.nativeElement.focus();
   }
 
   /**
  * Patch dữ liệu cho form group
  */
-  patchValueBack() {
-    this.employeeForm.patchValue(this.dataConfirmBack); // Patch dữ liệu cho form control
+  patchValueToForm() {
+    this.employeeForm.patchValue(this.dataReceived); // Patch dữ liệu cho form control
     this.patchValueForCertifications(); // Gọi hàm patch dữ liệu cho form array
   }
 
@@ -113,7 +135,7 @@ export class ADM004Component {
  * Patch dữ liệu cho form array
  */
   patchValueForCertifications(): void {
-    if (this.dataConfirmBack?.certifications) { // Nếu certifications có dữ liệu thì mới patch
+    if (this.dataReceived?.certifications) { // Nếu certifications có dữ liệu thì mới patch
       const certificationsArray = this.certifications;
 
       // Xóa các certifications cũ
@@ -122,7 +144,7 @@ export class ADM004Component {
       }
 
       // Thêm certifications mới
-      this.dataConfirmBack.certifications.forEach((cert: any) => {
+      this.dataReceived.certifications.forEach((cert: any) => {
         certificationsArray.push(
           this.fb.group({
             certificationId: [cert.certificationId],
@@ -320,12 +342,8 @@ export class ADM004Component {
     this.employeeService.getEmployeeById(employeeId).subscribe({
       next: (data) => {
         // Xử lý dữ liệu để chỉ giữ chứng chỉ cao nhất.
-        this.dataConfirmBack = data;
-
-        // Đợi init xong employeeForm thì mới patch
-        if (this.employeeForm) {
-          this.patchValueBack();
-        }
+        this.dataReceived = data;
+        this.patchValueToForm();
       },
       error: (err) => {
         console.log(err);
@@ -377,7 +395,7 @@ export class ADM004Component {
   * Điều hướng về màn hình ADM002
   */
   hanleBack() {
-    if (this.mode == 'add') {
+    if (this.mode == MODE.MODE_ADD) {
       this.router.navigate(['/user/list']);
     } else {
       this.router.navigate(['/user/adm003'], { state: { employeeId: this.employeeId } });
@@ -389,14 +407,22 @@ export class ADM004Component {
    * Nếu form hợp lệ, chuyển sang trang xác nhận và truyền dữ liệu form.
    * Nếu form không hợp lệ, đánh dấu các trường chưa hợp lệ để hiển thị thông báo lỗi.
  */
-  handleConfirm() {
+  handleConfirm(): void {
     if (this.employeeForm.valid) {
-      this.router.navigate(['/user/adm005'], { state: { dataConfirm: this.employeeForm.value } });
+      const state: any = {
+        dataConfirm: this.employeeForm.value
+      };
+
+      if (this.mode === MODE.MODE_UPDATE) {
+        state.employeeId = this.employeeId;
+      }
+
+      this.router.navigate(['/user/adm005'], { state });
     } else {
-      // Đánh dấu tất cả các control là touched và dirty
       this.markFormGroupTouched(this.employeeForm);
     }
   }
+
 
   /**
    * Đệ quy đánh dấu tất cả các control trong FormGroup là 'touched' và 'dirty'.
