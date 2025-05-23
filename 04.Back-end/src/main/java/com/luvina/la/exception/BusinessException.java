@@ -47,6 +47,13 @@ public class BusinessException extends RuntimeException {
         this.messageResponse = messageResponse;
         this.code = code;
     }
+
+    /**
+     * Khởi tạo một ngoại lệ BusinessException với mã lỗi và thông tin lỗi chi tiết.
+     *
+     * @param code Mã lỗi trả về
+     * @param messageResponse Thông tin lỗi bao gồm mã lỗi, Id nhân viên và nội dung hiển thị
+     */
     public BusinessException(int code, Long employeeId, MessageResponse messageResponse) {
         // Gọi constructor của RuntimeException với chuỗi mã lỗi từ ResponseMessage
         super(messageResponse.getCode());

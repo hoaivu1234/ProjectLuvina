@@ -58,7 +58,7 @@ export class ADM003Component {
  */
   ngOnInit(): void {
     // Lấy id nhân viên truyền sang từ ADM002
-    this.employeeId = history.state?.[EmployeeFormControls.EmployeeId];
+    this.employeeId = history.state?.employeeId;
     if (isNaN(Number(this.employeeId)) || !this.employeeId) {
       this.router.navigate(['error']);
     }

@@ -135,17 +135,6 @@ export class UserListComponent {
       limit
     ).subscribe({
       next: (value) => {
-
-        //   next: (value) => {
-        //     this.totalRecords = value?.totalRecords,
-        //       this.listEmployee = value?.employees,
-        //       console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS)
-        //   },
-        //   error: () => {
-        //     console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_FAILED);
-        //     this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.EMPLOYEE_FETCH_FAILED } });
-        //   },
-        // })
         this.totalRecords = value?.totalRecords || 0;
         this.listEmployees = value?.employees || [];
 

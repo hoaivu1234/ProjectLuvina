@@ -113,7 +113,9 @@ public class EmployeeServiceImpl implements EmployeeService {
      * Xóa nhân viên theo ID.
      *
      * Đánh dấu {@code @Transactional} để đảm bảo tính toàn vẹn dữ liệu.
-     * Nếu nhân viên tồn tại, tiến hành xóa khỏi cơ sở dữ liệu; nếu không, ném ra ngoại lệ BusinessException.
+     * Nếu nhân viên tồn tại, nếu không, ném ra ngoại lệ BusinessException.
+     * Nếu nhân viên tồn tại thì kiểm tra nhân viên có phải là ADMIN không. Nếu đúng thì throw BusinessException
+     * Nếu không phải thì tiến hành xóa khỏi cơ sở dữ liệu.
      *
      * @param id ID của nhân viên cần xóa.
      * @return {@link EmployeeResponse} chứa ID đã xóa, mã trạng thái HTTP và thông báo thành công.
@@ -123,15 +125,33 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponse<Long> deleteEmployeeById(Long id) {
         Employee employee = getEmployee(id, ErrorCodeConstants.ER014, true);
+
+        if (EmployeeRole.ADMIN.equals(employee.getEmployeeRole())) {
+            MessageResponse message = new MessageResponse(ErrorCodeConstants.ER020, new ArrayList<>());
+            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, id, message);
+        }
+
         employeeRepository.deleteById(employee.getEmployeeId());
         return new EmployeeResponse<>(HttpStatusConstants.OK, id, new MessageResponse(MsgCodeConstants.MSG003, new ArrayList<>()));
     }
 
+    /**
+     * Kiểm tra sự tồn tại của nhân viên dựa trên ID.
+     *
+     * @param id ID của nhân viên cần kiểm tra.
+     * @return true nếu nhân viên tồn tại, false nếu không tồn tại.
+     */
     @Override
     public boolean existsById(Long id) {
         return employeeRepository.existsById(id);
     }
 
+    /**
+     * Lấy mã đăng nhập (employeeLoginId) của nhân viên theo ID.
+     *
+     * @param id ID của nhân viên.
+     * @return Mã đăng nhập nếu tìm thấy, ngược lại trả về null.
+     */
     @Override
     public String getEmployeeLoginIdById(Long id) {
         return employeeRepository.findById(id)
@@ -139,6 +159,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElse(null);
     }
 
+    /**
+     * Lấy địa chỉ email của nhân viên theo ID.
+     *
+     * @param id ID của nhân viên.
+     * @return Email nếu tìm thấy, ngược lại trả về null.
+     */
     @Override
     public String getEmployeeEmailById(Long id) {
         return employeeRepository.findById(id)
@@ -288,7 +314,6 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @return Đối tượng {@link EmployeeResponse} chứa mã trạng thái, ID nhân viên vừa được thêm và thông báo thành công.
      * @throws BusinessException nếu không tìm thấy phòng ban hoặc chứng chỉ tương ứng với ID được truyền vào.
      */
-
     @Transactional
     @Override
     public EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO) {
@@ -320,6 +345,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new EmployeeResponse<>(HttpStatusConstants.OK, employee.getEmployeeId(), new MessageResponse(MsgCodeConstants.MSG001, new ArrayList<>()));
     }
 
+    /**
+     * Cập nhật thông tin nhân viên trong hệ thống.
+     * Thực hiện các bước sau:
+     * - Chuyển đổi DTO thành entity.
+     * - Mã hóa mật khẩu nếu có cung cấp mật khẩu mới.
+     * - Thiết lập vai trò mặc định là USER.
+     * - Xóa các chứng chỉ cũ của nhân viên.
+     * - Chuyển đổi và thêm danh sách chứng chỉ mới nếu có.
+     * - Lưu thông tin nhân viên đã cập nhật vào cơ sở dữ liệu.
+     *
+     * @param updateDTO Đối tượng {@link EmployeeRequestDTO} chứa thông tin nhân viên cần cập nhật.
+     * @return Đối tượng {@link EmployeeResponse} chứa mã trạng thái, ID nhân viên, và thông điệp kết quả.
+     */
     @Transactional
     @Override
     public EmployeeResponse<Long> updateEmployee(EmployeeRequestDTO updateDTO) {
@@ -390,7 +428,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     private Employee getEmployee(Long id, String errorCode, boolean includeIdInException) {
         List<String> params = new ArrayList<>();
-        params.add(ValidationFieldNameMapper.getDisplayName("id"));
+        params.add(ValidationFieldNameMapper.getDisplayName(FieldKey.ID.key()));
 
         return employeeRepository.findByEmployeeId(id)
                 .orElseThrow(() -> {

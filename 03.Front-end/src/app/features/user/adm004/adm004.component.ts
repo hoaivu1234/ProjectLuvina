@@ -41,11 +41,11 @@ export class ADM004Component {
   generalErrorMessage: string = '';  // Lỗi chung của màn hình như gọi API lỗi, server trả về lỗi
   employeeForm!: FormGroup; // Form để thao tác với employee
   dataReceived: any; // Dữ liệu từ ADM005 back về
-  ERROR_MESSAGES = ERROR_MESSAGES;
-  ERROR_CODES = ERROR_CODES;
-  employeeId!: number;
-  mode!: string;
-  fromPage!: string;
+  ERROR_MESSAGES = ERROR_MESSAGES; // Danh sách message lỗi constant chứa nội dung message
+  ERROR_CODES = ERROR_CODES; // Danh sách mã lỗi  
+  employeeId!: number; // Lưu Id của nhân viên được lấy từ router state
+  mode!: string; // Chế độ thao tác với form: add hay update
+  fromPage!: string; // Kiểm tra xem đã di chuyển từ màn hình nào sang ADM004
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -70,55 +70,71 @@ export class ADM004Component {
    * Gọi các hàm để lấy dữ liệu phòng ban, trình độ tiếng nhật và tạo dữ liệu cho form.
    */
   ngOnInit(): void {
-    this.extractNavigationState();
-    this.initForm();
+    this.extractNavigationState(); // Kiểm tra xem di chuyển từ màn hình nào sang và lấy các giá trị được truyền từ router state
+    this.initForm(); // Tạo form để thực hiên thao tác add hoặc update nhân viên
 
-    if (this.fromPage === PAGE.ADM003 && this.employeeId) {
-      this.getEmployeeById(this.employeeId);
+    if (this.fromPage === PAGE.ADM003 && this.employeeId) { // Nếu di chuyển từ màn hình ADM003 sang và this.empployeeId có giá trị
+      this.getEmployeeById(this.employeeId); // thì gọi hàm để thấy dự liệu của nhân viên theo Id
     }
 
-    if (this.fromPage === PAGE.ADM005 && this.dataReceived) {
-      this.patchValueToForm();
+    if (this.fromPage === PAGE.ADM005 && this.dataReceived) {  // Nếu di chuyển từ màn hình ADM005 sang và this.dataReceived có giá trị
+      this.patchValueToForm(); // thì tiến hành patch dữ liệu nhận được vào form
     }
 
-    if (this.mode === MODE.MODE_ADD) {
-      this.setValidatorsForAddMode();
+    if (this.mode === MODE.MODE_ADD) { // Nếu mode là Add
+      this.setValidatorsForAddMode(); // thì thực hiện set validate cho trường employeeLoginPassword và employeeReLoginPassword
     } else {
-      this.setValidatorsForUpdateMode();
+      this.setValidatorsForUpdateMode(); // Nếu mode là Update thì cũng thực hiện set validate cho trường employeeLoginPassword và employeeReLoginPassword
     }
 
-    this.getListDepartment();
-    this.getListCertification();
+    this.getListDepartment(); // Lấy danh sách phòng ban
+    this.getListCertification(); // Lấy danh sách chứng chỉ
   }
 
+  /**
+   * Trích xuất dữ liệu trạng thái điều hướng từ `history.state` để xác định
+   * di chuyển từ màn hình nào (fromPage), ID nhân viên (employeeId), và dữ liệu nhận được (dataReceived).
+   *
+   * Dựa vào `fromPage`, phương thức thiết lập chế độ hoạt động của form là Thêm mới (ADD) hoặc Cập nhật (UPDATE):
+   * - Nếu đến từ màn ADM002 -> chế độ Thêm mới.
+   * - Nếu đến từ màn ADM003 -> chế độ Cập nhật.
+   * - Nếu đến từ màn ADM005:
+   *   - Có `employeeId` hợp lệ -> Cập nhật.
+   *   - Ngược lại -> Thêm mới.
+   *
+   * Nếu không xác định được `fromPage`, mặc định thiết lập chế độ là Thêm mới.
+ */
   extractNavigationState() {
-    const state = history.state;
-    this.fromPage = state?.fromPage;
-    this.employeeId = state?.employeeId;
-    this.dataReceived = state?.dataReceived;
+    const state = history.state; // Lấy state từ router
+    this.fromPage = state?.fromPage; // Lấy giá trị fromPage từ state
+    this.employeeId = state?.employeeId; // Lấy giá trị employee từ state
+    this.dataReceived = state?.dataReceived; // Lấy giá trị dataReceived từ state
 
-    switch (this.fromPage) {
+    switch (this.fromPage) {  // Xác định hành động dựa trên màn hình trước đó (fromPage)
       case PAGE.ADM002:
-        this.mode = MODE.MODE_ADD;
+        this.mode = MODE.MODE_ADD; // Nếu đến từ màn ADM002, đặt chế độ là thêm mới nhân viên
         break;
 
       case PAGE.ADM003:
-        this.mode = MODE.MODE_UPDATE;
+        this.mode = MODE.MODE_UPDATE; // Nếu đến từ màn ADM003, đặt chế độ là cập nhật nhân viên
         break;
 
-      case PAGE.ADM005:
+      case PAGE.ADM005: // Nếu đến từ ADM005:
         this.mode = (this.employeeId && !isNaN(Number(this.employeeId)))
-          ? MODE.MODE_UPDATE
-          : MODE.MODE_ADD;
+          ? MODE.MODE_UPDATE  // Nếu có employeeId hợp lệ => chế độ cập nhật
+          : MODE.MODE_ADD; // Ngược lại => chế độ thêm mới
         break;
 
       default:
-        this.mode = MODE.MODE_ADD;
+        this.mode = MODE.MODE_ADD;   // Nếu không xác định được fromPage, mặc định là chế độ thêm mới
         break;
     }
   }
 
-  // Focus vào hạng mục đầu tiên khi vào màn hình
+  /**
+   * Focus vào hạng mục đầu tiên khi vào màn hình nếu là mode add
+   * Nếu là mode update thì Focus vào hạng mục thứ hai
+   */
   ngAfterViewInit(): void {
     this.mode == MODE.MODE_ADD ? this.firstInput.nativeElement.focus() : this.secondInput.nativeElement.focus();
   }
@@ -157,6 +173,15 @@ export class ADM004Component {
     }
   }
 
+  /**
+   * Thiết lập các validator cho Form khi ở chế độ thêm mới.
+   * 
+   * Các trường cần kiểm tra:
+   * - employeeLoginPassword: bắt buộc nhập, độ dài từ 8 đến 50 ký tự.
+   * - employeeReLoginPassword: bắt buộc nhập.
+   *
+   * Sau khi thiết lập validator, gọi updateValueAndValidity() để cập nhật trạng thái FormControl.
+ */
   setValidatorsForAddMode(): void {
     this.employeeForm.get('employeeLoginPassword')?.setValidators([
       Validators.required,
@@ -168,6 +193,15 @@ export class ADM004Component {
     this.employeeForm.updateValueAndValidity();
   }
 
+  /**
+   * Thiết lập các validator cho Form khi ở chế độ cập nhật (Update mode).
+   * 
+   * Các trường được thiết lập validator:
+   * - employeeLoginPassword: không bắt buộc, nhưng nếu nhập thì phải có độ dài từ 8 đến 50 ký tự.
+   * - employeeReLoginPassword: không yêu cầu nhập, do người dùng có thể không muốn thay đổi mật khẩu.
+   *
+   * Sau khi thiết lập validator, gọi updateValueAndValidity() để cập nhật trạng thái FormControl.
+ */
   setValidatorsForUpdateMode(): void {
     this.employeeForm.get('employeeLoginPassword')?.setValidators([
       this.validationService.checkLengthRangePassword(8, 50)

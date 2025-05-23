@@ -56,14 +56,25 @@ export class Adm005Component {
     private datePipe: DatePipe
   ) { }
 
+  /**
+   * Hàm khởi tạo được gọi khi component được khởi chạy.
+   *
+   * Thực hiện các bước sau:
+   * - Đọc dữ liệu xác nhận dataConfirm từ navigation state.
+   * - Nếu không có dữ liệu dataConfirm, chuyển hướng tới trang lỗi.
+   * - Đọc employeeId từ navigation state để xác định chế độ (add/update).
+   * - Nếu employeeId không hợp lệ hoặc không tồn tại: đặt chế độ là MODE_ADD
+   * - Nếu employeeId hợp lệ: đặt chế độ là MODE_UPDATE và gọi getEmployeeById() để lấy thông tin nhân viên.
+ */
   ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
-    this.dataConfirm = history.state?.['dataConfirm'];
+    this.dataConfirm = history.state?.dataConfirm;
+    // Nếu không có dataConfirm, chuyển hướng đến trang lỗi
     if (!this.dataConfirm) {
       this.router.navigate(['error']);
     }
 
-    this.employeeId = history.state?.['employeeId'];
+    this.employeeId = history.state?.employeeId;  // Lấy employeeId từ navigation state
     if (isNaN(Number(this.employeeId)) || !this.employeeId) {
       this.mode = MODE.MODE_ADD;
     } else {
@@ -94,11 +105,13 @@ export class Adm005Component {
   }
 
   /**
-  * Điều hướng về màn hình ADM002
+  * Điều hướng về màn hình ADM004 với mode
+  * - add: thì truyền this.dataConfirm và fromPage
+  * - update: thì truyền this.employeeId, this.dataConfirm và fromPage
   */
   hanleBack() {
     if (this.mode == MODE.MODE_ADD) {
-      this.router.navigate(['/user/adm004'], { state: { dataReceived: this.dataConfirm } });
+      this.router.navigate(['/user/adm004'], { state: { dataReceived: this.dataConfirm, fromPage: PAGE.ADM005 } });
     } else if (this.mode == MODE.MODE_UPDATE) {
       this.router.navigate(['/user/adm004'], { state: { employeeId: this.employeeId, dataReceived: this.dataConfirm, fromPage: PAGE.ADM005 } });
     }
@@ -143,9 +156,15 @@ export class Adm005Component {
   }
 
   /**
-   * Gửi dữ liệu đăng ký nhân viên lên server
-   * - Nếu thành công: điều hướng sang màn hình hoàn tất và truyền mã xác nhận
-   * - Nếu thất bại: điều hướng sang màn hình lỗi và truyền mã lỗi + thông tin trường bị lỗi
+   * Gửi dữ liệu đăng ký hoặc cập nhật nhân viên lên server.
+   *
+   * Thực hiện hành động dựa trên chế độ hiện tại (thêm mới hoặc cập nhật):
+   * MODE_ADD: Gọi API addEmployee() với dữ liệu đã chuyển đổi.
+   * MODE_UPDATE: Gọi API updateEmployee() với dữ liệu đã chuyển đổi.
+   *
+   * Kết quả xử lý:
+   * - Nếu thành công: điều hướng đến màn hình hoàn tất (/user/adm006) và truyền mã xác nhận (completeCode).
+   * - Nếu thất bại: điều hướng đến màn hình lỗi (/error) và truyền mã lỗi (errorCode) cùng thông tin trường gây lỗi (fieldError).
  */
   submitForm() {
     const clonedData = this.transformDataSubmit();
