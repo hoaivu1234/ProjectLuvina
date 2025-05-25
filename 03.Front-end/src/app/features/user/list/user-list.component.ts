@@ -73,11 +73,21 @@ export class UserListComponent {
    */
   ngOnInit(): void {
     this.getListDepartment();
-    // this.getListEmployee();
     this.getPageNumbers();
     this.restoreStateIfExists();
   }
 
+  /**
+   * Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
+   * 
+   * Dữ liệu được lưu gồm:
+   * - Tên nhân viên đang tìm kiếm
+   * - Phòng ban được chọn
+   * - Thông tin sắp xếp (cột, thứ tự, trường)
+   * - Thông tin phân trang (trang hiện tại, kích thước trang)
+   * 
+   * Giúp khôi phục lại giao diện đúng trạng thái khi quay lại từ màn hình chi tiết (ADM003).
+ */
   saveCurrentState() {
     const state = {
       employeeName: this.employeeName,
@@ -91,7 +101,18 @@ export class UserListComponent {
     sessionStorage.setItem('user_list_state', JSON.stringify(state));
   }
 
-
+  /**
+ * Khôi phục trạng thái trước đó của màn danh sách nhân viên nếu tồn tại trong sessionStorage.
+ * 
+ * Nội dung được khôi phục:
+ * - Giá trị tìm kiếm theo tên nhân viên
+ * - Phòng ban được chọn
+ * - Thông tin sắp xếp (cột, thứ tự, trường)
+ * - Phân trang (trang hiện tại, kích thước trang)
+ * 
+ * Sau khi khôi phục, gọi lại API getListEmployee()để tải dữ liệu theo đúng trạng thái trước đó.
+ * Nếu không có dữ liệu lưu trong sessionStorage, sẽ gọi API với trạng thái mặc định.
+ */
   restoreStateIfExists() {
     const userListState = sessionStorage.getItem('user_list_state');
     if (userListState) {
@@ -105,21 +126,12 @@ export class UserListComponent {
       this.pageSize = state.pageSize;
 
       // Gọi lại API với trạng thái đã khôi phục
-      this.getListEmployee(
-        this.employeeName,
-        this.selectedDepartment,
-        this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
-        this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
-        this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
-        this.currentSortField
-      );
+      this.getListEmployee(this.employeeName, this.selectedDepartment);
     } else {
       // Trường hợp không có trạng thái cũ thì gọi mặc định
       this.getListEmployee();
     }
   }
-
-
 
   /**
    * Gọi API để lấy danh sách phòng ban.
@@ -154,10 +166,6 @@ export class UserListComponent {
   getListEmployee(
     employeeName: string = '',
     departmentId: string = '',
-    ordEmployeeName: string = '',
-    ordCertificationName: string = '',
-    ordEndDate: string = '',
-    sortPriority: string = '',
     offset: string = '',
     limit: string = ''
   ) {
@@ -167,6 +175,7 @@ export class UserListComponent {
       offset = offSet > 0 ? offSet.toString() : offset;
       limit = this.pageSize.toString();
     }
+    const { ordEmployeeName, ordCertificationName, ordEndDate, sortPriority } = this.getSortParams();
 
     this.employeeService.getListEmployee(
       employeeName,
@@ -184,21 +193,13 @@ export class UserListComponent {
 
         const totalPages = this.totalPages();
 
-        // Nếu currentPage lớn hơn tổng số trang, tự động gọi lại hàm với trang phù hợp
         if (this.currentPage > totalPages) {
           this.currentPage = totalPages;
-          this.getListEmployee(
-            this.employeeName,
-            this.selectedDepartment,
-            this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
-            this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
-            this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
-            this.currentSortField ? this.currentSortField : ''
-          );
+          this.getListEmployee(this.employeeName, this.selectedDepartment);
           return;
         }
-        this.isShowMessage = true;
 
+        this.isShowMessage = true;
         console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS);
       },
       error: () => {
@@ -214,7 +215,7 @@ export class UserListComponent {
    * Tìm kiếm nhân viên theo tên.
    * Reset về trang đầu tiên rồi gọi lại hàm getListEmployee với filter theo tên và phòng ban.
    */
-  searchByName() {
+  search() {
     this.currentPage = 1;
     this.getListEmployee(this.employeeName, this.selectedDepartment);
   }
@@ -227,14 +228,7 @@ export class UserListComponent {
   goToPage(page: number) {
     this.currentPage = page;
 
-    this.getListEmployee(
-      this.employeeName,
-      this.selectedDepartment,
-      this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
-      this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
-      this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
-      this.currentSortField ? this.currentSortField : ''
-    );
+    this.getListEmployee(this.employeeName, this.selectedDepartment);
   }
 
   /**
@@ -288,14 +282,13 @@ export class UserListComponent {
       ? SORT.ORDERS.ASC
       : SORT.ORDERS.DESC;
 
-    this.getListEmployee(
-      this.employeeName,
-      this.selectedDepartment,
-      column === SORT.COLUMNS.NAME ? sortOrder : '',
-      column === SORT.COLUMNS.CERTIFICATION ? sortOrder : '',
-      column === SORT.COLUMNS.END_DATE ? sortOrder : '',
-      sortField
-    );
+    this.currentSortColumn = column;
+    this.currentSortOrder = sortOrder;
+    this.currentSortField = sortField;
+
+    this.saveCurrentState();
+
+    this.getListEmployee(this.employeeName, this.selectedDepartment);
   }
 
   /**
@@ -313,5 +306,29 @@ export class UserListComponent {
   getDetailEmployee(id: number | undefined) {
     this.saveCurrentState();
     this.router.navigate(['/user/adm003'], { state: { employeeId: id } });
+  }
+
+  /**
+   * Trả về các tham số sắp xếp để gửi lên API dựa trên cột đang được chọn để sắp xếp.
+   *
+   * Hàm sẽ xác định thứ tự sắp xếp tương ứng với từng cột (tên nhân viên, chứng chỉ, ngày kết thúc)
+   * dựa vào giá trị của this.currentSortColumn và this.currentSortOrder.
+   *
+   * Nếu cột đang được sắp xếp trùng với một trong các cột định nghĩa trong hằng số SORT.COLUMNS,
+   * thì trả về giá trị asc hoặc desc tương ứng. Nếu không, trả về chuỗi rỗng.
+   *
+   * @returns Đối tượng chứa các tham số sắp xếp gồm:
+   *  - ordEmployeeName: thứ tự sắp xếp theo tên nhân viên
+   *  - ordCertificationName: thứ tự sắp xếp theo tên chứng chỉ
+   *  - ordEndDate: thứ tự sắp xếp theo ngày hết hạn
+   *  - sortPriority: tên trường ưu tiên sắp xếp (được truyền vào API để backend biết sắp theo trường nào)
+ */
+  private getSortParams() {
+    return {
+      ordEmployeeName: this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
+      ordCertificationName: this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
+      ordEndDate: this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
+      sortPriority: this.currentSortField
+    };
   }
 }

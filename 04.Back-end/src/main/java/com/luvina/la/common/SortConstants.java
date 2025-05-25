@@ -27,7 +27,7 @@ public final class SortConstants {
     /**
      * Trường sắp xếp theo tên nhân viên.
      */
-    public static final String EMPLOYEE_NAME_FIELD = "employeeName";
+    public static final String EMPLOYEE_NAME_FIELD = "e.employeeName";
 
     /**
      * Trường sắp xếp theo tên chứng chỉ.

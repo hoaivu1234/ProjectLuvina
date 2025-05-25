@@ -37,11 +37,11 @@ public class EmployeeCertification {
     @Column(name = "score")
     private BigDecimal score; // Điểm số đạt được trong chứng chỉ
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "employee_id")
     private Employee employee; // Nhân viên đã đạt chứng chỉ này
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "certification_id")
     private Certification certification; // Chứng chỉ mà nhân viên đã đạt được
 }
