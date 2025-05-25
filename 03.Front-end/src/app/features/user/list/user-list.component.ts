@@ -73,9 +73,53 @@ export class UserListComponent {
    */
   ngOnInit(): void {
     this.getListDepartment();
-    this.getListEmployee();
+    // this.getListEmployee();
     this.getPageNumbers();
+    this.restoreStateIfExists();
   }
+
+  saveCurrentState() {
+    const state = {
+      employeeName: this.employeeName,
+      selectedDepartment: this.selectedDepartment,
+      currentSortColumn: this.currentSortColumn,
+      currentSortOrder: this.currentSortOrder,
+      currentSortField: this.currentSortField,
+      currentPage: this.currentPage,
+      pageSize: this.pageSize
+    };
+    sessionStorage.setItem('user_list_state', JSON.stringify(state));
+  }
+
+
+  restoreStateIfExists() {
+    const userListState = sessionStorage.getItem('user_list_state');
+    if (userListState) {
+      const state = JSON.parse(userListState);
+      this.employeeName = state.employeeName;
+      this.selectedDepartment = state.selectedDepartment;
+      this.currentSortColumn = state.currentSortColumn;
+      this.currentSortOrder = state.currentSortOrder;
+      this.currentSortField = state.currentSortField;
+      this.currentPage = state.currentPage;
+      this.pageSize = state.pageSize;
+
+      // Gọi lại API với trạng thái đã khôi phục
+      this.getListEmployee(
+        this.employeeName,
+        this.selectedDepartment,
+        this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
+        this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
+        this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
+        this.currentSortField
+      );
+    } else {
+      // Trường hợp không có trạng thái cũ thì gọi mặc định
+      this.getListEmployee();
+    }
+  }
+
+
 
   /**
    * Gọi API để lấy danh sách phòng ban.
@@ -258,6 +302,7 @@ export class UserListComponent {
    * Điều hướng đến màn hình ADM004
    */
   openADM004() {
+    this.saveCurrentState();
     this.router.navigate(['/user/adm004'], { state: { fromPage: PAGE.ADM002 } });
   }
 
@@ -266,6 +311,7 @@ export class UserListComponent {
    * @param id Id của employee tương ứng cần xem dữ liệu chi tiết
    */
   getDetailEmployee(id: number | undefined) {
+    this.saveCurrentState();
     this.router.navigate(['/user/adm003'], { state: { employeeId: id } });
   }
 }

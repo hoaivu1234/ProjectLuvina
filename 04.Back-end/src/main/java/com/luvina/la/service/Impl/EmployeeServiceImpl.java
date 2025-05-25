@@ -12,6 +12,7 @@ import com.luvina.la.entity.Department;
 import com.luvina.la.entity.Employee;
 import com.luvina.la.entity.EmployeeCertification;
 import com.luvina.la.exception.BusinessException;
+import com.luvina.la.mapper.EmployeeMapper;
 import com.luvina.la.mapper.EmployeeRequestMapper;
 import com.luvina.la.mapper.EmployeeResponseMapper;
 import com.luvina.la.mapper.ValidationFieldNameMapper;
@@ -25,6 +26,8 @@ import com.luvina.la.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,6 +54,9 @@ import java.util.stream.Collectors;
 public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeRequestMapper employeeRequestMapper;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     @Autowired
     private EmployeeResponseMapper employeeResponseMapper;
@@ -172,7 +178,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElse(null);
     }
 
-
     /**
      * Lấy danh sách nhân viên từ cơ sở dữ liệu dựa trên các tiêu chí lọc và sắp xếp.
      * Cung cấp phân trang để tối ưu hóa việc lấy dữ liệu.
@@ -217,6 +222,38 @@ public class EmployeeServiceImpl implements EmployeeService {
                 (int) page.getTotalElements(),
                 HttpStatus.OK.value(),
                 page.getContent());
+    }
+
+    @Override
+    public EmployeeResponse<List<EmployeeDTO>> getAllEmployees(
+            String employeeName,
+            Long departmentId,
+            String ordEmployeeName,
+            String ordCertificationName,
+            String ordEndDate,
+            String sortPriority,
+            int offset,
+            int limit) {
+
+        // Tạo sort order
+        List<Sort.Order> orders = buildSortOrders(
+                ordEmployeeName,
+                ordCertificationName,
+                ordEndDate,
+                sortPriority);
+
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by(orders));
+
+        Page<Employee> page = employeeRepository.getAllEmployees(
+                EmployeeRole.USER,
+                employeeName,
+                departmentId,
+                pageable);
+
+        return new EmployeeResponse<>(
+                (int) page.getTotalElements(),
+                HttpStatus.OK.value(),
+                employeeMapper.toList(page.getContent()));
     }
 
     /**
@@ -363,7 +400,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse<Long> updateEmployee(EmployeeRequestDTO updateDTO) {
         Employee employee = employeeRequestMapper.toEntity(updateDTO);
 
-        String rawPassword = employee.getEmployeeLoginPassword();
+        String rawPassword = updateDTO.getEmployeeLoginPassword();
         if (rawPassword != null && !rawPassword.isEmpty()) {
             String encodedPassword = passwordEncoder.encode(rawPassword);
             employee.setEmployeeLoginPassword(encodedPassword);

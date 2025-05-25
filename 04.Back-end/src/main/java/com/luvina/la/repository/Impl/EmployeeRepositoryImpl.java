@@ -9,6 +9,7 @@ import com.luvina.la.common.EmployeeRole;
 import com.luvina.la.common.SortConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.repository.EmployeeRepositoryCustom;
+import javax.persistence.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -65,6 +66,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         // Get total count
         Long total = countEmployees(role, name, departmentId);
 
+        // Dùng PageIml vì đang dùng jpql thủ công, nếu dùng jpa thì dùng Page
         return new PageImpl<>(resultList, PageRequest.of(offset / limit, limit), total);
     }
 
@@ -114,40 +116,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
                 )
                 """);
 
-        addNameCondition(sb, name);
-        addDepartmentCondition(sb, departmentId);
+        addWhereConditions(sb, name, departmentId);
         addOrderByClause(sb, orders);
 
         return sb.toString();
     }
-
-
-    /**
-     * Thêm điều kiện vào câu truy vấn cho trường `employeeName`.
-     * Nếu tên nhân viên không null và không rỗng, điều kiện `employeeName LIKE` sẽ được thêm vào câu truy vấn.
-     *
-     * @param sb StringBuilder để xây dựng câu truy vấn
-     * @param name Tên nhân viên cần tìm kiếm
-     */
-    private void addNameCondition(StringBuilder sb, String name) {
-        if (name != null && !name.isBlank()) {
-            sb.append(" AND e.employeeName LIKE :name ");
-        }
-    }
-
-    /**
-     * Thêm điều kiện vào câu truy vấn cho trường `departmentId`.
-     * Nếu `departmentId` không null, điều kiện `departmentId` sẽ được thêm vào câu truy vấn.
-     *
-     * @param sb StringBuilder để xây dựng câu truy vấn
-     * @param departmentId ID phòng ban cần lọc
-     */
-    private void addDepartmentCondition(StringBuilder sb, Long departmentId) {
-        if (departmentId != null) {
-            sb.append(" AND d.departmentId = :departmentId ");
-        }
-    }
-
 
     /**
      * Thêm phần `ORDER BY` vào câu truy vấn nếu có yêu cầu sắp xếp.
@@ -196,15 +169,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
             Long departmentId
     ) {
         TypedQuery<EmployeeDTO> query = entityManager.createQuery(queryString, EmployeeDTO.class);
-        query.setParameter("role", role);
-
-        if (name != null && !name.isBlank()) {
-            query.setParameter("name", "%" + name + "%");
-        }
-
-        if (departmentId != null) {
-            query.setParameter("departmentId", departmentId);
-        }
+        setCommonParameters(query, role, name, departmentId);
 
         return query;
     }
@@ -251,8 +216,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
                     WHERE e.employeeRole = :role
                 """);
 
-        addNameCondition(sb, name);
-        addDepartmentCondition(sb, departmentId);
+        addWhereConditions(sb, name, departmentId);
 
         return sb.toString();
     }
@@ -273,6 +237,12 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
             Long departmentId
     ) {
         TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
+        setCommonParameters(query, role, name, departmentId);
+
+        return query;
+    }
+
+    private void setCommonParameters(Query query, EmployeeRole role, String name, Long departmentId) {
         query.setParameter("role", role);
 
         if (name != null && !name.isBlank()) {
@@ -282,8 +252,16 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         if (departmentId != null) {
             query.setParameter("departmentId", departmentId);
         }
-
-        return query;
     }
+
+    private void addWhereConditions(StringBuilder sb, String name, Long departmentId) {
+        if (name != null && !name.isBlank()) {
+            sb.append(" AND e.employeeName LIKE :name ");
+        }
+        if (departmentId != null) {
+            sb.append(" AND d.departmentId = :departmentId ");
+        }
+    }
+
 }
 

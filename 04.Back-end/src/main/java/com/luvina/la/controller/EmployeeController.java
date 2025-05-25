@@ -11,6 +11,7 @@ import com.luvina.la.common.PaginationConstants;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.dto.EmployeeResponseDTO;
+import com.luvina.la.entity.Employee;
 import com.luvina.la.payload.EmployeeResponse;
 import com.luvina.la.service.EmployeeService;
 import com.luvina.la.validator.EmployeeRequestValidator;
@@ -67,7 +68,7 @@ public class EmployeeController {
             @RequestParam(name = "ord_end_date", required = false, defaultValue = "") String ordEndDate,
             @RequestParam(name = "sort_priority", required = false, defaultValue = "") String sortPriority,
             @RequestParam(name = "offset", required = false, defaultValue = "") String offset,
-            @RequestParam(name = "limit", required = false, defaultValue = "") String limit) throws DataAccessException {
+            @RequestParam(name = "limit", required = false, defaultValue = "") String limit) {
 
         // validate input params
         // Escape ký tự đặc biệt trong employeeName
@@ -98,6 +99,53 @@ public class EmployeeController {
         // Nếu có nhân viên thỏa mãn, lấy danh sách nhân viên
         if (count > 0) {
             response = employeeService.getListEmployees(employeeName, departmentIdNumber, ordEmployeeName, ordCertificationName,
+                    ordEndDate, sortPriority, offsetNumber, limitNumber);
+        }
+
+        // Trả về response với mã trạng thái OK và danh sách nhân viên
+        return response;
+    }
+
+    @GetMapping("/all")
+    public EmployeeResponse<List<EmployeeDTO>> getAllEmployees(
+            @RequestParam(name = "employee_name", required = false, defaultValue = "") String employeeName,
+            @RequestParam(name = "department_id", required = false, defaultValue = "") String departmentId,
+            @RequestParam(name = "ord_employee_name", required = false, defaultValue = "") String ordEmployeeName,
+            @RequestParam(name = "ord_certification_name", required = false, defaultValue = "") String ordCertificationName,
+            @RequestParam(name = "ord_end_date", required = false, defaultValue = "") String ordEndDate,
+            @RequestParam(name = "sort_priority", required = false, defaultValue = "") String sortPriority,
+            @RequestParam(name = "offset", required = false, defaultValue = "") String offset,
+            @RequestParam(name = "limit", required = false, defaultValue = "") String limit) {
+
+        // validate input params
+        // Escape ký tự đặc biệt trong employeeName
+        employeeName = EscapeCharacter.DEFAULT.escape(employeeName);
+
+        // Kiểm tra ID phòng ban có hợp lệ không
+        Long departmentIdNumber = inputValidator.validateDepartmentId(departmentId);
+
+        // Kiểm tra thứ tự sắp xếp của các tham số liên quan đến sắp xếp
+        ordEmployeeName = inputValidator.validateSortOrder(ordEmployeeName);
+        ordCertificationName = inputValidator.validateSortOrder(ordCertificationName);
+        ordEndDate = inputValidator.validateSortOrder(ordEndDate);
+
+        // Xử lý tham số phân trang
+        int offsetNumber;
+        int limitNumber;
+
+        // Kiểm tra giá trị phân trang, nếu không có thì sử dụng giá trị mặc định
+        offsetNumber = offset.isEmpty() ? PaginationConstants.DEFAULT_OFFSET_VALUE : inputValidator.validatePositiveNumber(offset, PaginationConstants.OFFSET_LABEL);
+        limitNumber = limit.isEmpty() ? PaginationConstants.DEFAULT_LIMIT_VALUE : inputValidator.validatePositiveNumber(limit, PaginationConstants.LIMIT_LABEL);
+
+        // Lấy tổng số bản ghi nhân viên thỏa mãn các điều kiện lọc
+        int count = employeeService.getCountEmployee(employeeName, departmentIdNumber);
+
+        // Khởi tạo response
+        EmployeeResponse<List<EmployeeDTO>> response = new EmployeeResponse<>(count, HttpStatusConstants.OK, new ArrayList<>());
+
+        // Nếu có nhân viên thỏa mãn, lấy danh sách nhân viên
+        if (count > 0) {
+            response = employeeService.getAllEmployees(employeeName, departmentIdNumber, ordEmployeeName, ordCertificationName,
                     ordEndDate, sortPriority, offsetNumber, limitNumber);
         }
 

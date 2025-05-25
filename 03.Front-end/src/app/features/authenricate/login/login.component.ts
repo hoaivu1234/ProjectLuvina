@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { HttpClient } from "@angular/common/http";
 import { AppConstants } from "../../../app-constants";
+import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
 
 @Component({
   selector: 'app-login',
@@ -16,12 +17,15 @@ export class LoginComponent {
   ) { }
 
   isValid = true;
+  title: string = '';
+  defaultTitle: string = 'アカウント名およびパスワードを入力してください';
 
   ngOnInit(): void {
     sessionStorage.removeItem("access_token");
     if (this.router.url === '/logout') {
       this.router.navigate(['login']);
     }
+    this.title = this.defaultTitle;
   };
   
   login(form: NgForm) {
@@ -37,6 +41,7 @@ export class LoginComponent {
               this.router.navigate(['user/list'])
             } else {  
               this.isValid = false;
+              this.title = ERROR_MESSAGES[body.errors.code]();
             }
           },
           error: (error) => {
@@ -47,6 +52,7 @@ export class LoginComponent {
       );
     } else {
       this.isValid = false;
+      this.title = this.defaultTitle;
     }
   }
 }

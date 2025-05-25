@@ -1,6 +1,8 @@
 package com.luvina.la.controller;
 
 
+import com.luvina.la.common.EmployeeRole;
+import com.luvina.la.common.ErrorCodeConstants;
 import com.luvina.la.config.jwt.AuthUserDetails;
 import com.luvina.la.config.jwt.JwtTokenProvider;
 import com.luvina.la.config.jwt.UserDetailsServiceImpl;
@@ -53,12 +55,24 @@ public class AuthController {
                             loginRequest.getPassword()
                     )
             );
+
+            // Lấy thông tin của user
+            AuthUserDetails userDetails = (AuthUserDetails) authentication.getPrincipal();
+
+            // Kiểm tra xem tài khoản đăng nhâp có role là ADMIN không
+            boolean isAdmin = userDetails.getEmployee().getEmployeeRole().equals(EmployeeRole.ADMIN);
+
+            if (!isAdmin) { // Nếu không phải ADMIN
+                errors.put("code", ErrorCodeConstants.ER016); // thì trả về lỗi và không cho đăng nhập
+                return new LoginResponse(errors);
+            }
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String accessToken = tokenProvider.generateToken((AuthUserDetails) authentication.getPrincipal());
             return new LoginResponse(accessToken);
         } catch (UsernameNotFoundException | BadCredentialsException ex) {
             log.warn(ex.getMessage());
-            errors.put("code", "100");
+            errors.put("code", ErrorCodeConstants.ER016);
         } catch (Exception ex) {
             log.warn(ex.getMessage());
             // unknow error

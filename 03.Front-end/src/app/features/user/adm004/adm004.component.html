@@ -34,7 +34,7 @@
                   <select #secondInput class="form-control" formControlName="departmentId" name="departmentSelect"
                     (change)="handleChangeDepartmentId($event)"
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('departmentId'))">
-                    <option value="">選択してください</option>
+                    <option [ngValue]="null">選択してください</option>
                     <option *ngFor="let dept of listDepartments" [value]="dept.departmentId">
                       {{ dept.departmentName }}
                     </option>
@@ -173,7 +173,7 @@
                     <div class="col-sm col-sm-10">
                       <select class="form-control" formControlName="certificationId" name="certificationSelect"
                         (change)="handleChangeCertificationId(i)">
-                        <option value="">選択してください</option>
+                        <option [ngValue]="null">選択してください</option>
                         <option *ngFor="let cer of listCertifications" [value]="cer.certificationId">
                           {{ cer.certificationName }}
                         </option>
