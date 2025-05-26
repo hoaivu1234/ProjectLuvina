@@ -4,7 +4,7 @@
     <div class="content">
       <div class="content-main">
         <div class="row">
-          <form [formGroup]="employeeForm" class="c-form box-shadow was-validated">
+          <form [formGroup]="employeeForm" class="c-form box-shadow was-validated" cdkTrapFocus>
             <ul>
               <li class="title">会員情報編集</li>
               <li *ngIf="generalErrorMessage" class="box-err">
@@ -41,7 +41,7 @@
                   </select>
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('departmentId'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('departmentId'), 'グループ:') }}
+                    {{ validationService.getErrorMessage(employeeForm.get('departmentId'), 'グループ') }}
                   </div>
                 </div>
               </li>
@@ -55,7 +55,7 @@
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeName'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeName'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('employeeName'), '氏名:') }}
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeName'), '氏名') }}
                   </div>
                 </div>
               </li>
@@ -69,7 +69,7 @@
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeNameKana'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeNameKana'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('employeeNameKana'), 'カタカナ氏名:') }}
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeNameKana'), 'カタカナ氏名') }}
                   </div>
                 </div>
               </li>
@@ -88,7 +88,7 @@
                       [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeBirthDate'))" />
                     <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeBirthDate'))"
                       class="invalid-feedback">
-                      {{ validationService.getErrorMessage(employeeForm.get('employeeBirthDate'), '生年月日:') }}
+                      {{ validationService.getErrorMessage(employeeForm.get('employeeBirthDate'), '生年月日') }}
                     </div>
                     <span class="input-group-addon" (click)="birthDate.toggle()" style="cursor: pointer">
                       <i class="glyphicon glyphicon-calendar"></i>
@@ -106,7 +106,7 @@
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeEmail'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeEmail'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('employeeEmail'), 'メールアドレス:') }}
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeEmail'), 'メールアドレス') }}
                   </div>
                 </div>
               </li>
@@ -120,7 +120,7 @@
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeTelephone'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeTelephone'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('employeeTelephone'), '電話番号:') }}
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeTelephone'), '電話番号') }}
                   </div>
                 </div>
               </li>
@@ -134,7 +134,7 @@
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeLoginPassword'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeLoginPassword'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('employeeLoginPassword'), 'パスワード:', 8, 50) }}
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeLoginPassword'), 'パスワード', 8, 50) }}
                   </div>
                 </div>
               </li>
@@ -148,14 +148,14 @@
                     [class.is-invalid]="validationService.shouldShowError(employeeForm.get('employeeReLoginPassword'))" />
                   <div *ngIf="validationService.shouldShowError(employeeForm.get('employeeReLoginPassword'))"
                     class="invalid-feedback">
-                    {{ validationService.getErrorMessage(employeeForm.get('employeeReLoginPassword'), 'パスワード（確認）:') }}
+                    {{ validationService.getErrorMessage(employeeForm.get('employeeReLoginPassword'), 'パスワード（確認）') }}
                   </div>
                   <div
                     *ngIf="employeeForm.errors?.['passwordNotMatch'] && 
                     ((employeeForm.get('employeeReLoginPassword')?.dirty && employeeForm.get('employeeReLoginPassword')?.value && mode == 'add') 
                     || (employeeForm.get('employeeReLoginPassword')?.dirty && mode == 'update'))"
                     class="invalid-feedback">
-                    {{ ERROR_MESSAGES[ERROR_CODES.PASSWORD_MISMATCH]('パスワード（確認）:') }}
+                    {{ ERROR_MESSAGES[ERROR_CODES.PASSWORD_MISMATCH]('パスワード（確認）') }}
                   </div>
 
                 </div>
@@ -194,7 +194,7 @@
                           }" formControlName="startDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
                           #startDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('startDate'))" class="invalid-feedback">
-                          {{ validationService.getErrorMessage(cert.get('startDate'), '資格交付日:') }}
+                          {{ validationService.getErrorMessage(cert.get('startDate'), '資格交付日') }}
                         </div>
                         <span class="input-group-addon" (click)="startDate.toggle()" style="cursor: pointer">
                           <i class="glyphicon glyphicon-calendar"></i>
@@ -216,7 +216,7 @@
                           }" formControlName="endDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
                           #endDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('endDate'))" class="invalid-feedback">
-                          {{ validationService.getErrorMessage(cert.get('endDate'), '失効日:') }}
+                          {{ validationService.getErrorMessage(cert.get('endDate'), '失効日') }}
                         </div>
                         <div *ngIf="cert.errors?.['invalidEndDate'] && cert.get('endDate')?.dirty"
                           class="invalid-feedback">
@@ -236,7 +236,7 @@
                     <div class="col-sm col-sm-10">
                       <input type="text" class="form-control" formControlName="score" [disabled]="!isCertSelected(i)" />
                       <div *ngIf="validationService.shouldShowError(cert.get('score'))" class="invalid-feedback">
-                        {{ validationService.getErrorMessage(cert.get('score'), '点数:') }}
+                        {{ validationService.getErrorMessage(cert.get('score'), '点数') }}
                       </div>
                     </div>
                   </li>

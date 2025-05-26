@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { A11yModule } from '@angular/cdk/a11y';
 import { UsersRoutingModule } from './users-routing.module';
 import { UserListComponent } from './list/user-list.component';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -32,6 +32,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     FormsModule,
     ReactiveFormsModule,
     ModalModule.forRoot(),
+    A11yModule
   ]
 })
 export class UsersModule { }

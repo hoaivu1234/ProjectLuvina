@@ -8,43 +8,43 @@
             <ul>
               <li class="title">情報確認</li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">アカウント名:</label>
+                <label class="col-form-label col-sm-2">アカウント名</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.employeeLoginId }}
                 </div>
               </li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">グループ:</label>
+                <label class="col-form-label col-sm-2">グループ</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.departmentName }}
                 </div>
               </li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">氏名:</label>
+                <label class="col-form-label col-sm-2">氏名</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.employeeName }}
                 </div>
               </li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">カタカナ氏名:</label>
+                <label class="col-form-label col-sm-2">カタカナ氏名</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.employeeNameKana }}
                 </div>
               </li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">生年月日:</label>
+                <label class="col-form-label col-sm-2">生年月日</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.employeeBirthDate | date : "yyyy/MM/dd" }}
                 </div>
               </li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">メールアドレス:</label>
+                <label class="col-form-label col-sm-2">メールアドレス</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.employeeEmail }}
                 </div>
               </li>
               <li class="form-group row d-flex">
-                <label class="col-form-label col-sm-2">電話番号:</label>
+                <label class="col-form-label col-sm-2">電話番号</label>
                 <div class="col-sm col-sm-10">
                   {{ employeeData?.employeeTelephone }}
                 </div>
@@ -53,25 +53,25 @@
               <div *ngIf="employeeData?.certifications?.length > 0; else noCert">
                 <div *ngFor="let cer of employeeData?.certifications">
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">資格:</label>
+                    <label class="col-form-label col-sm-2">資格</label>
                     <div class="col-sm col-sm-10">
                       {{ cer.certificationName }}
                     </div>
                   </li>
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">資格交付日:</label>
+                    <label class="col-form-label col-sm-2">資格交付日</label>
                     <div class="col-sm col-sm-10">
                       {{ cer.startDate | date : "yyyy/MM/dd" }}
                     </div>
                   </li>
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">失効日:</label>
+                    <label class="col-form-label col-sm-2">失効日</label>
                     <div class="col-sm col-sm-10">
                       {{ cer.endDate | date : "yyyy/MM/dd" }}
                     </div>
                   </li>
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">点数:</label>
+                    <label class="col-form-label col-sm-2">点数</label>
                     <div class="col-sm col-sm-10">{{ cer.score }}</div>
                   </li>
                 </div>
@@ -118,19 +118,19 @@
               <ng-template #noCert>
                 <div class="form-group">
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">資格:</label>
+                    <label class="col-form-label col-sm-2">資格</label>
                     <div class="col-sm col-sm-10"></div>
                   </li>
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">資格交付日:</label>
+                    <label class="col-form-label col-sm-2">資格交付日</label>
                     <div class="col-sm col-sm-10"></div>
                   </li>
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">失効日:</label>
+                    <label class="col-form-label col-sm-2">失効日</label>
                     <div class="col-sm col-sm-10"></div>
                   </li>
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2">点数:</label>
+                    <label class="col-form-label col-sm-2">点数</label>
                   </li>
                 </div>
               </ng-template>

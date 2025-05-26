@@ -223,7 +223,7 @@ export class ADM004Component {
       employeeNameKana: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkKanaHalfSize()]],
       employeeName: [null, [Validators.required, Validators.maxLength(125)]],
       employeeBirthDate: [null, Validators.required],
-      employeeEmail: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkValidateEmail(), this.validationService.checkEnglishHalfSize()]],
+      employeeEmail: [null, [Validators.required, Validators.maxLength(125), this.validationService.checkEnglishHalfSize(), this.validationService.checkValidateEmail()]],
       employeeTelephone: [null, [Validators.required, Validators.maxLength(50), this.validationService.checkEnglishHalfSize()]],
       employeeLoginPassword: [null],
       employeeReLoginPassword: [null],
@@ -309,8 +309,9 @@ export class ADM004Component {
    * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
    */
   handleChangeDepartmentId(item: any) {
-    if (item) {
-      const department = this.listDepartments.find((item: any) => item.departmentId);
+    const departmentId = item.target.value;
+    if (departmentId) {
+      const department = this.listDepartments.find((item: any) => item.departmentId == departmentId);
       this.employeeForm.get('departmentName')?.setValue(department?.departmentName);
     } else {
       this.employeeForm.get('departmentName')?.setValue(null);

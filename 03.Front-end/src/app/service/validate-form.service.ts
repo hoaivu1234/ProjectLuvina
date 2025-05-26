@@ -8,6 +8,7 @@ import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { ERROR_MESSAGES } from '../shared/utils/error-messages.constants';
 import { ERROR_CODES } from '../shared/utils/error-code.constants';
 import { ERROR_KEYS } from '../shared/utils/error-key.constants';
+import { REGEX } from '../shared/utils/regex.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -35,14 +36,12 @@ export class ValidateFormService {
 
       // Chỉ chứa a-z, A-Z, 0-9 và _
       // Định dạng theo đúng thứ tự regex. có nghĩ là nếu để thành 0-9a-zA-Z thì có thể để số ở đầu
-      const formatLoginIdRegex = /^[a-zA-Z0-9_]+$/;
-      if (!formatLoginIdRegex.test(value)) {
+      if (!REGEX.LOGIN_ID.test(value)) {
         return { invalidChars: true };
       }
 
       // Không được bắt đầu bằng số
-      const startsWithNumber = /^[0-9]/;
-      if (startsWithNumber.test(value)) {
+      if (REGEX.STARTS_WITH_NUMBER.test(value)) {
         return { startsWithNumber: true };
       }
 
@@ -69,9 +68,7 @@ export class ValidateFormService {
       // \uFF66-\uFF9F: Các ký tự Katakana Halfwidth theo chuẩn Unicode (U+FF66 đến U+FF9F)
       // \uFF70	Dấu kéo dài âm halfwidth (ｰ, mã Unicode U+FF70)
       // \s	Khoảng trắng (space, tab, line break...)
-      const halfwidthKatakanaRegex = /^[\uFF66-\uFF9F\uFF70]+$/;
-
-      if (!halfwidthKatakanaRegex.test(value)) {
+      if (!REGEX.HALF_WIDTH_KANA.test(value)) {
         return { invalidKanaFormat: true };
       }
 
@@ -94,8 +91,7 @@ export class ValidateFormService {
       if (!value) return null;
 
       // Check tất cả ký tự là ASCII (halfsize tiếng Anh)
-      const asciiOnlyRegex = /^[\x00-\x7F]+$/;
-      if (!asciiOnlyRegex.test(value)) {
+      if (!REGEX.HALF_WIDTH_ENGLISH.test(value)) {
         return { nonAsciiCharacters: true }; // chứa ký tự fullsize hoặc Katakana
       }
 
@@ -116,8 +112,8 @@ export class ValidateFormService {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
       if (!value) return null;
-      const halfSizeNumberRegex = /^[0-9]+$/;
-      if (!halfSizeNumberRegex.test(value)) {
+
+      if (!REGEX.HALF_WIDTH_NUMBER.test(value)) {
         return { numberNotHalfSize: true };
       }
 
@@ -143,13 +139,7 @@ export class ValidateFormService {
       const value = control.value;
       if (!value) return null;
 
-      // ^[^\s@]+: không chứa khoảng trắng hoặc @ ở phần trước @.
-      // @[^\s@]+: phần sau @ cũng không chứa khoảng trắng hoặc @.
-      //\.: phải có một dấu chấm.
-      //[^\s@]+$: phần sau dấu . cũng không chứa khoảng trắng hoặc @.
-      const formatEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!formatEmailRegex.test(value)) {
+      if (!REGEX.EMAIL.test(value)) {
         return { invalidEmailFormat: true };
       }
 
@@ -194,29 +184,29 @@ export class ValidateFormService {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const password = group.get('employeeLoginPassword')?.value;
       const confirmPassword = group.get('employeeReLoginPassword')?.value;
-  
+
       if (mode === 'add') {
         if (!password || !confirmPassword) return { passwordNotMatch: true };
         return password === confirmPassword ? null : { passwordNotMatch: true };
       }
-  
+
       // mode === 'update'
       if (!password && !confirmPassword) {
         return null; // không nhập gì thì không lỗi
       }
-  
+
       if (!password && confirmPassword) {
         return { passwordNotMatch: true };
       }
-  
+
       if (password && !confirmPassword) {
         return { passwordNotMatch: true };
       }
-  
+
       return password === confirmPassword ? null : { passwordNotMatch: true };
     };
   }
-  
+
 
   /**
    * Validator dùng để kiểm tra `endDate` phải lớn hơn `startDate`.
@@ -271,11 +261,11 @@ export class ValidateFormService {
         case ERROR_KEYS.INVALID_KANA_FORMAT:
           errorMessage = ERROR_MESSAGES[ERROR_CODES.KANA_REQUIRED](fieldName);
           break;
-        case ERROR_KEYS.INVALID_EMAIL_FORMAT:
-          errorMessage = ERROR_MESSAGES[ERROR_CODES.INVALID_FORMAT](fieldName);
-          break;
         case ERROR_KEYS.NONASCIICHARACTERS:
           errorMessage = ERROR_MESSAGES[ERROR_CODES.HALF_WIDTH_CHAR_REQUIRED](fieldName);
+          break;
+        case ERROR_KEYS.INVALID_EMAIL_FORMAT:
+          errorMessage = ERROR_MESSAGES[ERROR_CODES.INVALID_FORMAT](fieldName, REGEX.EMAIL);
           break;
         case ERROR_KEYS.INVALID_LENGTH_RANGE:
           errorMessage = ERROR_MESSAGES[ERROR_CODES.LENGTH_RANGE](fieldName, minLength, maxLength);
