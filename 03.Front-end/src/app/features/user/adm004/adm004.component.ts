@@ -15,7 +15,6 @@ import { ValidateFormService } from 'src/app/service/validate-form.service';
 import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
-import { EmployeeFormControls } from 'src/app/shared/utils/form-control-names.constant';
 import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
 
 @Component({
@@ -103,7 +102,7 @@ export class ADM004Component {
    *   - Ngược lại -> Thêm mới.
    *
    * Nếu không xác định được `fromPage`, mặc định thiết lập chế độ là Thêm mới.
- */
+   */
   extractNavigationState() {
     const state = history.state; // Lấy state từ router
     this.fromPage = state?.fromPage; // Lấy giá trị fromPage từ state
@@ -140,16 +139,16 @@ export class ADM004Component {
   }
 
   /**
- * Patch dữ liệu cho form group
- */
+   * Patch dữ liệu cho form group
+   */
   patchValueToForm() {
     this.employeeForm.patchValue(this.dataReceived); // Patch dữ liệu cho form control
     this.patchValueForCertifications(); // Gọi hàm patch dữ liệu cho form array
   }
 
   /**
- * Patch dữ liệu cho form array
- */
+   * Patch dữ liệu cho form array
+   */
   patchValueForCertifications(): void {
     if (this.dataReceived?.certifications) { // Nếu certifications có dữ liệu thì mới patch
       const certificationsArray = this.certifications;
@@ -181,7 +180,7 @@ export class ADM004Component {
    * - employeeReLoginPassword: bắt buộc nhập.
    *
    * Sau khi thiết lập validator, gọi updateValueAndValidity() để cập nhật trạng thái FormControl.
- */
+   */
   setValidatorsForAddMode(): void {
     this.employeeForm.get('employeeLoginPassword')?.setValidators([
       Validators.required,
@@ -201,7 +200,7 @@ export class ADM004Component {
    * - employeeReLoginPassword: không yêu cầu nhập, do người dùng có thể không muốn thay đổi mật khẩu.
    *
    * Sau khi thiết lập validator, gọi updateValueAndValidity() để cập nhật trạng thái FormControl.
- */
+   */
   setValidatorsForUpdateMode(): void {
     this.employeeForm.get('employeeLoginPassword')?.setValidators([
       this.validationService.checkLengthRangePassword(8, 50)
@@ -213,8 +212,8 @@ export class ADM004Component {
 
 
   /**
-    * Khởi tạo form chính với các trường thông tin nhân viên và danh sách chứng chỉ (certifications)
-  */
+   * Khởi tạo form chính với các trường thông tin nhân viên và danh sách chứng chỉ (certifications)
+   */
   initForm() {
     this.employeeForm = this.fb.group({
       employeeId: [null],
@@ -247,9 +246,9 @@ export class ADM004Component {
   }
 
   /**
-    * Thêm một chứng chỉ mới vào form array `certifications`, 
-    * với các trường liên quan được khởi tạo và disable mặc định
-  */
+   * Thêm một chứng chỉ mới vào form array `certifications`, 
+   * với các trường liên quan được khởi tạo và disable mặc định
+   */
   addCertification(): void {
     const certificationGroup = this.fb.group({
       certificationId: [null],
@@ -274,41 +273,41 @@ export class ADM004Component {
   }
 
   /**
-    * Getter để lấy FormArray chứa danh sách chứng chỉ từ form chính
-  */
+   * Getter để lấy FormArray chứa danh sách chứng chỉ từ form chính
+   */
   get certifications(): FormArray {
     return this.employeeForm.get('certifications') as FormArray;
   }
 
   /**
-    * Kiểm tra xem chứng chỉ tại vị trí `index` đã được chọn hay chưa (dựa trên certificationId)
-    * @param index - vị trí của chứng chỉ trong mảng
-    * @returns true nếu đã chọn chứng chỉ, ngược lại là false
-  */
+   * Kiểm tra xem chứng chỉ tại vị trí `index` đã được chọn hay chưa (dựa trên certificationId)
+   * @param index - vị trí của chứng chỉ trong mảng
+   * @returns true nếu đã chọn chứng chỉ, ngược lại là false
+   */
   isCertSelected(index: number): boolean {
     const certGroup = this.certifications.at(index) as FormGroup;
     return !!certGroup.get('certificationId')?.value;
   }
 
   /**
-    * Xác định xem các trường ngày hiệu lực, ngày hết hạn, điểm có bắt buộc hay không
-    * Dựa trên việc đã chọn chứng chỉ tại vị trí `index`
-    * @param index - vị trí chứng chỉ
-    * @returns true nếu cần required, ngược lại là false
-  */
+   * Xác định xem các trường ngày hiệu lực, ngày hết hạn, điểm có bắt buộc hay không
+   * Dựa trên việc đã chọn chứng chỉ tại vị trí `index`
+   * @param index - vị trí chứng chỉ
+   * @returns true nếu cần required, ngược lại là false
+   */
   isRequired(index: number): boolean {
     return this.isCertSelected(index);
   }
 
   /**
-  * Xử lý sự kiện khi người dùng chọn hoặc bỏ chọn phòng ban.
-  * Nếu có giá trị `item`, tìm thông tin phòng ban tương ứng và cập nhật `departmentName` trong form.
-  * Nếu không có giá trị `item`, đặt `departmentName` về `null`.
-  * Vì this.listDepartments chứa dữ liệu department đã được phân trang nên có thể duyệt qua this.listDepartments mà không ảnh hưởng đến hiệu năng
-  * Nếu không phân trang thì nên lưu value ở html là cả object Department thay vì chỉ lưu mỗi departmentId để không phải tìm departmentName chuyển qua ADM005
-  *
-  * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
-  */
+   * Xử lý sự kiện khi người dùng chọn hoặc bỏ chọn phòng ban.
+   * Nếu có giá trị `item`, tìm thông tin phòng ban tương ứng và cập nhật `departmentName` trong form.
+   * Nếu không có giá trị `item`, đặt `departmentName` về `null`.
+   * Vì this.listDepartments chứa dữ liệu department đã được phân trang nên có thể duyệt qua this.listDepartments mà không ảnh hưởng đến hiệu năng
+   * Nếu không phân trang thì nên lưu value ở html là cả object Department thay vì chỉ lưu mỗi departmentId để không phải tìm departmentName chuyển qua ADM005
+   *
+   * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
+   */
   handleChangeDepartmentId(item: any) {
     if (item) {
       const department = this.listDepartments.find((item: any) => item.departmentId);
@@ -319,11 +318,11 @@ export class ADM004Component {
   }
 
   /**
-    * Xử lý khi giá trị của dropdown `certificationId` thay đổi
-    * - Nếu chọn rỗng: disable, reset và clear validators các trường liên quan
-    * - Nếu chọn có giá trị: enable và thêm required validator vào các trường liên quan
-    * @param index - vị trí chứng chỉ trong mảng
-  */
+   * Xử lý khi giá trị của dropdown `certificationId` thay đổi
+   * - Nếu chọn rỗng: disable, reset và clear validators các trường liên quan
+   * - Nếu chọn có giá trị: enable và thêm required validator vào các trường liên quan
+   * @param index - vị trí chứng chỉ trong mảng
+   */
   handleChangeCertificationId(index: number): void {
     const certGroup = this.certifications.at(index) as FormGroup;
     const selectedId = certGroup.get('certificationId')?.value;
@@ -367,10 +366,10 @@ export class ADM004Component {
   }
 
   /**
- * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
- *
- * @param {number} employeeId - ID của nhân viên cần truy vấn.
-*/
+   * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
+   *
+   * @param {number} employeeId - ID của nhân viên cần truy vấn.
+   */
   getEmployeeById(employeeId: number) {
     // Gọi service để lấy thông tin nhân viên theo ID.
     this.employeeService.getEmployeeById(employeeId).subscribe({
@@ -408,10 +407,10 @@ export class ADM004Component {
   }
 
   /**
- * Gọi API để lấy danh sách trình độ tiếng nhật.
- * Nếu thành công, gán dữ liệu vào listCertifications.
- * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi   tương ứng.
- */
+   * Gọi API để lấy danh sách trình độ tiếng nhật.
+   * Nếu thành công, gán dữ liệu vào listCertifications.
+   * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi tương ứng.
+   */
   getListCertification() {
     this.certificationService.getListCertifications().subscribe({
       next: (value) => {
@@ -426,8 +425,8 @@ export class ADM004Component {
   }
 
   /**
-  * Điều hướng về màn hình ADM002
-  */
+   * Điều hướng về màn hình ADM002 
+   */
   hanleBack() {
     if (this.mode == MODE.MODE_ADD) {
       this.router.navigate(['/user/list']);
@@ -440,7 +439,7 @@ export class ADM004Component {
    * Điều hướng về màn hình ADM005 (xác nhận thông tin người dùng)
    * Nếu form hợp lệ, chuyển sang trang xác nhận và truyền dữ liệu form.
    * Nếu form không hợp lệ, đánh dấu các trường chưa hợp lệ để hiển thị thông báo lỗi.
- */
+   */
   handleConfirm(): void {
     if (this.employeeForm.valid) {
       const state: any = {
@@ -457,11 +456,10 @@ export class ADM004Component {
     }
   }
 
-
   /**
    * Đệ quy đánh dấu tất cả các control trong FormGroup là 'touched' và 'dirty'.
    * @param formGroup - FormGroup cần đánh dấu
- */
+   */
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();

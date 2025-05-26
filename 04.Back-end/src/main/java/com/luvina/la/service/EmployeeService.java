@@ -38,14 +38,4 @@ public interface EmployeeService {
     String getEmployeeLoginIdById(Long id);
 
     String getEmployeeEmailById(Long id);
-
-    EmployeeResponse<List<EmployeeDTO>> getAllEmployees(
-            String employeeName,
-            Long departmentId,
-            String ordEmployeeName,
-            String ordCertificationName,
-            String ordEndDate,
-            String sortPriority,
-            int offset,
-            int limit);
 }

@@ -242,6 +242,14 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         return query;
     }
 
+    /**
+     * Thiết lập các tham số chung cho truy vấn JPQL.
+     *
+     * @param query        Đối tượng {@link Query} cần thiết lập tham số.
+     * @param role         Vai trò của nhân viên được sử dụng trong truy vấn (tham số bắt buộc).
+     * @param name         Tên nhân viên dùng để tìm kiếm (tham số tùy chọn, sẽ sử dụng LIKE nếu không rỗng).
+     * @param departmentId ID của phòng ban để lọc kết quả (tham số tùy chọn).
+     */
     private void setCommonParameters(Query query, EmployeeRole role, String name, Long departmentId) {
         query.setParameter("role", role);
 
@@ -254,6 +262,13 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         }
     }
 
+    /**
+     * Thêm các điều kiện WHERE vào câu truy vấn động dựa trên tham số đầu vào.
+     *
+     * @param sb           {@link StringBuilder} chứa câu truy vấn đang được xây dựng.
+     * @param name         Tên nhân viên dùng để thêm điều kiện LIKE (nếu có).
+     * @param departmentId ID của phòng ban để thêm điều kiện lọc (nếu có).
+     */
     private void addWhereConditions(StringBuilder sb, String name, Long departmentId) {
         if (name != null && !name.isBlank()) {
             sb.append(" AND e.employeeName LIKE :name ");

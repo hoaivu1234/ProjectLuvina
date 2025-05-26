@@ -37,12 +37,12 @@ export class ADM003Component {
   employeeId!: number; // Id của nhân viên được chuyển từ ADM002 sang
 
   /**
- * Constructor khởi tạo component, inject các service cần thiết.
- *
- * @param router Service định tuyến Router để điều hướng khi xảy ra lỗi
- * @param employeeService Service dùng để thực hiện xóa employee trong cơ sở dữ liệu
- * @param modalService Service dùng để thao tác với modal
- */
+   * Constructor khởi tạo component, inject các service cần thiết.
+   *
+   * @param router Service định tuyến Router để điều hướng khi xảy ra lỗi
+   * @param employeeService Service dùng để thực hiện xóa employee trong cơ sở dữ liệu
+   * @param modalService Service dùng để thao tác với modal
+   */
   constructor(
     private router: Router,
     private employeeService: EmployeeService,
@@ -55,7 +55,7 @@ export class ADM003Component {
    * - Kiểm tra tính hợp lệ của employeeId.
    * - Nếu hợp lệ thì gọi API để lấy dữ liệu nhân viên.
    * - Nếu không hợp lệ thì điều hướng sang trang SystemError.
- */
+   */
   ngOnInit(): void {
     // Lấy id nhân viên truyền sang từ ADM002
     this.employeeId = history.state?.employeeId;
@@ -70,7 +70,7 @@ export class ADM003Component {
    * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
    *
    * @param {number} employeeId - ID của nhân viên cần truy vấn.
- */
+   */
   getEmployeeById(employeeId: number) {
     // Gọi service để lấy thông tin nhân viên theo ID.
     this.employeeService.getEmployeeById(employeeId).subscribe({
@@ -93,7 +93,7 @@ export class ADM003Component {
    * Xử lý dữ liệu nhân viên để lọc ra chứng chỉ có cấp độ cao nhất
    *
    * @param {any} data - Dữ liệu trả về từ backend bao gồm danh sách chứng chỉ.
- */
+   */
   transformData(data: any) {
     // Nếu không có chứng chỉ, không cần xử lý gì thêm.
     if (!data.certifications || data.certifications.length === 0) return;
@@ -108,8 +108,8 @@ export class ADM003Component {
   }
 
   /**
-  * Điều hướng về màn hình ADM002
-  */
+   * Điều hướng về màn hình ADM002
+   */
   hanleBack() {
     this.router.navigate(['/user/list']);
   }
@@ -121,14 +121,14 @@ export class ADM003Component {
   }
 
   /**
-    * Xử lý hành động xóa nhân viên.
-    * 
-    * - Thêm class `closing` để tạo hiệu ứng đóng modal.
-    * - Ẩn modal thông qua `BsModalRef`.
-    * - Sau 400ms (chờ hiệu ứng đóng), gọi API để xóa nhân viên theo `employeeId`.
-    * - Nếu thành công, điều hướng đến màn ADM006 với mã `completeCode`.
-    * - Nếu thất bại, điều hướng đến màn SystemError với mã `errorCode`.
-  */
+   * Xử lý hành động xóa nhân viên.
+   * 
+   * - Thêm class `closing` để tạo hiệu ứng đóng modal.
+   * - Ẩn modal thông qua `BsModalRef`.
+   * - Sau 400ms (chờ hiệu ứng đóng), gọi API để xóa nhân viên theo `employeeId`.
+   * - Nếu thành công, điều hướng đến màn ADM006 với mã `completeCode`.
+   * - Nếu thất bại, điều hướng đến màn SystemError với mã `errorCode`.
+   */
   handleDelete() {
     // Thêm hiệu ứng đóng trước
     const modal = document.querySelector('.modal-content');
@@ -153,9 +153,9 @@ export class ADM003Component {
   }
 
   /**
-     * Mở modal xác nhận xóa nhân viên.
-     * 
-     * @param template Template modal được truyền vào để hiển thị.
+   * Mở modal xác nhận xóa nhân viên.
+   * 
+   * @param template Template modal được truyền vào để hiển thị.
    */
   openConfirmModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template);

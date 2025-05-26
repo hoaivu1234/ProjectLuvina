@@ -87,7 +87,7 @@ export class UserListComponent {
    * - Thông tin phân trang (trang hiện tại, kích thước trang)
    * 
    * Giúp khôi phục lại giao diện đúng trạng thái khi quay lại từ màn hình chi tiết (ADM003).
- */
+   */
   saveCurrentState() {
     const state = {
       employeeName: this.employeeName,
@@ -102,17 +102,17 @@ export class UserListComponent {
   }
 
   /**
- * Khôi phục trạng thái trước đó của màn danh sách nhân viên nếu tồn tại trong sessionStorage.
- * 
- * Nội dung được khôi phục:
- * - Giá trị tìm kiếm theo tên nhân viên
- * - Phòng ban được chọn
- * - Thông tin sắp xếp (cột, thứ tự, trường)
- * - Phân trang (trang hiện tại, kích thước trang)
- * 
- * Sau khi khôi phục, gọi lại API getListEmployee()để tải dữ liệu theo đúng trạng thái trước đó.
- * Nếu không có dữ liệu lưu trong sessionStorage, sẽ gọi API với trạng thái mặc định.
- */
+   * Khôi phục trạng thái trước đó của màn danh sách nhân viên nếu tồn tại trong sessionStorage.
+   * 
+   * Nội dung được khôi phục:
+   * - Giá trị tìm kiếm theo tên nhân viên
+   * - Phòng ban được chọn
+   * - Thông tin sắp xếp (cột, thứ tự, trường)
+   * - Phân trang (trang hiện tại, kích thước trang)
+   * 
+   * Sau khi khôi phục, gọi lại API getListEmployee()để tải dữ liệu theo đúng trạng thái trước đó.
+   * Nếu không có dữ liệu lưu trong sessionStorage, sẽ gọi API với trạng thái mặc định.
+   */
   restoreStateIfExists() {
     const userListState = sessionStorage.getItem('user_list_state');
     if (userListState) {
@@ -152,17 +152,17 @@ export class UserListComponent {
   }
 
   /**
- * Gọi API để lấy danh sách nhân viên với các tham số lọc, sắp xếp và phân trang.
- *
- * @param employeeName Tên nhân viên dùng để lọc
- * @param departmentId ID phòng ban được chọn
- * @param ordEmployeeName Thứ tự sắp xếp theo tên nhân viên ('asc' hoặc 'desc')
- * @param ordCertificationName Thứ tự sắp xếp theo tên chứng chỉ
- * @param ordEndDate Thứ tự sắp xếp theo ngày kết thúc
- * @param sortPriority Trường sắp xếp ưu tiên
- * @param offset Vị trí bắt đầu lấy dữ liệu (phân trang)
- * @param limit Số lượng bản ghi trên mỗi trang
- */
+   * Gọi API để lấy danh sách nhân viên với các tham số lọc, sắp xếp và phân trang.
+   *
+   * @param employeeName Tên nhân viên dùng để lọc
+   * @param departmentId ID phòng ban được chọn
+   * @param ordEmployeeName Thứ tự sắp xếp theo tên nhân viên ('asc' hoặc 'desc')
+   * @param ordCertificationName Thứ tự sắp xếp theo tên chứng chỉ
+   * @param ordEndDate Thứ tự sắp xếp theo ngày kết thúc
+   * @param sortPriority Trường sắp xếp ưu tiên
+   * @param offset Vị trí bắt đầu lấy dữ liệu (phân trang)
+   * @param limit Số lượng bản ghi trên mỗi trang
+   */
   getListEmployee(
     employeeName: string = '',
     departmentId: string = '',
@@ -221,10 +221,10 @@ export class UserListComponent {
   }
 
   /**
- * Chuyển đến trang được chọn trong phân trang.
- *
- * @param page Số trang muốn chuyển tới
- */
+   * Chuyển đến trang được chọn trong phân trang.
+   *
+   * @param page Số trang muốn chuyển tới
+   */
   goToPage(page: number) {
     this.currentPage = page;
 
@@ -322,7 +322,7 @@ export class UserListComponent {
    *  - ordCertificationName: thứ tự sắp xếp theo tên chứng chỉ
    *  - ordEndDate: thứ tự sắp xếp theo ngày hết hạn
    *  - sortPriority: tên trường ưu tiên sắp xếp (được truyền vào API để backend biết sắp theo trường nào)
- */
+   */
   private getSortParams() {
     return {
       ordEmployeeName: this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',

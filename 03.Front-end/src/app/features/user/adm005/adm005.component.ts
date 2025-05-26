@@ -5,17 +5,12 @@
 
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { catchError, forkJoin, tap, throwError } from 'rxjs';
 import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
 import { CertificationService } from 'src/app/service/certification.service';
 import { DepartmentService } from 'src/app/service/department.service';
 import { EmployeeService } from 'src/app/service/employee.service';
-import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
-import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
-import { EmployeeFormControls } from 'src/app/shared/utils/form-control-names.constant';
 import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
 
 @Component({
@@ -65,7 +60,7 @@ export class Adm005Component {
    * - Đọc employeeId từ navigation state để xác định chế độ (add/update).
    * - Nếu employeeId không hợp lệ hoặc không tồn tại: đặt chế độ là MODE_ADD
    * - Nếu employeeId hợp lệ: đặt chế độ là MODE_UPDATE và gọi getEmployeeById() để lấy thông tin nhân viên.
- */
+   */
   ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
     this.dataConfirm = history.state?.dataConfirm;
@@ -84,10 +79,10 @@ export class Adm005Component {
   }
 
   /**
-* Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
-*
-* @param {number} employeeId - ID của nhân viên cần truy vấn.
-*/
+   * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
+   *
+   * @param {number} employeeId - ID của nhân viên cần truy vấn.
+   */
   getEmployeeById(employeeId: number) {
     // Gọi service để lấy thông tin nhân viên theo ID.
     this.employeeService.getEmployeeById(employeeId).subscribe({
@@ -105,10 +100,10 @@ export class Adm005Component {
   }
 
   /**
-  * Điều hướng về màn hình ADM004 với mode
-  * - add: thì truyền this.dataConfirm và fromPage
-  * - update: thì truyền this.employeeId, this.dataConfirm và fromPage
-  */
+   * Điều hướng về màn hình ADM004 với mode
+   * - add: thì truyền this.dataConfirm và fromPage
+   * - update: thì truyền this.employeeId, this.dataConfirm và fromPage
+   */
   hanleBack() {
     if (this.mode == MODE.MODE_ADD) {
       this.router.navigate(['/user/adm004'], { state: { dataReceived: this.dataConfirm, fromPage: PAGE.ADM005 } });
@@ -118,13 +113,13 @@ export class Adm005Component {
   }
 
   /**
-  * Chuẩn hóa và chuyển đổi dữ liệu trước khi submit
-  * - Format ngày sinh theo định dạng 'yyyy/MM/dd'
-  * - Kiểm tra danh sách chứng chỉ:
-  *    + Nếu có chứng chỉ nhưng `certificationId` rỗng, loại bỏ toàn bộ danh sách chứng chỉ
-  *    + Nếu hợp lệ, format ngày bắt đầu và ngày kết thúc của từng chứng chỉ
-  * @returns clonedData - Dữ liệu đã được xử lý sẵn để gửi lên server
-  */
+   * Chuẩn hóa và chuyển đổi dữ liệu trước khi submit
+   * - Format ngày sinh theo định dạng 'yyyy/MM/dd'
+   * - Kiểm tra danh sách chứng chỉ:
+   *    + Nếu có chứng chỉ nhưng `certificationId` rỗng, loại bỏ toàn bộ danh sách chứng chỉ
+   *    + Nếu hợp lệ, format ngày bắt đầu và ngày kết thúc của từng chứng chỉ
+   * @returns clonedData - Dữ liệu đã được xử lý sẵn để gửi lên server
+   */
   transformDataSubmit(): any {
     const clonedData = { ...this.dataConfirm };
 
@@ -165,7 +160,7 @@ export class Adm005Component {
    * Kết quả xử lý:
    * - Nếu thành công: điều hướng đến màn hình hoàn tất (/user/adm006) và truyền mã xác nhận (completeCode).
    * - Nếu thất bại: điều hướng đến màn hình lỗi (/error) và truyền mã lỗi (errorCode) cùng thông tin trường gây lỗi (fieldError).
- */
+   */
   submitForm() {
     const clonedData = this.transformDataSubmit();
 

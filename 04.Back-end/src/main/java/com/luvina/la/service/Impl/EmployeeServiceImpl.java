@@ -224,38 +224,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 page.getContent());
     }
 
-    @Override
-    public EmployeeResponse<List<EmployeeDTO>> getAllEmployees(
-            String employeeName,
-            Long departmentId,
-            String ordEmployeeName,
-            String ordCertificationName,
-            String ordEndDate,
-            String sortPriority,
-            int offset,
-            int limit) {
-
-        // Tạo sort order
-        List<Sort.Order> orders = buildSortOrders(
-                ordEmployeeName,
-                ordCertificationName,
-                ordEndDate,
-                sortPriority);
-
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by(orders));
-
-        Page<Employee> page = employeeRepository.getAllEmployees(
-                EmployeeRole.USER,
-                employeeName,
-                departmentId,
-                pageable);
-
-        return new EmployeeResponse<>(
-                (int) page.getTotalElements(),
-                HttpStatus.OK.value(),
-                employeeMapper.toList(page.getContent()));
-    }
-
     /**
      * Phương thức buildSortOrders để tạo danh sách các Sort.Order dựa trên các tham số sắp xếp
      *
@@ -399,18 +367,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponse<Long> updateEmployee(EmployeeRequestDTO updateDTO) {
         Employee employee = employeeRequestMapper.toEntity(updateDTO);
+        Long employeeId = Long.parseLong(updateDTO.getEmployeeId());
+
+        Employee existingEmployee = getEmployee(employeeId, ErrorCodeConstants.ER013, false);
 
         String rawPassword = updateDTO.getEmployeeLoginPassword();
         if (rawPassword != null && !rawPassword.isEmpty()) {
             String encodedPassword = passwordEncoder.encode(rawPassword);
             employee.setEmployeeLoginPassword(encodedPassword);
+        } else {
+            employee.setEmployeeLoginPassword(existingEmployee.getEmployeeLoginPassword());
         }
 
         employee.setEmployeeRole(EmployeeRole.USER);
 
         // Xóa certifications trong trường hợp update
-        Long employeeId = Long.parseLong(updateDTO.getEmployeeId());
-        employeeCertificationRepository.deleteByEmployee_EmployeeId(employeeId);
+        employeeCertificationRepository.deleteByEmployeeEmployeeId(employeeId);
 
         if (updateDTO.getCertifications() != null && !updateDTO.getCertifications().isEmpty()) {
             List<EmployeeCertification> certList = updateDTO.getCertifications().stream()
