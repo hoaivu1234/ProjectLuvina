@@ -162,39 +162,41 @@ export class Adm005Component {
    * - Nếu thất bại: điều hướng đến màn hình lỗi (/error) và truyền mã lỗi (errorCode) cùng thông tin trường gây lỗi (fieldError).
    */
   submitForm() {
+    // Chuyển đổi dữ liệu form để chuẩn bị gửi lên server
     const clonedData = this.transformDataSubmit();
 
-    if (this.mode == MODE.MODE_ADD) {
-      this.employeeService.addEmployee(clonedData).subscribe({
-        next: (data: any) => {
-          console.log(data);
-          this.router.navigate(['user/adm006'], {
-            state: { completeCode: data?.message?.code }
+    // Xác định hành động cần thực hiện: thêm mới hoặc cập nhật nhân viên
+    const request$ = this.mode === MODE.MODE_ADD
+      ? this.employeeService.addEmployee(clonedData)
+      : this.employeeService.updateEmployee(clonedData);
+  
+    // Subscribe response trả về
+    request$.subscribe({
+      next: (data: any) => { // Trường hợp request thành công
+        console.log(data);
+        this.router.navigate(['user/adm006'], {  // Điều hướng đến màn adm006, truyền mã thông báo để hiển thị thông báo
+          state: { completeCode: data?.message?.code }
+        });
+      },
+      error: (err) => { // Trường hợp xảy ra lỗi khi gọi API
+        console.log(err);
+        const errorMessage = err?.error?.message; // Lấy thông tin lỗi từ đối tượng phản hồi
+        const errorCode = err?.error?.code; // Lấy mã lỗi chính
+  
+        if (errorMessage?.code) { // Nếu có mã lỗi trong phần message (BusinessException định dạng đầy đủ)
+          this.router.navigate(['error'], { // Điều hướng màn system error, truyền mã lỗi và thông tin trường lỗi đầu tiên
+            state: {
+              errorCode: errorMessage.code,
+              fieldError: errorMessage.params?.[0]
+            }
           });
-        },
-        error: (err) => {
-          console.log(err);
-          this.router.navigate(['error'], {
-            state: { errorCode: err?.error?.message?.code, fieldError: err?.error?.message?.params[0] }
+        } else if (errorCode) { // Nếu chỉ có mã lỗi dạng đơn giản (không có message chi tiết)
+          this.router.navigate(['error'], { // Điều hướng đến màn system error lỗi chỉ với mã lỗi
+            state: { errorCode }
           });
         }
-      });
-    } else {
-      this.employeeService.updateEmployee(clonedData).subscribe({
-        next: (data: any) => {
-          console.log(data);
-          this.router.navigate(['user/adm006'], {
-            state: { completeCode: data?.message?.code }
-          });
-        },
-        error: (err) => {
-          console.log(err);
-          this.router.navigate(['error'], {
-            state: { errorCode: err?.error?.message?.code, fieldError: err?.error?.message?.params[0] }
-          });
-        }
-      });
-    }
+      }
+    });
   }
-
+  
 }

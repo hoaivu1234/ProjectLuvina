@@ -1,10 +1,17 @@
 package com.luvina.la.config.jwt;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.luvina.la.common.ErrorCodeConstants;
+import com.luvina.la.common.HttpStatusConstants;
+import com.luvina.la.exception.BusinessException;
+import com.luvina.la.payload.MessageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -50,6 +57,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
         } catch (Exception ex) {
             log.error("failed on set user authentication", ex);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+
+            MessageResponse msg = new MessageResponse();
+            msg.setCode(ErrorCodeConstants.ER015);
+            msg.setParams(new ArrayList<>());
+
+            response.getWriter().write(new ObjectMapper().writeValueAsString(msg));
+            return;
         }
 
         chain.doFilter(request, response);
