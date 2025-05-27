@@ -8,6 +8,7 @@ package com.luvina.la.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class EmployeeResponseDTO {
     private int code;
     private Long employeeId;
     private String employeeName;
-    private Date employeeBirthDate;
+    private LocalDate employeeBirthDate;
     private Long departmentId;
     private String departmentName;
     private String employeeEmail;

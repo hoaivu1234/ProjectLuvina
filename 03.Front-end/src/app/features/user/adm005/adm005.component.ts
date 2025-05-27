@@ -64,6 +64,7 @@ export class Adm005Component {
   ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
     this.dataConfirm = history.state?.dataConfirm;
+    console.log(this.dataConfirm)
     // Nếu không có dataConfirm, chuyển hướng đến trang lỗi
     if (!this.dataConfirm) {
       this.router.navigate(['error']);

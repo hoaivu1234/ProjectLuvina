@@ -12,6 +12,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public interface EmployeeMapper {
      * @return Ngày kết thúc của chứng chỉ đầu tiên, hoặc null nếu không có.
      */
     @Named("mapFirstEndDate")
-    default Date mapFirstEndDate(List<EmployeeCertification> certs) {
+    default LocalDate mapFirstEndDate(List<EmployeeCertification> certs) {
         return (certs == null || certs.isEmpty()) ? null : certs.get(0).getEndDate();
     }
 

@@ -7,6 +7,7 @@ package com.luvina.la.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -34,11 +35,11 @@ public class EmployeeDTO implements Serializable {
     private String employeeName;            // Tên nhân viên
     private String employeeEmail;           // Email nhân viên
     private String employeeNameKana;        // Tên Katakana
-    private Date employeeBirthDate;         // Ngày sinh
+    private LocalDate employeeBirthDate;         // Ngày sinh
     private String employeeTelephone;       // Số điện thoại
     private String departmentName;          // Tên phòng ban
     private String certificationName;       // Tên chứng chỉ
-    private Date endDate;                   // Ngày hết hạn chứng chỉ
+    private LocalDate endDate;                   // Ngày hết hạn chứng chỉ
     private BigDecimal score;               // Điểm số chứng chỉ
     private String employeeLoginId;         // Tên đăng nhập
     private String employeeLoginPassword;   // Mật khẩu đăng nhập

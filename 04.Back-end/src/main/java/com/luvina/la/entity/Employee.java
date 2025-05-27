@@ -6,6 +6,7 @@
 package com.luvina.la.entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +46,7 @@ public class Employee implements Serializable {
     private String employeeNameKana; // Tên kana của nhân viên (dành cho tiếng Nhật)
 
     @Column(name = "employee_birth_date")
-    private Date employeeBirthDate; // Ngày sinh của nhân viên
+    private LocalDate employeeBirthDate; // Ngày sinh của nhân viên
 
     @Column(name = "employee_telephone")
     private String employeeTelephone; // Số điện thoại nhân viên

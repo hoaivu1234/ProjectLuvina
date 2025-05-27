@@ -9,6 +9,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -29,10 +30,10 @@ public class EmployeeCertification {
     private Long employeeCertificationId; // ID chứng chỉ của nhân viên
 
     @Column(name = "start_date")
-    private Date startDate; // Ngày bắt đầu của chứng chỉ
+    private LocalDate startDate; // Ngày bắt đầu của chứng chỉ
 
     @Column(name = "end_date")
-    private Date endDate; // Ngày kết thúc của chứng chỉ
+    private LocalDate endDate; // Ngày kết thúc của chứng chỉ
 
     @Column(name = "score")
     private BigDecimal score; // Điểm số đạt được trong chứng chỉ

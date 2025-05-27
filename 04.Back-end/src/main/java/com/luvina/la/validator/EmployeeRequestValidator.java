@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Validator component dùng để kiểm tra hợp lệ các trường dữ liệu
  * trong {@link EmployeeRequestDTO} khi thêm mới nhân viên.
- *
+ * <p>
  * Sử dụng các service như {@link EmployeeService}, {@link DepartmentService},
  * {@link CertificationService} để kiểm tra trùng lặp và tồn tại của các dữ liệu liên quan.
  *
@@ -65,13 +66,14 @@ public class EmployeeRequestValidator {
     /**
      * Formatter dùng để validate định dạng ngày theo chuẩn nghiêm ngặt (STRICT).
      */
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT_FOR_STRICT);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT_FOR_STRICT)
+            .withResolverStyle(ResolverStyle.STRICT);
 
     /**
      * Thực hiện validate toàn bộ thông tin khi thêm mới hoặc cập nhật một nhân viên.
      *
      * @param employeeRequestDTO đối tượng chứa thông tin nhân viên cần validate.
-     * @param mode Đang validate cho chế độ update hoặc add
+     * @param mode               Đang validate cho chế độ update hoặc add
      * @throws BusinessException nếu có bất kỳ lỗi nào trong dữ liệu đầu vào.
      */
     public void validateEmployee(EmployeeRequestDTO employeeRequestDTO, String mode) {
@@ -327,7 +329,7 @@ public class EmployeeRequestValidator {
      * Gồm kiểm tra: không rỗng, đúng định dạng, là ngày hợp lệ, và sau hoặc bằng ngày bắt đầu.
      *
      * @param startDate Ngày bắt đầu (để so sánh).
-     * @param endDate Ngày kết thúc (định dạng yyyy/MM/dd).
+     * @param endDate   Ngày kết thúc (định dạng yyyy/MM/dd).
      * @throws BusinessException nếu ngày kết thúc không hợp lệ hoặc trước ngày bắt đầu.
      */
     private void validateEndDate(String startDate, String endDate) {
@@ -355,7 +357,7 @@ public class EmployeeRequestValidator {
      * Kiểm tra ngày kết thúc phải sau ngày bắt đầu.
      *
      * @param startDate Ngày bắt đầu (định dạng yyyy/MM/dd).
-     * @param endDate Ngày kết thúc (định dạng yyyy/MM/dd).
+     * @param endDate   Ngày kết thúc (định dạng yyyy/MM/dd).
      * @throws BusinessException nếu ngày kết thúc không sau ngày bắt đầu.
      */
     private void validateDateRange(String startDate, String endDate) {
@@ -370,10 +372,10 @@ public class EmployeeRequestValidator {
     /**
      * Kiểm tra độ dài chuỗi nằm trong khoảng cho phép.
      *
-     * @param fieldName   Tên trường dùng để hiển thị lỗi.
-     * @param fieldValue  Giá trị chuỗi cần kiểm tra.
-     * @param maxLength   Độ dài tối đa cho phép.
-     * @param minLength   Độ dài tối thiểu cho phép.
+     * @param fieldName  Tên trường dùng để hiển thị lỗi.
+     * @param fieldValue Giá trị chuỗi cần kiểm tra.
+     * @param maxLength  Độ dài tối đa cho phép.
+     * @param minLength  Độ dài tối thiểu cho phép.
      * @throws BusinessException nếu độ dài chuỗi không nằm trong khoảng cho phép.
      */
     private void validateLengthRange(String fieldName, String fieldValue, int maxLength, int minLength) {
@@ -464,11 +466,11 @@ public class EmployeeRequestValidator {
     /**
      * Kiểm tra trường không bị trùng lặp bằng cách sử dụng hàm kiểm tra tồn tại.
      *
-     * @param fieldName     Tên trường để hiển thị lỗi.
-     * @param fieldValue    Giá trị cần kiểm tra trùng lặp.
+     * @param fieldName      Tên trường để hiển thị lỗi.
+     * @param fieldValue     Giá trị cần kiểm tra trùng lặp.
      * @param existsFunction Hàm kiểm tra xem giá trị đã tồn tại chưa.
-     * @param errorCode     Mã lỗi nếu giá trị đã tồn tại.
-     * @param <T>           Kiểu dữ liệu của giá trị trường.
+     * @param errorCode      Mã lỗi nếu giá trị đã tồn tại.
+     * @param <T>            Kiểu dữ liệu của giá trị trường.
      * @throws BusinessException nếu giá trị đã tồn tại.
      */
     private <T> void validateDuplicateField(
@@ -486,11 +488,11 @@ public class EmployeeRequestValidator {
     /**
      * Kiểm tra bắt buộc trường phải tồn tại trong hệ thống.
      *
-     * @param fieldName     Tên trường để hiển thị lỗi.
-     * @param fieldValue    Giá trị cần kiểm tra tồn tại.
+     * @param fieldName      Tên trường để hiển thị lỗi.
+     * @param fieldValue     Giá trị cần kiểm tra tồn tại.
      * @param existsFunction Hàm kiểm tra xem giá trị có tồn tại không.
-     * @param errorCode     Mã lỗi nếu giá trị không tồn tại.
-     * @param <T>           Kiểu dữ liệu của giá trị trường.
+     * @param errorCode      Mã lỗi nếu giá trị không tồn tại.
+     * @param <T>            Kiểu dữ liệu của giá trị trường.
      * @throws BusinessException nếu giá trị không tồn tại.
      */
     private <T> void validateMustExistField(
@@ -511,7 +513,7 @@ public class EmployeeRequestValidator {
      *
      * @param code    mã HTTP (ví dụ: 400)
      * @param errCode mã lỗi hệ thống
-     * @param fields các param cần trả về
+     * @param fields  các param cần trả về
      * @return {@link BusinessException}
      */
     private BusinessException buildBusinessException(int code, String errCode, Object... fields) {

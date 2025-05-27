@@ -13,11 +13,18 @@
 }
 
 .css-grid-table-body > div {
-  word-wrap: break-word;    /* Bắt buộc từ dài phải xuống dòng */
-  white-space: normal;      /* Cho phép xuống dòng */
   overflow-wrap: break-word;
   max-width: 100%;          /* Đảm bảo không tràn */
 }
+
+.text-ellipsis {
+  white-space: nowrap;           /* Không cho xuống dòng */
+  overflow: hidden;              /* Ẩn phần vượt quá */
+  text-overflow: ellipsis;       /* Thêm dấu "..." nếu vượt */
+  display: inline-block;
+  max-width: 100%;               /* Có thể chỉnh tùy layout */
+}
+
 
 .employee-id-cell {
   text-decoration: underline;

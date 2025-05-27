@@ -31,7 +31,7 @@ public interface EmployeeRequestMapper {
      *   <li>{@code department} được ánh xạ từ {@code departmentId} bằng hàm {@link #toDepartment}</li>
      * </ul>
      */
-    @Mapping(target = "employeeBirthDate", expression = "java(parseDate(dto.getEmployeeBirthDate()))")
+//    @Mapping(target = "employeeBirthDate", expression = "java(parseDate(dto.getEmployeeBirthDate()))")
     @Mapping(target = "employeeLoginPassword", ignore = true) // Bỏ qua ánh xạ trường này vì sẽ mã hóa mật khẩu thủ công.
     @Mapping(target = "department", expression = "java(toDepartment(dto.getDepartmentId()))")
     Employee toEntity(EmployeeRequestDTO dto);
@@ -42,10 +42,10 @@ public interface EmployeeRequestMapper {
      * @param dateStr Chuỗi ngày sinh từ DTO
      * @return Đối tượng {@link java.sql.Date} tương ứng
      */
-    default Date parseDate(String dateStr) {
+    default LocalDate parseDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT);
         LocalDate localDate = LocalDate.parse(dateStr, formatter);
-        return Date.valueOf(localDate);
+        return localDate;
     }
 
     /**

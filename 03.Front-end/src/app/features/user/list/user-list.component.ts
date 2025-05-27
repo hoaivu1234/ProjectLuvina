@@ -38,8 +38,8 @@ export class UserListComponent {
   currentPage: number = PAGINATION.DEFAULT_PAGE;   // Trang hiện tại trong phân trang, giá trị mặc định được lấy từ hằng số PAGINATION
   pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE;  // Số lượng bản ghi trên mỗi trang, giá trị mặc định lấy từ PAGINATION
   totalRecords!: number; // Tổng số bản ghi nhân viên (để tính tổng số trang trong phân trang)
-  MSG = MSG;  // Hằng chứa các thông điệp (message), có thể là lỗi, cảnh báo, hoặc thông báo thành công
-  isShowMessage: boolean = false; // Kiểm soát trạng thái hiển thị mess khi không có dữ liệu
+  MSG = MSG;  // Hằng chứa các thông báo thành công
+  isShowMessage: boolean = false; // Kiểm soát trạng thái hiển thị message khi không có dữ liệu
 
   // Đối tượng chứa icon sắp xếp hiện tại cho từng cột
   sortIcons: { [key: string]: string } = {
@@ -72,9 +72,8 @@ export class UserListComponent {
    * Gọi các hàm để lấy dữ liệu phòng ban, nhân viên và phân trang.
    */
   ngOnInit(): void {
-    this.getListDepartment();
-    this.getPageNumbers();
-    this.restoreStateIfExists();
+    this.getListDepartment();  // Gọi hàm lấy dữ liệu phòng ban
+    this.restoreStateIfExists(); // Khôi phục lại state ở sessionStorage nếu nó tồn tại
   }
 
   /**
@@ -86,10 +85,10 @@ export class UserListComponent {
    * - Thông tin sắp xếp (cột, thứ tự, trường)
    * - Thông tin phân trang (trang hiện tại, kích thước trang)
    * 
-   * Giúp khôi phục lại giao diện đúng trạng thái khi quay lại từ màn hình chi tiết (ADM003).
+   * Giúp khôi phục lại giao diện đúng trạng thái khi quay lại từ các màn hình khác như ADM003, ADM006.
    */
   saveCurrentState() {
-    const state = {
+    const state = { // Tạo state chứa thông tin của điều kiện search, sort và paging
       employeeName: this.employeeName,
       selectedDepartment: this.selectedDepartment,
       currentSortColumn: this.currentSortColumn,
@@ -98,7 +97,7 @@ export class UserListComponent {
       currentPage: this.currentPage,
       pageSize: this.pageSize
     };
-    sessionStorage.setItem('user_list_state', JSON.stringify(state));
+    sessionStorage.setItem('user_list_state', JSON.stringify(state)); // Lưu state vào sessionStorage với key: user_list_state
   }
 
   /**
@@ -110,13 +109,17 @@ export class UserListComponent {
    * - Thông tin sắp xếp (cột, thứ tự, trường)
    * - Phân trang (trang hiện tại, kích thước trang)
    * 
-   * Sau khi khôi phục, gọi lại API getListEmployee()để tải dữ liệu theo đúng trạng thái trước đó.
+   * Sau khi khôi phục, gọi lại API getListEmployee() để tải dữ liệu theo đúng trạng thái trước đó.
    * Nếu không có dữ liệu lưu trong sessionStorage, sẽ gọi API với trạng thái mặc định.
    */
   restoreStateIfExists() {
+    // Lấy giá trị state chứa thông tin của điều kiện search, sort và paging đã được lưu trong sessionStorage
     const userListState = sessionStorage.getItem('user_list_state');
-    if (userListState) {
-      const state = JSON.parse(userListState);
+
+    if (userListState) { // Nếu state tồn tại và có giá trị
+      // Parse giá trị về định dạng json 
+      const state = JSON.parse(userListState); 
+      // Sau đó map từng trường trong state với các giá trị trong component hiện tại
       this.employeeName = state.employeeName;
       this.selectedDepartment = state.selectedDepartment;
       this.currentSortColumn = state.currentSortColumn;
@@ -136,16 +139,17 @@ export class UserListComponent {
   /**
    * Gọi API để lấy danh sách phòng ban.
    * Nếu thành công, gán dữ liệu vào listDepartment.
-   * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi tương ứng.
+   * Nếu thất bại, chuyển hướng sang màn hình System Error với mã lỗi tương ứng.
    */
   getListDepartment() {
     this.departmentService.getListDepartment().subscribe({
-      next: (value) => {
-        this.listDepartments = value?.departments;
+      next: (value) => { // Nếu thành công
+        this.listDepartments = value?.departments;  // Gán dữ liệu cho listDepartment từ response trả về
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_SUCCESS);
       },
-      error: () => {
+      error: () => { // Nếu thất bại
         console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
+        // Điều hướng đến màn hình System Error với mã lỗi tương ứng
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
       },
     });
@@ -157,8 +161,8 @@ export class UserListComponent {
    * @param employeeName Tên nhân viên dùng để lọc
    * @param departmentId ID phòng ban được chọn
    * @param ordEmployeeName Thứ tự sắp xếp theo tên nhân viên ('asc' hoặc 'desc')
-   * @param ordCertificationName Thứ tự sắp xếp theo tên chứng chỉ
-   * @param ordEndDate Thứ tự sắp xếp theo ngày kết thúc
+   * @param ordCertificationName Thứ tự sắp xếp theo tên chứng chỉ ('asc' hoặc 'desc')
+   * @param ordEndDate Thứ tự sắp xếp theo ngày kết thúc ('asc' hoặc 'desc')
    * @param sortPriority Trường sắp xếp ưu tiên
    * @param offset Vị trí bắt đầu lấy dữ liệu (phân trang)
    * @param limit Số lượng bản ghi trên mỗi trang
@@ -170,14 +174,18 @@ export class UserListComponent {
     limit: string = ''
   ) {
     // Tính toán offset và limit nếu có thông tin phân trang
-    if (this.currentPage && this.pageSize) {
-      const offSet = (this.currentPage - 1) * this.pageSize;
+    if (this.currentPage && this.pageSize) { // Nếu currentPage và pageSize có giá trị
+      const offSet = (this.currentPage - 1) * this.pageSize; // Tính toán giá trị vị trí bắt đầu lấy dữ liệu
+      // Nếu offset > 0 thì chuyển giá trị offset sang string, nếu không thì vẫn giữ nguyên giá trị cho offset
       offset = offSet > 0 ? offSet.toString() : offset;
-      limit = this.pageSize.toString();
+      limit = this.pageSize.toString(); // Chuyển giá trị số lượng bản ghi mỗi trang sang string
     }
+
+    // Khởi tạo giá trị thứ tự sắp xếp các trường tên nhân viên, tên chứng chỉ, ngày kết thúc và trường đang được sắp xếp 
+    // Bằng các giá trị trả về tương ứng từ hàm getSortParams().
     const { ordEmployeeName, ordCertificationName, ordEndDate, sortPriority } = this.getSortParams();
 
-    this.employeeService.getListEmployee(
+    this.employeeService.getListEmployee(   // Gọi service với các tham số search, sort, paging
       employeeName,
       departmentId,
       ordEmployeeName,
@@ -187,23 +195,26 @@ export class UserListComponent {
       offset,
       limit
     ).subscribe({
-      next: (value) => {
-        this.totalRecords = value?.totalRecords || 0;
-        this.listEmployees = value?.employees || [];
+      next: (value) => { // Nếu thành công
+        this.totalRecords = value?.totalRecords;  // Gán tổng số bản ghi bằng giá trị của totalRecords trong response trả về từ API
+        this.listEmployees = value?.employees; // Gán danh sách nhân viên bằng giá trị của employees trong response trả về từ API
 
-        const totalPages = this.totalPages();
+        const totalPages = this.totalPages(); // Tính tổng số trang dựa vào tổng bản ghi và kích thước trang
 
+        // Nếu trang hiện tại lớn hơn tổng số trang (trong trường hợp nếu page cuối có 1 bản ghi và vào DB xóa bản ghi đó đi)
         if (this.currentPage > totalPages) {
-          this.currentPage = totalPages;
-          this.getListEmployee(this.employeeName, this.selectedDepartment);
+          this.currentPage = totalPages; // thì cập nhật lại currentPage = totalPages
+          this.getListEmployee(this.employeeName, this.selectedDepartment); // Gọi lại hàm getListEmployee để lấy dữ liệu đúng trang
           return;
         }
 
-        this.isShowMessage = true;
+        // Thông báo chỉ được cho phép hiển thị khi call API xong
+        this.isShowMessage = true;  // Cho phép hiển thị thông báo không có bản ghi nào (nếu có)
         console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS);
       },
       error: () => {
         console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_FAILED);
+        // Chuyển hướng sang màn hình System Error và truyền mã lỗi tương ứng để hiển thị chi tiết lỗi
         this.router.navigate(['error'], {
           state: { errorCode: ERROR_CODES.EMPLOYEE_FETCH_FAILED }
         });
@@ -216,8 +227,8 @@ export class UserListComponent {
    * Reset về trang đầu tiên rồi gọi lại hàm getListEmployee với filter theo tên và phòng ban.
    */
   search() {
-    this.currentPage = 1;
-    this.getListEmployee(this.employeeName, this.selectedDepartment);
+    this.currentPage = 1; // Reset về trang đầu tiên
+    this.getListEmployee(this.employeeName, this.selectedDepartment); // Gọi lại hàm getListEmployee với filter theo tên và phòng ban.
   }
 
   /**
@@ -226,24 +237,8 @@ export class UserListComponent {
    * @param page Số trang muốn chuyển tới
    */
   goToPage(page: number) {
-    this.currentPage = page;
-
-    this.getListEmployee(this.employeeName, this.selectedDepartment);
-  }
-
-  /**
-   * Tạo danh sách số trang dựa trên tổng số bản ghi và kích thước trang.
-   *
-   * @returns Mảng chứa các số trang
-   */
-  getPageNumbers(): number[] {
-    const total = this.totalPages();
-    const pages: number[] = [];
-    for (let i = 1; i <= total; i++) {
-      pages.push(i);
-    }
-    this.currentPage = 1;
-    return pages;
+    this.currentPage = page;  // Gán trang hiện tại bằng trang được click từ UI
+    this.getListEmployee(this.employeeName, this.selectedDepartment); // Gọi lại hàm getListEmployee với filter theo tên và phòng ban.
   }
 
   /**
@@ -252,6 +247,9 @@ export class UserListComponent {
    * @returns Tổng số trang
    */
   totalPages(): number {
+    // Chia tổng số bản ghi cho số lượng bản ghi trên mỗi trang, sau đó làm tròn lên
+    // để đảm bảo rằng các bản ghi dư vẫn được tính thành một trang riêng.
+    // Ví dụ: 25 bản ghi với pageSize = 10 sẽ cho ra 3 trang.
     return Math.ceil(this.totalRecords / this.pageSize) || 1;
   }
 

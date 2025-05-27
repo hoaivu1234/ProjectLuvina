@@ -111,3 +111,9 @@
 .modal-content.closing {
   animation: fadeOut 0.4s ease-out;
 }
+
+.col-sm-10 {
+  white-space: pre-wrap;     /* Cho phép xuống dòng & giữ dấu cách */
+  word-wrap: break-word;     /* Bẻ từ nếu cần */
+  overflow-wrap: break-word; /* Tương thích trình duyệt mới */
+}
