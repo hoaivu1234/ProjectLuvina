@@ -196,7 +196,7 @@
                         <div *ngIf="validationService.shouldShowError(cert.get('startDate'))" class="invalid-feedback">
                           {{ validationService.getErrorMessage(cert.get('startDate'), '資格交付日') }}
                         </div>
-                        <span class="input-group-addon" (click)="startDate.toggle()" style="cursor: pointer">
+                        <span class="input-group-addon" (click)="isCertSelected(i) ? startDate.toggle() : null" style="cursor: pointer">
                           <i class="glyphicon glyphicon-calendar"></i>
                         </span>
                       </div>
@@ -213,7 +213,7 @@
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="endDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
+                          }" formControlName="endDate" readonly [disabled]="!isCertSelected(i)"
                           #endDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('endDate'))" class="invalid-feedback">
                           {{ validationService.getErrorMessage(cert.get('endDate'), '失効日') }}
@@ -222,7 +222,7 @@
                           class="invalid-feedback">
                           {{ ERROR_MESSAGES[ERROR_CODES.DATE_ORDER_INVALID]() }}
                         </div>
-                        <span class="input-group-addon" (click)="endDate.toggle()" style="cursor: pointer">
+                        <span class="input-group-addon" (click)="isCertSelected(i) ? endDate.show() : null" style="cursor: pointer">
                           <i class="glyphicon glyphicon-calendar"></i>
                         </span>
                       </div>

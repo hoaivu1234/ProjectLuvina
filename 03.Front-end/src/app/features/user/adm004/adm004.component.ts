@@ -365,7 +365,7 @@ export class ADM004Component {
       });
     }
   }
-
+  
   /**
    * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
    *
