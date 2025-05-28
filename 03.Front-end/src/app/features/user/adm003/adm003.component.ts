@@ -29,8 +29,6 @@ import { PAGE } from 'src/app/shared/utils/mode-constant';
 export class ADM003Component {
   modalRef!: BsModalRef; // Tham chiếu đến modal Bootstrap đang được hiển thị
   MSG = MSG; // Hằng số chứa các message hiển thị
-  listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
-  listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   employeeData: any; // Dữ liệu thông tin của nhân viên
   employeeId!: number; // Id của nhân viên được chuyển từ ADM002 sang
   isDeleted: boolean = false; // Biến để kiếm soát trạng thái khi người dùng click liên tục button [OK] để xóa nhân viên

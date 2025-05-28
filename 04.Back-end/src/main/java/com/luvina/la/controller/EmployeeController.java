@@ -47,16 +47,15 @@ public class EmployeeController {
      * Phương thức này sẽ nhận các tham số từ client, tiến hành xác thực và xử lý các tham số đầu vào,
      * sau đó trả về danh sách nhân viên thỏa mãn các điều kiện lọc.
      *
-     * @param employeeName Tên nhân viên để lọc (có thể rỗng).
-     * @param departmentId ID của phòng ban để lọc (có thể rỗng).
-     * @param ordEmployeeName Thứ tự sắp xếp theo tên nhân viên (có thể rỗng).
+     * @param employeeName         Tên nhân viên để lọc (có thể rỗng).
+     * @param departmentId         ID của phòng ban để lọc (có thể rỗng).
+     * @param ordEmployeeName      Thứ tự sắp xếp theo tên nhân viên (có thể rỗng).
      * @param ordCertificationName Thứ tự sắp xếp theo tên chứng chỉ (có thể rỗng).
-     * @param ordEndDate Thứ tự sắp xếp theo ngày kết thúc (có thể rỗng).
-     * @param sortPriority Giá trị ưu tiên sắp xếp (có thể rỗng).
-     * @param offset Vị trí bắt đầu lấy dữ liệu (có thể rỗng).
-     * @param limit Số lượng bản ghi trả về (có thể rỗng).
-     *
-     * @return EmployeeResponse<List<EmployeeDTO>> đối tượng chứa mã trạng thái và danh sách nhân viên thỏa mãn điều kiện lọc.
+     * @param ordEndDate           Thứ tự sắp xếp theo ngày kết thúc (có thể rỗng).
+     * @param sortPriority         Giá trị ưu tiên sắp xếp (có thể rỗng).
+     * @param offset               Vị trí bắt đầu lấy dữ liệu (có thể rỗng).
+     * @param limit                Số lượng bản ghi trả về (có thể rỗng).
+     * @return EmployeeResponse<List < EmployeeDTO>> đối tượng chứa mã trạng thái và danh sách nhân viên thỏa mãn điều kiện lọc.
      * @throws DataAccessException Nếu có lỗi xảy ra trong quá trình truy xuất dữ liệu.
      */
     @GetMapping("")
@@ -110,6 +109,7 @@ public class EmployeeController {
      * API thêm mới một nhân viên.
      * Nhận vào một đối tượng {@link EmployeeRequestDTO} chứa thông tin của nhân viên như:
      * mã đăng nhập, mật khẩu, email, mã phòng ban,... và thực hiện lưu vào cơ sở dữ liệu
+     *
      * @param employeeRequest Đối tượng chứa thông tin nhân viên cần thêm mới.
      * @return {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
      * Nếu không thành công thì sẽ throw ra lỗi ở được handle ở GlobalException
@@ -124,6 +124,7 @@ public class EmployeeController {
      * API cập nhật một nhân viên.
      * Nhận vào một đối tượng {@link EmployeeRequestDTO} chứa thông tin của nhân viên như:
      * mã đăng nhập, mật khẩu, email, mã phòng ban,... và thực hiện lưu vào cơ sở dữ liệu
+     *
      * @param employeeRequest Đối tượng chứa thông tin nhân viên cần cập nhật.
      * @return {@link EmployeeResponse} với mã trạng thái HTTP 200 (OK) nếu thành công.
      * Nếu không thành công thì sẽ throw ra lỗi ở được handle ở GlobalException

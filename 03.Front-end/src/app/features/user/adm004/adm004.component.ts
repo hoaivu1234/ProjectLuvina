@@ -337,43 +337,43 @@ export class ADM004Component {
         control?.updateValueAndValidity(); // Cập nhật lại toàn bộ validation của formArray
       });
     } else { // Nếu selectedId có giá trị (chọn khác rỗng)
+      // Lấy giá trị của chứng chỉ có Id = selectedId trong danh sách chứng chỉ
       const certification = this.listCertifications.find((item: any) => item.certificationId == selectedId);
-      // Khi chọn một chứng chỉ hợp lệ
-      controlsToUpdate.forEach(controlName => {
-        const control = certGroup.get(controlName);
-        control?.enable();
-        if (controlName != 'certificationName') control?.setValidators(Validators.required);
-        if (controlName === 'score') {
-          control?.addValidators(this.validationService.checkNumberHalfSize()); // Kiểm tra nếu là score thì thêm validator kiểm tra số half size
+      controlsToUpdate.forEach(controlName => { // Duyệt qua danh sách tên control 
+        const control = certGroup.get(controlName); // Lấy formControl tương ứng với tên control
+        control?.enable();  // enable formControl
+        if (controlName != 'certificationName') control?.setValidators(Validators.required); // Nếu tên control khác certificationName thì set validator là require
+        if (controlName === 'score') { // Nếu tên control là "score"
+          control?.addValidators(this.validationService.checkNumberHalfSize()); // thêm validator kiểm tra số half size
         }
 
-        if (controlName === 'certificationName') {
-          control?.setValue(certification?.certificationName);
+        if (controlName === 'certificationName') { // Nếu tên control là certificationName 
+          control?.setValue(certification?.certificationName); // set value bằng certificationName 
         } else {
-          control?.setValue(null);
+          control?.setValue(null); // Ngược lại set giá trị là null
         }
-        control?.updateValueAndValidity();
+        control?.updateValueAndValidity();  // Cập nhật lại toàn bộ validation của formArray
       });
     }
   }
   
   /**
    * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
-   *
+   * Nếu thành công, patch dữ liệu vào form
+   * Nếu thất bại, chuyển hướng sang System Error với mã lỗi tương ứng.
    * @param {number} employeeId - ID của nhân viên cần truy vấn.
    */
   getEmployeeById(employeeId: number) {
     // Gọi service để lấy thông tin nhân viên theo ID.
     this.employeeService.getEmployeeById(employeeId).subscribe({
-      next: (data) => {
-        // Xử lý dữ liệu để chỉ giữ chứng chỉ cao nhất.
+      next: (data) => { // Nếu thành công
+        // Lấy dữ liệu của nhân viên
         this.dataReceived = data;
-        this.patchValueToForm();
+        this.patchValueToForm(); // Patch dữ liệu vào form
       },
-      error: (err) => {
-        // Nếu xảy ra lỗi, điều hướng đến SystemError và truyền mã lỗi.
-        this.router.navigate(['error'], {
-          state: { errorCode: err?.error?.message?.code }
+      error: (err) => { // Nếu thất bại
+        this.router.navigate(['error'], { // Điều hướng đến SystemError
+          state: { errorCode: err?.error?.message?.code } // Gửi kèm mã lỗi được lấy từ response
         });
       }
     })
@@ -382,15 +382,15 @@ export class ADM004Component {
   /**
    * Gọi API để lấy danh sách phòng ban.
    * Nếu thành công, gán dữ liệu vào listDepartments.
-   * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi tương ứng.
+   * Nếu thất bại, chuyển hướng sang System Error với mã lỗi tương ứng.
    */
   getListDepartment() {
     this.departmentService.getListDepartment().subscribe({
-      next: (value) => {
+      next: (value) => { // Nếu thành công
         this.listDepartments = value?.departments;  // gán giá trị cho listDepartments
       },
-      error: () => {
-        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
+      error: () => { // Nếu thất bại 
+        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } }); // Điều hướng đến SystemError và truyền mã lỗi.
       },
     });
   }
@@ -398,15 +398,15 @@ export class ADM004Component {
   /**
    * Gọi API để lấy danh sách trình độ tiếng nhật.
    * Nếu thành công, gán dữ liệu vào listCertifications.
-   * Nếu thất bại, chuyển hướng sang trang lỗi với mã lỗi tương ứng.
+   * Nếu thất bại, chuyển hướng sang System Error với mã lỗi tương ứng.
    */
   getListCertification() {
     this.certificationService.getListCertifications().subscribe({
-      next: (value) => {
-        this.listCertifications = value?.certifications;
+      next: (value) => { // Nếu thành công
+        this.listCertifications = value?.certifications; // gán giá trị cho listCertifications
       },
-      error: () => {
-        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } });
+      error: () => { // Nếu thất bại 
+        this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } }); // Điều hướng đến SystemError và truyền mã lỗi.
       },
     });
   }
