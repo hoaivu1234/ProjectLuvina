@@ -56,6 +56,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
+            // Khi ngắt kết nối đến DB thì không thể loadUserByUsername dẫn đến lỗi
+            // Trả về mã lỗi ER015
             log.error("failed on set user authentication", ex);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");

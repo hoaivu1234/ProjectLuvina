@@ -7,6 +7,7 @@ import com.luvina.la.entity.Employee;
 import com.luvina.la.payload.EmployeeResponse;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeService {
     EmployeeResponse<List<EmployeeDTO>> getListEmployees(
@@ -29,13 +30,15 @@ public interface EmployeeService {
 
     boolean existsByEmployeeEmail(String employeeEmail);
 
-    EmployeeResponseDTO getEmployeeById(Long id);
+    EmployeeResponseDTO getEmployeeById(Employee employee);
 
-    EmployeeResponse<Long> deleteEmployeeById(Long id);
+    EmployeeResponse<Long> deleteEmployeeById(Employee employee);
 
     boolean existsById(Long id);
 
     String getEmployeeLoginIdById(Long id);
 
     String getEmployeeEmailById(Long id);
+
+    Optional<Employee> findByEmployeeId(Long employeeId);
 }

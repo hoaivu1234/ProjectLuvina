@@ -19,8 +19,8 @@ import { MSG } from 'src/app/shared/utils/messages.constants';
  * @author hoaivd
  */
 export class ADM006Component {
-  completeMessage: string = '';   // Thông điệp lỗi tương ứng với completeCode
-  completeCode: string = '' // Mã thông báo được lấy từ navigation state
+  completeMessage: string = ''; // Thông báo tương ứng với completeCode
+  completeCode: string = ''; // Mã thông báo được lấy từ navigation state
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -34,7 +34,7 @@ export class ADM006Component {
   /**
    * Lifecycle hook khởi tạo component.
    * Lấy mã thông báo từ navigation state và tìm thông điệp thông báo tương ứng.
-   * Nếu không có mã thông báo, sẽ sử dụng mã thông báo hệ thống mặc định.
+   * Nếu không có mã thông báo, sẽ điều hướng sang màn System Error để ngăn người dùng truy cập trực tiếp bằng URL.
    *
    * @return void
    */
@@ -42,8 +42,8 @@ export class ADM006Component {
     // Lấy completeCode nếu được truyền qua navigation state
     this.completeCode = history.state?.['completeCode'];
 
-    if (!this.completeCode) {
-      this.router.navigate(['error']);
+    if (!this.completeCode) { // Nếu completeCode không có giá trị 
+      this.router.navigate(['error']); // Điều hướng sang màn System Error
     }
 
     // Dựa vào completeCode, tìm thông điệp thông báo trong ERROR_MESSAGES

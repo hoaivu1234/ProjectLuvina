@@ -40,6 +40,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -52,31 +53,25 @@ import java.util.stream.Collectors;
  */
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+    /**
+     * Mapper để chuyển đổi giữa các đối tượng Entity và DTO.
+     * Dùng để chuyển đổi dữ liệu nhân viên từ entity sang request DTO và lưu nhân viên vào DB
+     */
     @Autowired
     private EmployeeRequestMapper employeeRequestMapper;
 
-    @Autowired
-    private EmployeeMapper employeeMapper;
-
+    /**
+     * Mapper để chuyển đổi giữa các đối tượng Entity và DTO.
+     * Dùng để chuyển đổi dữ liệu nhân viên từ entity sang response DTO.
+     */
     @Autowired
     private EmployeeResponseMapper employeeResponseMapper;
+
     /**
      * Repository để tương tác với bảng nhân viên trong cơ sở dữ liệu.
      */
     @Autowired
     private EmployeeRepository employeeRepository;
-
-    /**
-     * Repository để tương tác với bảng phòng ban trong cơ sở dữ liệu.
-     */
-    @Autowired
-    private DepartmentRepository departmentRepository;
-
-    /**
-     * Repository để tương tác với bảng chứng chỉ trong cơ sở dữ liệu.
-     */
-    @Autowired
-    private CertificationRepository certificationRepository;
 
     /**
      * Repository để tương tác với bảng chứng chỉ nhân viên trong cơ sở dữ liệu.
@@ -92,17 +87,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Trả về thông tin chi tiết của một nhân viên theo ID, bao gồm cả thông tin chứng chỉ (certifications).
-     * <p>
      * Nếu nhân viên không tồn tại, phương thức sẽ ném ra {@link BusinessException} với mã lỗi ER013.
      *
-     * @param id ID của nhân viên cần lấy thông tin.
+     * @param employee Dữ liệu cơ bản của nhân viên cần lấy thông tin.
      * @return Đối tượng {@link EmployeeResponseDTO} chứa thông tin nhân viên và danh sách chứng chỉ (nếu có).
      * @throws BusinessException nếu không tìm thấy nhân viên tương ứng với ID truyền vào.
      */
     @Override
-    public EmployeeResponseDTO getEmployeeById(Long id) {
-        Employee employee = getEmployee(id, ErrorCodeConstants.ER013, false);
-
+    public EmployeeResponseDTO getEmployeeById(Employee employee) {
         List<EmployeeCertification> certifications = employeeCertificationRepository.findByEmployee(employee);
 
         EmployeeResponseDTO response = employeeResponseMapper.toDto(employee);
@@ -117,28 +109,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Xóa nhân viên theo ID.
-     *
      * Đánh dấu {@code @Transactional} để đảm bảo tính toàn vẹn dữ liệu.
      * Nếu nhân viên tồn tại, nếu không, ném ra ngoại lệ BusinessException.
      * Nếu nhân viên tồn tại thì kiểm tra nhân viên có phải là ADMIN không. Nếu đúng thì throw BusinessException
      * Nếu không phải thì tiến hành xóa khỏi cơ sở dữ liệu.
      *
-     * @param id ID của nhân viên cần xóa.
+     * @param employee Dữ liệu cơ bản của nhân viên cần xóa.
      * @return {@link EmployeeResponse} chứa ID đã xóa, mã trạng thái HTTP và thông báo thành công.
      * @throws BusinessException nếu không tìm thấy nhân viên với ID tương ứng.
      */
     @Transactional
     @Override
-    public EmployeeResponse<Long> deleteEmployeeById(Long id) {
-        Employee employee = getEmployee(id, ErrorCodeConstants.ER014, true);
-
-        if (EmployeeRole.ADMIN.equals(employee.getEmployeeRole())) {
-            MessageResponse message = new MessageResponse(ErrorCodeConstants.ER020, new ArrayList<>());
-            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, id, message);
-        }
-
-        employeeRepository.deleteById(employee.getEmployeeId());
-        return new EmployeeResponse<>(HttpStatusConstants.OK, id, new MessageResponse(MsgCodeConstants.MSG003, new ArrayList<>()));
+    public EmployeeResponse<Long> deleteEmployeeById(Employee employee) {
+        Long employeeId = employee.getEmployeeId();
+        employeeRepository.deleteById(employeeId);
+        return new EmployeeResponse<>(HttpStatusConstants.OK, employeeId, new MessageResponse(MsgCodeConstants.MSG003, new ArrayList<>()));
     }
 
     /**
@@ -176,6 +161,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findById(id)
                 .map(Employee::getEmployeeEmail)
                 .orElse(null);
+    }
+
+    @Override
+    public Optional<Employee> findByEmployeeId(Long employeeId) {
+        return employeeRepository.findByEmployeeId(employeeId);
     }
 
     /**
@@ -315,35 +305,24 @@ public class EmployeeServiceImpl implements EmployeeService {
     /**
      * Thêm mới một nhân viên vào hệ thống.
      *
-     * @param requestDTO Đối tượng chứa thông tin nhân viên cần thêm, bao gồm: tên, email, số điện thoại, tài khoản đăng nhập, mật khẩu, phòng ban, chứng chỉ,...
-     * @return Đối tượng {@link EmployeeResponse} chứa mã trạng thái, ID nhân viên vừa được thêm và thông báo thành công.
-     * @throws BusinessException nếu không tìm thấy phòng ban hoặc chứng chỉ tương ứng với ID được truyền vào.
+     * Quy trình thực hiện:
+     * - Chuyển đổi dữ liệu đầu vào từ DTO sang entity.
+     * - Mã hóa mật khẩu đăng nhập.
+     * - Thiết lập vai trò mặc định là USER.
+     * - Chuyển đổi và liên kết các chứng chỉ (nếu có).
+     * - Lưu nhân viên mới vào cơ sở dữ liệu.
+     *
+     * @param requestDTO Đối tượng {@link EmployeeRequestDTO} chứa thông tin nhân viên cần thêm,
+     *                   bao gồm tài khoản, mật khẩu, thông tin cá nhân và chứng chỉ liên quan.
+     * @return Đối tượng {@link EmployeeResponse} chứa mã trạng thái, ID nhân viên mới và thông điệp thành công.
+     * @throws BusinessException nếu xảy ra lỗi trong quá trình xử lý dữ liệu đầu vào hoặc ánh xạ chứng chỉ.
      */
     @Transactional
     @Override
     public EmployeeResponse<Long> addEmployee(EmployeeRequestDTO requestDTO) {
         Employee employee = employeeRequestMapper.toEntity(requestDTO);
 
-        String encodedPassword = passwordEncoder.encode(requestDTO.getEmployeeLoginPassword());
-        employee.setEmployeeLoginPassword(encodedPassword);
-
-        employee.setEmployeeRole(EmployeeRole.USER);
-
-        if (requestDTO.getCertifications() != null && !requestDTO.getCertifications().isEmpty()) {
-            List<EmployeeCertification> certList = requestDTO.getCertifications().stream()
-                    .map(certDTO -> {
-                        EmployeeCertification cert = new EmployeeCertification();
-                        cert.setStartDate(employeeRequestMapper.parseDate(certDTO.getStartDate()));
-                        cert.setEndDate(employeeRequestMapper.parseDate(certDTO.getEndDate()));
-                        cert.setScore(new BigDecimal(certDTO.getScore()));
-                        cert.setCertification(new Certification(Long.parseLong(certDTO.getCertificationId())));
-                        cert.setEmployee(employee);
-                        return cert;
-                    })
-                    .collect(Collectors.toList());
-
-            employee.setEmployeeCertifications(certList);
-        }
+        employee = prepareEmployeeData(employee, requestDTO, ModeConstants.MODE_ADD);
 
         // Lưu vào DB
         employeeRepository.save(employee);
@@ -366,27 +345,56 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeResponse<Long> updateEmployee(EmployeeRequestDTO updateDTO) {
-        Employee employee = employeeRequestMapper.toEntity(updateDTO);
         Long employeeId = Long.parseLong(updateDTO.getEmployeeId());
-
-        Employee existingEmployee = getEmployee(employeeId, ErrorCodeConstants.ER013, false);
-
-        String rawPassword = updateDTO.getEmployeeLoginPassword();
-        if (rawPassword != null && !rawPassword.isEmpty()) {
-            String encodedPassword = passwordEncoder.encode(rawPassword);
-            employee.setEmployeeLoginPassword(encodedPassword);
-        } else {
-            employee.setEmployeeLoginPassword(existingEmployee.getEmployeeLoginPassword());
-        }
-
-        employee.setEmployeeRole(EmployeeRole.USER);
 
         // Xóa certifications trong trường hợp update
         employeeCertificationRepository.deleteByEmployeeEmployeeId(employeeId);
 
-        if (updateDTO.getCertifications() != null && !updateDTO.getCertifications().isEmpty()) {
-            List<EmployeeCertification> certList = updateDTO.getCertifications().stream()
-                    .map(certDTO -> {
+        Employee employee = employeeRequestMapper.toEntity(updateDTO);
+        employee = prepareEmployeeData(employee, updateDTO, ModeConstants.MODE_UPDATE);
+
+        // Lưu vào DB
+        employeeRepository.save(employee);
+        return new EmployeeResponse<>(HttpStatusConstants.OK, employeeId, new MessageResponse(MsgCodeConstants.MSG002, new ArrayList<>()));
+    }
+
+    /**
+     * Chuẩn bị dữ liệu cho đối tượng {@link Employee} trước khi lưu vào cơ sở dữ liệu.
+     *
+     * Phương thức này xử lý các bước sau:
+     * - Mã hóa mật khẩu nếu được cung cấp; nếu ở chế độ cập nhật và không có mật khẩu mới thì giữ lại mật khẩu cũ.
+     * - Thiết lập vai trò mặc định là USER cho nhân viên.
+     * - Chuyển đổi danh sách chứng chỉ từ DTO sang entity và liên kết với nhân viên.
+     *
+     * @param employee Đối tượng {@link Employee} đã được ánh xạ cơ bản từ DTO.
+     * @param dto Đối tượng {@link EmployeeRequestDTO} chứa dữ liệu đầu vào từ client.
+     * @param mode Chuỗi xác định chế độ xử lý: {@code ModeConstants.MODE_ADD} cho thêm mới,
+     *             {@code ModeConstants.MODE_UPDATE} cho cập nhật.
+     * @return Đối tượng {@link Employee} đã được gán đầy đủ thông tin và sẵn sàng lưu vào cơ sở dữ liệu.
+     */
+    private Employee prepareEmployeeData(Employee employee, EmployeeRequestDTO dto, String mode) {
+        // Mã hoá password nếu có (chỉ update nếu không empty)
+        String rawPassword = dto.getEmployeeLoginPassword();
+
+        if (rawPassword != null && !rawPassword.isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(rawPassword);
+            employee.setEmployeeLoginPassword(encodedPassword);
+        } else if (ModeConstants.MODE_UPDATE.equals(mode)) {
+            // Nếu là update và không có password mới => giữ password cũ
+            Long employeeId = Long.parseLong(dto.getEmployeeId());
+            String oldPassword = employeeRepository.findByEmployeeId(employeeId) // Lấy password cũ của nhân viên
+                    .map(Employee::getEmployeeLoginPassword)
+                    .orElse(null);
+            employee.setEmployeeLoginPassword(oldPassword); // Gán mật khẩu cũ cho nhân viên cần cập nhật
+        }
+
+        // Gán role mặc định
+        employee.setEmployeeRole(EmployeeRole.USER);
+
+        // Gán certifications nếu có
+        if (dto.getCertifications() != null && !dto.getCertifications().isEmpty()) {
+            List<EmployeeCertification> certList = dto.getCertifications().stream()
+                    .map(certDTO -> { // Duyệt qua các phần tử trong danh sách chứng chỉ
                         EmployeeCertification cert = new EmployeeCertification();
                         cert.setStartDate(employeeRequestMapper.parseDate(certDTO.getStartDate()));
                         cert.setEndDate(employeeRequestMapper.parseDate(certDTO.getEndDate()));
@@ -399,9 +407,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
             employee.setEmployeeCertifications(certList);
         }
-        // Lưu vào DB
-        employeeRepository.save(employee);
-        return new EmployeeResponse<>(HttpStatusConstants.OK, employeeId, new MessageResponse(MsgCodeConstants.MSG002, new ArrayList<>()));
+
+        return employee;
     }
 
     /**
@@ -424,30 +431,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public boolean existsByEmployeeEmail(String employeeEmail) {
         return employeeRepository.existsByEmployeeEmail(employeeEmail);
-    }
-
-    /**
-     * Lấy thông tin nhân viên theo ID. Nếu không tồn tại, ném ra {@link BusinessException}.
-     *
-     * @param id ID của nhân viên cần tìm.
-     * @param errorCode Mã lỗi sẽ sử dụng nếu không tìm thấy nhân viên.
-     * @param includeIdInException Cờ xác định có nên đưa ID vào ngoại lệ hay không.
-     * @return Đối tượng {@link Employee} tương ứng với ID.
-     * @throws BusinessException nếu không tìm thấy nhân viên theo ID.
-     */
-    private Employee getEmployee(Long id, String errorCode, boolean includeIdInException) {
-        List<String> params = new ArrayList<>();
-        params.add(ValidationFieldNameMapper.getDisplayName(FieldKey.ID.key()));
-
-        return employeeRepository.findByEmployeeId(id)
-                .orElseThrow(() -> {
-                    MessageResponse message = new MessageResponse(errorCode, params);
-                    if (includeIdInException) {
-                        return new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, id, message);
-                    } else {
-                        return new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, message);
-                    }
-                });
     }
 
 }

@@ -18,7 +18,7 @@ import { ERROR_CODES } from '../../utils/error-code.constants';
  * 
  * Component này lấy mã lỗi (`errorCode`) từ navigation state hoặc từ route data 
  * để hiển thị thông điệp lỗi phù hợp tương ứng với mã lỗi đó.
- * Nếu không có mã lỗi nào được cung cấp, component sẽ hiển thị thông báo lỗi hệ thống mặc định.
+ * Nếu không có mã lỗi nào được cung cấp, component sẽ hiển thị thông báo lỗi hệ thống mặc định ER023.
  * 
  * @author hoaivd
  */
@@ -60,7 +60,10 @@ export class SystemErrorComponent {
     this.errorMessage = fieldError ? ERROR_MESSAGES[this.errorCode](fieldError) : ERROR_MESSAGES[this.errorCode]();
 
   }
-
+ 
+  /**
+   * Điều hướng về màn hình ADM002
+   */
   hanldeClick() {
     this.router.navigate(['user/list']);
   }

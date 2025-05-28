@@ -11,6 +11,7 @@ import com.luvina.la.payload.CertificationResponse;
 import com.luvina.la.service.CertificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,7 @@ public class CertificationController {
      * @return ResponseEntity<CertificationResponse<List<CertificationDTO>>> đối tượng chứa mã trạng thái và danh sách các trình độ tiếng nhật
      */
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<CertificationResponse<List<CertificationDTO>>> getAllCertificatons() {
         // Lấy danh sách các trình độ tiếng nhật từ dịch vụ
         List<CertificationDTO> certifications = certificationService.getAllCertification();

@@ -55,7 +55,6 @@ public class EmployeeRequestValidator {
     @Autowired
     private DepartmentService departmentService;
 
-
     /**
      * Service xử lý logic liên quan đến chứng chỉ.
      * Dùng để kiểm tra sự tồn tại của certificationId.
@@ -88,7 +87,6 @@ public class EmployeeRequestValidator {
             validateEmployeeLoginId(employeeRequestDTO.getEmployeeLoginId(), null, mode);
             validateEmployeeEmail(employeeRequestDTO.getEmployeeEmail(), null, mode);
         }
-
 
         validateEmployeeName(employeeRequestDTO.getEmployeeName());
         validateEmployeeNameKana(employeeRequestDTO.getEmployeeNameKana());
@@ -249,7 +247,6 @@ public class EmployeeRequestValidator {
         validatePattern(fieldName, employeeTelephone, EmployeeValidationConstant.ENGLISH_HALF_SIZE_REGEX, ErrorCodeConstants.ER008);
     }
 
-
     /**
      * Kiểm tra hợp lệ mật khẩu đăng nhập của nhân viên.
      * Gồm kiểm tra: không rỗng và độ dài nằm trong khoảng cho phép.
@@ -270,7 +267,6 @@ public class EmployeeRequestValidator {
             validateLengthRange(fieldName, employeeLoginPassword, EmployeeValidationConstant.LENGTH_50, EmployeeValidationConstant.LENGTH_8);
         }
     }
-
 
     /**
      * Kiểm tra hợp lệ mã phòng ban của nhân viên.
@@ -462,7 +458,6 @@ public class EmployeeRequestValidator {
         }
     }
 
-
     /**
      * Kiểm tra trường không bị trùng lặp bằng cách sử dụng hàm kiểm tra tồn tại.
      *
@@ -506,7 +501,6 @@ public class EmployeeRequestValidator {
                     ValidationFieldNameMapper.getDisplayName(fieldName));
         }
     }
-
 
     /**
      * Tạo đối tượng {@link BusinessException} với mã lỗi HTTP, mã lỗi hệ thống và trường dữ liệu liên quan.

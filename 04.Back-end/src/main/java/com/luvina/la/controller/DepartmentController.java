@@ -11,6 +11,7 @@ import com.luvina.la.payload.DepartmentResponse;
 import com.luvina.la.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,7 @@ public class DepartmentController {
      * @return ResponseEntity<DepartmentResponse<List<DepartmentDTO>>> đối tượng chứa mã trạng thái và danh sách các phòng ban
      */
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DepartmentResponse<List<DepartmentDTO>>> getAllDepartment() {
         // Lấy danh sách các phòng ban từ dịch vụ
         List<DepartmentDTO> departments = departmentService.getAllDepartments();

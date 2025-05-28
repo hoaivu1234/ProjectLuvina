@@ -71,7 +71,7 @@ export class EmployeeService {
    * 
    * @param payload - Dữ liệu nhân viên cần thêm.
    * @returns Observable<CUDEmployeeResponse> - Kết quả phản hồi từ server
- */
+   */
   addEmployee(payload: any): Observable<CUDEmployeeResponse> {
     return this.http.post<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
   }
@@ -81,7 +81,7 @@ export class EmployeeService {
    * 
    * @param payload - Dữ liệu nhân viên cần thêm.
    * @returns Observable<CUDEmployeeResponse> - Kết quả phản hồi từ server
- */
+   */
     updateEmployee(payload: any): Observable<CUDEmployeeResponse> {
       return this.http.put<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees", payload);
     }
@@ -91,11 +91,17 @@ export class EmployeeService {
    *
    * @param {number} employeeId - ID của nhân viên cần truy vấn.
    * @returns {Observable<EmployeeResponseDTO>} - Observable chứa dữ liệu phản hồi của nhân viên.
- */
+   */
   getEmployeeById(employeeId: number): Observable<EmployeeResponseDTO> {
     return this.http.get<EmployeeResponseDTO>(AppConstants.BASE_URL_API + "/employees/" + `${employeeId}`);
   }
 
+  /**
+   * Gửi yêu cầu DELETE đến API để xóa thông tin của một nhân viên theo ID.
+   *
+   * @param {number} employeeId - ID của nhân viên cần xóa.
+   * @returns {Observable<EmployeeResponseDTO>} - Observable chứa dữ liệu phản hồi của nhân viên.
+   */
   deleteEmployeeById(employeeId: number) : Observable<CUDEmployeeResponse> {
     return this.http.delete<CUDEmployeeResponse>(AppConstants.BASE_URL_API + "/employees/" + `${employeeId}`);
   }

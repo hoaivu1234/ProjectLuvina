@@ -412,12 +412,13 @@ export class ADM004Component {
   }
 
   /**
-   * Điều hướng về màn hình ADM002 
+   * Kiểm tra trang thái của màn hình, sau đó điều hướng về màn hình tương ứng với trạng thái
    */
   hanleBack() {
-    if (this.mode == MODE.MODE_ADD) {
-      this.router.navigate(['/user/list']);
-    } else {
+    if (this.mode == MODE.MODE_ADD) { // Nếu là mode add
+      this.router.navigate(['/user/list']); // Điều hướng về màn hình ADM002
+    } else { // Nếu là mode update
+      // Điều hướng về màn ADM003 và gửi kèm Id của nhân viên hiện tại
       this.router.navigate(['/user/adm003'], { state: { employeeId: this.employeeId } });
     }
   }
@@ -428,18 +429,18 @@ export class ADM004Component {
    * Nếu form không hợp lệ, đánh dấu các trường chưa hợp lệ để hiển thị thông báo lỗi.
    */
   handleConfirm(): void {
-    if (this.employeeForm.valid) {
-      const state: any = {
+    if (this.employeeForm.valid) { // Nếu trạng thái của form đều hợp lệ
+      const state: any = { // Tạo state chứa giá trị của form
         dataConfirm: this.employeeForm.value
       };
 
-      if (this.mode === MODE.MODE_UPDATE) {
-        state.employeeId = this.employeeId;
+      if (this.mode === MODE.MODE_UPDATE) { // Nếu mode là update
+        state.employeeId = this.employeeId; // thì truyền thêm Id của nhân viên hiện tại vào state
       }
 
-      this.router.navigate(['/user/adm005'], { state });
-    } else {
-      this.markFormGroupTouched(this.employeeForm);
+      this.router.navigate(['/user/adm005'], { state }); // Điều hướng đến màn ADM005 và truyền state đã tạo
+    } else { // Nếu có bất kỳ control nào không hợp lệ
+      this.markFormGroupTouched(this.employeeForm); // Đánh dấu tất cả các control trong FormGroup là 'touched' và 'dirty'.
     }
   }
 
@@ -449,10 +450,10 @@ export class ADM004Component {
    */
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
-      control.markAsDirty();
+      control.markAsTouched(); // Đánh dấu control đã touched: Người dùng đã truy cập vào phần tử
+      control.markAsDirty(); // Đánh dấu control đã dirty: Người dùng đã thay đổi giá trị của phần tử
       if ((control as any).controls) {
-        this.markFormGroupTouched(control as FormGroup); // xử lý form lồng nhau
+        this.markFormGroupTouched(control as FormGroup); // xử lý form lồng nhau cho formArray
       }
     });
   }

@@ -110,14 +110,14 @@ export class ValidateFormService {
  */
   checkNumberHalfSize(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
-      const value = control.value;
-      if (!value) return null;
+      const value = control.value; // Lấy giá trị từ control
+      if (!value) return null; // Nếu không có giá trị thì không kiểm tra, không báo lỗi
 
-      if (!REGEX.HALF_WIDTH_NUMBER.test(value)) {
-        return { numberNotHalfSize: true };
+      if (!REGEX.HALF_WIDTH_NUMBER.test(value)) { // Kiểm tra xem giá trị có khớp với regex half-width number không
+        return { numberNotHalfSize: true };  // Nếu không khớp -> báo lỗi
       }
 
-      return null;
+      return null; // Nếu hợp lệ -> không có lỗi
     }
   }
 
@@ -136,14 +136,14 @@ export class ValidateFormService {
  */
   checkValidateEmail(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
-      const value = control.value;
-      if (!value) return null;
+      const value = control.value; // Lấy giá trị người dùng nhập
+      if (!value) return null; // Nếu không có giá trị thì không kiểm tra, không báo lỗi
 
-      if (!REGEX.EMAIL.test(value)) {
-        return { invalidEmailFormat: true };
+      if (!REGEX.EMAIL.test(value)) { // Kiểm tra giá trị có khớp với định dạng email trong REGEX không
+        return { invalidEmailFormat: true }; // Nếu sai định dạng -> trả về lỗi
       }
 
-      return null;
+      return null;  // Nếu đúng định dạng -> không có lỗi
     };
   }
 
@@ -157,16 +157,16 @@ export class ValidateFormService {
    * @returns ValidatorFn - Hàm validator áp dụng cho FormControl
  */
   checkLengthRangePassword(minLength: number, maxLength: number): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-      const value = control.value;
-      if (!value) return null;
+    return (control: AbstractControl): { [key: string]: any } | null => { // Trả về một hàm validator áp dụng cho AbstractControl (form control)
+      const value = control.value;  // Lấy giá trị người dùng nhập từ control
+      if (!value) return null; // Nếu không có giá trị (null, undefined, rỗng) thì không kiểm tra, không báo lỗi
 
-      const lenghtValue = value.length;
-      if (lenghtValue < minLength || maxLength < lenghtValue) {
+      const lenghtValue = value.length; // Tính độ dài của chuỗi
+      if (lenghtValue < minLength || maxLength < lenghtValue) { // Nếu độ dài nhỏ hơn minLength hoặc lớn hơn maxLength -> báo lỗi
         return { invalidLengthRange: true }
       }
 
-      return null;
+      return null; // Nếu hợp lệ -> không có lỗi
     };
   }
 
@@ -182,31 +182,30 @@ export class ValidateFormService {
  */
   checkPasswordMatch(mode: string): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
-      const password = group.get('employeeLoginPassword')?.value;
-      const confirmPassword = group.get('employeeReLoginPassword')?.value;
+      const password = group.get('employeeLoginPassword')?.value;  // Lấy giá trị của trường mật khẩu từ form group
+      const confirmPassword = group.get('employeeReLoginPassword')?.value; // Lấy giá trị của trường xác nhận mật khẩu từ form group
 
-      if (mode === 'add') {
-        if (!password || !confirmPassword) return { passwordNotMatch: true };
-        return password === confirmPassword ? null : { passwordNotMatch: true };
+      if (mode === 'add') { // Nếu đang ở chế độ 'add'
+        if (!password || !confirmPassword) return { passwordNotMatch: true }; // Nếu 1 trong 2 trường bị thiếu -> báo lỗi không khớp mật khẩu
+        return password === confirmPassword ? null : { passwordNotMatch: true }; // Nếu mật khẩu và xác nhận khớp nhau -> không có lỗi, ngược lại -> lỗi
       }
 
       // mode === 'update'
-      if (!password && !confirmPassword) {
+      if (!password && !confirmPassword) {  // Trường hợp cả hai trường đều trống (người dùng không thay đổi mật khẩu) thì không lỗi
         return null; // không nhập gì thì không lỗi
       }
 
-      if (!password && confirmPassword) {
+      if (!password && confirmPassword) { // Nếu chỉ có confirmPassword mà không có password -> lỗi
         return { passwordNotMatch: true };
       }
 
-      if (password && !confirmPassword) {
+      if (password && !confirmPassword) { // Nếu chỉ có password mà không có confirmPassword -> lỗi
         return { passwordNotMatch: true };
       }
 
-      return password === confirmPassword ? null : { passwordNotMatch: true };
+      return password === confirmPassword ? null : { passwordNotMatch: true }; // Nếu cả hai đều có giá trị, kiểm tra xem chúng có khớp không
     };
   }
-
 
   /**
    * Validator dùng để kiểm tra `endDate` phải lớn hơn `startDate`.
@@ -242,41 +241,41 @@ export class ValidateFormService {
    * @returns Chuỗi thông điệp lỗi tương ứng, hoặc rỗng nếu không có lỗi
  */
   getErrorMessage(control: AbstractControl | null, fieldName: string, minLength?: number, maxLength?: number): string {
-    if (!control || !control.errors) return '';
+    if (!control || !control.errors) return '';   // Nếu control không tồn tại hoặc không có lỗi, trả về chuỗi rỗng
 
-    let errorMessage = '';
+    let errorMessage = '';   // Khởi tạo biến chứa thông báo lỗi
 
-    for (const [errorKey, errorValue] of Object.entries(control.errors)) {
-      switch (errorKey) {
-        case ERROR_KEYS.REQUIRED:
+    for (const [errorKey, errorValue] of Object.entries(control.errors)) {   // Duyệt qua từng cặp key-value trong danh sách lỗi của control
+      switch (errorKey) {  // Xử lý từng loại lỗi cụ thể theo errorKey
+        case ERROR_KEYS.REQUIRED:   // Trường bắt buộc không được để trống
           errorMessage = ERROR_MESSAGES[ERROR_CODES.REQUIRED_FIELD](fieldName);
           break;
-        case ERROR_KEYS.MAX_LENGTH:
+        case ERROR_KEYS.MAX_LENGTH: // Độ dài vượt quá giới hạn tối đa
           errorMessage = ERROR_MESSAGES[ERROR_CODES.MAX_LENGTH_EXCEEDED](fieldName, errorValue.requiredLength);
           break;
         case ERROR_KEYS.INVALID_CHARS:
-        case ERROR_KEYS.STARTS_WITH_NUMBER:
+        case ERROR_KEYS.STARTS_WITH_NUMBER: // Các ký tự không hợp lệ hoặc bắt đầu bằng số (dùng chung thông báo)
           errorMessage = ERROR_MESSAGES[ERROR_CODES.INVALID_USERNAME_FORMAT](fieldName);
           break;
-        case ERROR_KEYS.INVALID_KANA_FORMAT:
+        case ERROR_KEYS.INVALID_KANA_FORMAT: // Trường yêu cầu định dạng chữ Katakana nhưng sai định dạng
           errorMessage = ERROR_MESSAGES[ERROR_CODES.KANA_REQUIRED](fieldName);
           break;
-        case ERROR_KEYS.NONASCIICHARACTERS:
+        case ERROR_KEYS.NONASCIICHARACTERS: // Trường chứa ký tự không phải ASCII (yêu cầu ký tự half-width)
           errorMessage = ERROR_MESSAGES[ERROR_CODES.HALF_WIDTH_CHAR_REQUIRED](fieldName);
           break;
-        case ERROR_KEYS.INVALID_EMAIL_FORMAT:
+        case ERROR_KEYS.INVALID_EMAIL_FORMAT: // Trường email không đúng định dạng
           errorMessage = ERROR_MESSAGES[ERROR_CODES.INVALID_FORMAT](fieldName, REGEX.EMAIL);
           break;
-        case ERROR_KEYS.INVALID_LENGTH_RANGE:
+        case ERROR_KEYS.INVALID_LENGTH_RANGE:  // Độ dài không nằm trong khoảng yêu cầu
           errorMessage = ERROR_MESSAGES[ERROR_CODES.LENGTH_RANGE](fieldName, minLength, maxLength);
           break;
-        case ERROR_KEYS.PASSWORD_NOT_MATHCH:
+        case ERROR_KEYS.PASSWORD_NOT_MATHCH: // Mật khẩu xác nhận không trùng khớp với mật khẩu chính
           errorMessage = ERROR_MESSAGES[ERROR_CODES.PASSWORD_MISMATCH]();
           break;
-        case ERROR_KEYS.INVALID_END_DATE:
+        case ERROR_KEYS.INVALID_END_DATE: // Ngày kết thúc nhỏ hơn ngày bắt đầu
           errorMessage = ERROR_MESSAGES[ERROR_CODES.DATE_ORDER_INVALID]();
           break;
-        case ERROR_KEYS.NUMBERNOTHALFSIZE:
+        case ERROR_KEYS.NUMBERNOTHALFSIZE: // Số nhập vào không phải dạng half-size (half-width)
           errorMessage = ERROR_MESSAGES[ERROR_CODES.HALF_WIDTH_NUMBER_REQUIRED](fieldName);
           break;
       }
@@ -297,7 +296,7 @@ export class ValidateFormService {
    * 
    * @param control - FormControl cần kiểm tra
    * @returns true nếu nên hiển thị lỗi, ngược lại false
- */
+   */
   shouldShowError(control: AbstractControl | null): boolean {
     return !!control && control.invalid && (control.dirty || control.touched);
   }

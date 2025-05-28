@@ -5,24 +5,27 @@
 
 package com.luvina.la.controller;
 
-import com.luvina.la.common.HttpStatusConstants;
-import com.luvina.la.common.ModeConstants;
-import com.luvina.la.common.PaginationConstants;
+import com.luvina.la.common.*;
 import com.luvina.la.dto.EmployeeDTO;
 import com.luvina.la.dto.EmployeeRequestDTO;
 import com.luvina.la.dto.EmployeeResponseDTO;
 import com.luvina.la.entity.Employee;
+import com.luvina.la.exception.BusinessException;
+import com.luvina.la.mapper.ValidationFieldNameMapper;
 import com.luvina.la.payload.EmployeeResponse;
+import com.luvina.la.payload.MessageResponse;
 import com.luvina.la.service.EmployeeService;
 import com.luvina.la.validator.EmployeeRequestValidator;
 import com.luvina.la.validator.InputValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller xử lý các yêu cầu liên quan đến nhân viên.
@@ -33,12 +36,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController {
+    /**
+     * Inject service để xử lý các logic nghiệp vụ liên quan đến nhân viên
+     */
     @Autowired
     private EmployeeService employeeService;
 
+    /**
+     * Inject validator để kiểm tra đầu vào cơ bản (có thể là định dạng, rỗng, kiểu dữ liệu,...)
+     */
     @Autowired
     private InputValidator inputValidator;
 
+    /**
+     * Inject validator dùng để kiểm tra các quy tắc phức tạp và logic nghiệp vụ ràng buộc liên quan đến request tạo/sửa nhân viên
+     */
     @Autowired
     private EmployeeRequestValidator employeeRequestValidator;
 
@@ -59,6 +71,7 @@ public class EmployeeController {
      * @throws DataAccessException Nếu có lỗi xảy ra trong quá trình truy xuất dữ liệu.
      */
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeResponse<List<EmployeeDTO>> getListEmployees(
             @RequestParam(name = "employee_name", required = false, defaultValue = "") String employeeName,
             @RequestParam(name = "department_id", required = false, defaultValue = "") String departmentId,
@@ -115,6 +128,7 @@ public class EmployeeController {
      * Nếu không thành công thì sẽ throw ra lỗi ở được handle ở GlobalException
      */
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeResponse addEmployee(@RequestBody EmployeeRequestDTO employeeRequest) {
         employeeRequestValidator.validateEmployee(employeeRequest, ModeConstants.MODE_ADD);
         return employeeService.addEmployee(employeeRequest);
@@ -130,6 +144,7 @@ public class EmployeeController {
      * Nếu không thành công thì sẽ throw ra lỗi ở được handle ở GlobalException
      */
     @PutMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeResponse updateEmployee(@RequestBody EmployeeRequestDTO employeeRequest) {
         employeeRequestValidator.validateEmployee(employeeRequest, ModeConstants.MODE_UPDATE);
         return employeeService.updateEmployee(employeeRequest);
@@ -140,10 +155,19 @@ public class EmployeeController {
      *
      * @param id ID của nhân viên cần lấy thông tin.
      * @return Đối tượng {@link EmployeeResponseDTO} chứa thông tin chi tiết của nhân viên.
+     * Nếu không có nhân viên ứng với Id thì ra lỗi với mã lỗi ER013
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeResponseDTO getEmployeeById(@PathVariable Long id) {
-        return employeeService.getEmployeeById(id);
+        Optional<Employee> employee = employeeService.findByEmployeeId(id); // Tìm employee theo Id
+
+        if (employee.isEmpty()) { // Nếu không tìm thấy
+            // Trả về response với trạng thái INTERNAL_SERVER_ERROR và mã lỗi ER013
+            MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER013, new ArrayList<>());
+            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, messageResponse);
+        }
+        return employeeService.getEmployeeById(employee.get()); // Nếu tìm thấy nhân viên thì trả về giá trị nhận được từ getEmployeeById
     }
 
     /**
@@ -154,9 +178,27 @@ public class EmployeeController {
      *
      * @param id ID của nhân viên cần xóa.
      * @return {@link EmployeeResponse} với thông tin phản hồi từ service.
+     * Nếu không có nhân viên ứng với Id thì ra lỗi với mã lỗi ER014
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeResponse deleteEmployeeById(@PathVariable Long id) {
-        return employeeService.deleteEmployeeById(id);
+        Optional<Employee> employee = employeeService.findByEmployeeId(id); // Tìm employee theo Id
+
+        if (employee.isEmpty()) { // Nếu không tìm thấy
+            List<String> params = new ArrayList<>();
+            params.add(ValidationFieldNameMapper.getDisplayName(FieldKey.ID.key())); // Add thuộc tính ＩＤ và params
+            MessageResponse messageResponse = new MessageResponse(ErrorCodeConstants.ER014, params);
+            // Trả về response với trạng thái INTERNAL_SERVER_ERROR và mã lỗi ER014
+            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, id, messageResponse);
+        }
+
+        if (EmployeeRole.ADMIN.equals(employee.get().getEmployeeRole())) { // Nếu có nhân viên nhưng nhân viên có role ADMIN
+            MessageResponse message = new MessageResponse(ErrorCodeConstants.ER020, new ArrayList<>());
+            // Trả về response với trạng thái INTERNAL_SERVER_ERROR và mã lỗi ER020
+            throw new BusinessException(HttpStatusConstants.INTERNAL_SERVER_ERROR, id, message);
+        }
+
+        return employeeService.deleteEmployeeById(employee.get());
     }
 }

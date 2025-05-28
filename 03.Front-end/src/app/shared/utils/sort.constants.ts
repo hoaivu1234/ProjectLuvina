@@ -1,8 +1,7 @@
 export const SORT = {
       ICONS: {
-            DEFAULT: '▲▽',
-            ASC: '△',
-            DESC: '▼',
+            ASC: '▲▽',
+            DESC: '▼△',
       },
       COLUMNS: {
             NAME: 'Name',

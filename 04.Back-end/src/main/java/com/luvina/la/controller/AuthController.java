@@ -8,6 +8,8 @@ import com.luvina.la.config.jwt.JwtTokenProvider;
 import com.luvina.la.config.jwt.UserDetailsServiceImpl;
 import com.luvina.la.payload.LoginRequest;
 import com.luvina.la.payload.LoginResponse;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,9 +61,12 @@ public class AuthController {
 
             // Lấy thông tin của user
             AuthUserDetails userDetails = (AuthUserDetails) authentication.getPrincipal();
+            // Lấy danh sách các quyền (roles)
+            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
-            // Kiểm tra xem tài khoản đăng nhâp có role là ADMIN không
-            boolean isAdmin = userDetails.getEmployee().getEmployeeRole().equals(EmployeeRole.ADMIN);
+            // Kiểm tra xem user có role admin không
+            boolean isAdmin = authorities.stream()
+                    .anyMatch(auth -> ("ROLE_ADMIN").equals(auth.getAuthority()));
 
             if (!isAdmin) { // Nếu không phải ADMIN
                 errors.put("code", ErrorCodeConstants.ER016); // thì trả về lỗi và không cho đăng nhập

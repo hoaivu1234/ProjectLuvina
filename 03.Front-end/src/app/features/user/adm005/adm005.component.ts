@@ -28,12 +28,10 @@ import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
  * @author hoaivd
  */
 export class Adm005Component {
-  listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
-  listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
   dataConfirm: any; // Dữ liệu gửi từ ADM004 sang
-  employeeId!: number;
-  mode!: string;
-  submitting: boolean = false;
+  employeeId!: number; // Lưu Id của nhân viên được gửi từ ADM004 sang
+  mode!: string; // Chế độ thao tác với form: add hay update
+  submitting: boolean = false; // Biến để kiếm soát trạng thái khi người dùng click liên tục button [OK] để thêm mới hoặc cập nhật nhân viên
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -57,7 +55,7 @@ export class Adm005Component {
    *
    * Thực hiện các bước sau:
    * - Đọc dữ liệu xác nhận dataConfirm từ navigation state.
-   * - Nếu không có dữ liệu dataConfirm, chuyển hướng tới trang lỗi.
+   * - Nếu không có dữ liệu dataConfirm, chuyển hướng tới System Error.
    * - Đọc employeeId từ navigation state để xác định chế độ (add/update).
    * - Nếu employeeId không hợp lệ hoặc không tồn tại: đặt chế độ là MODE_ADD
    * - Nếu employeeId hợp lệ: đặt chế độ là MODE_UPDATE và gọi getEmployeeById() để lấy thông tin nhân viên.
@@ -65,35 +63,34 @@ export class Adm005Component {
   ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
     this.dataConfirm = history.state?.dataConfirm;
-    // Nếu không có dataConfirm, chuyển hướng đến trang lỗi
-    if (!this.dataConfirm) {
-      this.router.navigate(['error']);
+    if (!this.dataConfirm) { // Nếu không có dataConfirm
+      this.router.navigate(['error']); // chuyển hướng đến màn System Error
     }
 
     this.employeeId = history.state?.employeeId;  // Lấy employeeId từ navigation state
-    if (isNaN(Number(this.employeeId)) || !this.employeeId) {
-      this.mode = MODE.MODE_ADD;
-    } else {
-      this.mode = MODE.MODE_UPDATE;
-      this.getEmployeeById(this.employeeId);
+    if (isNaN(Number(this.employeeId)) || !this.employeeId) { // Nếu không có giá trị employeeId
+      this.mode = MODE.MODE_ADD; // Trạng thái của màn hình là Add
+    } else { // Nếu có giá trị của employeeId
+      this.mode = MODE.MODE_UPDATE; // Trạng thái của màn hình là Update
+      this.getEmployeeById(this.employeeId); // Gọi API để kiểm tra nhân viên có tồn tại hay không theo ID được truyền sang. 
     }
   }
 
   /**
-   * Gọi API backend để lấy thông tin chi tiết của nhân viên theo ID.
-   *
+   * Gọi API backend để kiểm tra nhân viên có tồn tại hay không theo ID.
+   * Nếu không tồn tại nhân viên thì điều hướng đến màn SystemError và truyền mã lỗi tương ứng nhận được từ response
+   * 
    * @param {number} employeeId - ID của nhân viên cần truy vấn.
    */
   getEmployeeById(employeeId: number) {
     // Gọi service để lấy thông tin nhân viên theo ID.
     this.employeeService.getEmployeeById(employeeId).subscribe({
-      next: (data) => {
+      next: (data) => { // Nếu thành công
         console.log(data);
       },
-      error: (err) => {
-        // Nếu xảy ra lỗi, điều hướng đến SystemError và truyền mã lỗi.
-        this.router.navigate(['error'], {
-          state: { errorCode: err?.error?.message?.code }
+      error: (err) => { // Nếu thấy bại
+        this.router.navigate(['error'], { // Điều hướng đến SystemError
+          state: { errorCode: err?.error?.message?.code } // truyền mã lỗi tương ứng nhận được từ response
         });
       }
     })
@@ -105,9 +102,11 @@ export class Adm005Component {
    * - update: thì truyền this.employeeId, this.dataConfirm và fromPage
    */
   hanleBack() {
-    if (this.mode == MODE.MODE_ADD) {
+    if (this.mode == MODE.MODE_ADD) { // Nếu trạng thái màn hình là add
+      // Điều hướng về màn hình ADM004 và truyền state chứa dữ liệu nhân viên đã nhận và trạng thái đã di chuyển từ màn hình ADM005 về
       this.router.navigate(['/user/adm004'], { state: { dataReceived: this.dataConfirm, fromPage: PAGE.ADM005 } });
-    } else if (this.mode == MODE.MODE_UPDATE) {
+    } else if (this.mode == MODE.MODE_UPDATE) { // Nếu trạng thái màn hình là update
+      // Điều hướng về màn hình ADM004 và truyền state chứa Id nhân viên, dữ liệu nhân viên đã nhận và trạng thái đã di chuyển từ màn hình ADM005 về
       this.router.navigate(['/user/adm004'], { state: { employeeId: this.employeeId, dataReceived: this.dataConfirm, fromPage: PAGE.ADM005 } });
     }
   }
@@ -121,33 +120,31 @@ export class Adm005Component {
    * @returns clonedData - Dữ liệu đã được xử lý sẵn để gửi lên server
    */
   transformDataSubmit(): any {
-    const clonedData = { ...this.dataConfirm };
-
+    const clonedData = { ...this.dataConfirm }; // Tạo clone data từ dữ liệu nhận được từ ADM004
+    // Biến đổi employeeBirthDate về định dạng 'yyyy/MM/dd'
     clonedData.employeeBirthDate = this.datePipe.transform(clonedData.employeeBirthDate, 'yyyy/MM/dd');
+    
+    if (this.mode == MODE.MODE_ADD) delete clonedData.employeeId; // Nếu là mode add thì xóa trường employeeId
+    delete clonedData.departmentName; // Xóa trường departmentName
+    delete clonedData.employeeReLoginPassword; // Xóa trường employeeReLoginPassword
 
-    if (clonedData?.departmentName) delete clonedData.departmentName;
-
-    if (this.mode == MODE.MODE_ADD) delete clonedData.employeeId;
-
-    delete clonedData.employeeReLoginPassword;
-
-    if (clonedData.certifications) {
-      const hasEmptyCertId = clonedData.certifications.some(
+    if (clonedData.certifications) {  // Nếu nhân viên có danh sách chứng chỉ
+      const hasEmptyCertId = clonedData.certifications.some( // Tìm chứng chỉ trong danh sách có giá trị Id rỗng
         (cert: any) => cert.certificationId === "" || !cert.certificationId
       );
 
-      if (hasEmptyCertId) {
-        delete clonedData.certifications;
-      } else {
-        clonedData.certifications.forEach((cert: any) => {
-          if (cert?.certificationName) delete cert.certificationName;
-          cert.startDate = this.datePipe.transform(cert.startDate, 'yyyy/MM/dd');
-          cert.endDate = this.datePipe.transform(cert.endDate, 'yyyy/MM/dd');
+      if (hasEmptyCertId) { // Nếu có trường có Id rỗng
+        delete clonedData.certifications; // thì xóa chứng chỉ
+      } else { // Nếu không
+        clonedData.certifications.forEach((cert: any) => { // duyệt qua từng phần tử trong danh sách chứng chỉ
+          delete cert.certificationName; // Xóa trường certificationName
+          cert.startDate = this.datePipe.transform(cert.startDate, 'yyyy/MM/dd'); // Biến đổi startDate về định dạng 'yyyy/MM/dd'
+          cert.endDate = this.datePipe.transform(cert.endDate, 'yyyy/MM/dd'); // Biến đổi endDate về định dạng 'yyyy/MM/dd'
         });
       }
     }
 
-    return clonedData;
+    return clonedData; // Dữ liệu được gửi tới API
   }
 
   /**
@@ -158,12 +155,12 @@ export class Adm005Component {
    * MODE_UPDATE: Gọi API updateEmployee() với dữ liệu đã chuyển đổi.
    *
    * Kết quả xử lý:
-   * - Nếu thành công: điều hướng đến màn hình hoàn tất (/user/adm006) và truyền mã xác nhận (completeCode).
-   * - Nếu thất bại: điều hướng đến màn hình lỗi (/error) và truyền mã lỗi (errorCode) cùng thông tin trường gây lỗi (fieldError).
+   * - Nếu thành công: điều hướng đến màn hình ADM006 và truyền mã xác nhận (completeCode).
+   * - Nếu thất bại: điều hướng đến màn hình System Error và truyền mã lỗi (errorCode) cùng thông tin trường gây lỗi (fieldError).
    */
   submitForm() {
-    if (this.submitting) return; // tránh spam
-    this.submitting = true;
+    if (this.submitting) return; // Nếu đã thêm mới hoặc cập nhật trước đó rồi thì không làm gì cả để trách gọi API nhiều lần liên tục
+    this.submitting = true; // Cập nhật trạng thái bản ghi đã được thao tác thêm mới hoặc cập nhật
 
     // Chuyển đổi dữ liệu form để chuẩn bị gửi lên server
     const clonedData = this.transformDataSubmit();
@@ -174,12 +171,12 @@ export class Adm005Component {
   
     // Subscribe response trả về
     request$.subscribe({
-      next: (data: any) => { // Trường hợp request thành công
-        this.router.navigate(['user/adm006'], {  // Điều hướng đến màn adm006, truyền mã thông báo để hiển thị thông báo
+      next: (data: any) => { // Nếu thành công
+        this.router.navigate(['user/adm006'], {  // Điều hướng đến màn ADM006, truyền mã thông báo để hiển thị thông báo
           state: { completeCode: data?.message?.code }
         });
       },
-      error: (err) => { // Trường hợp xảy ra lỗi khi gọi API
+      error: (err) => { // Nếu thất bại
         const errorMessage = err?.error?.message; // Lấy thông tin lỗi từ đối tượng phản hồi
         const errorCode = err?.error?.code; // Lấy mã lỗi chính
         if (errorMessage?.code) { // Nếu có mã lỗi trong phần message (BusinessException định dạng đầy đủ)

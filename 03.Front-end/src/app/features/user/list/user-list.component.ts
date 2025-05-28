@@ -42,9 +42,9 @@ export class UserListComponent {
 
   // Đối tượng chứa icon sắp xếp hiện tại cho từng cột
   sortIcons: { [key: string]: string } = {
-    [SORT.COLUMNS.NAME]: SORT.ICONS.DEFAULT,           // Icon sắp xếp cho cột tên
-    [SORT.COLUMNS.CERTIFICATION]: SORT.ICONS.DEFAULT,  // Icon sắp xếp cho cột chứng chỉ
-    [SORT.COLUMNS.END_DATE]: SORT.ICONS.DEFAULT,       // Icon sắp xếp cho cột ngày kết thúc
+    [SORT.COLUMNS.NAME]: SORT.ICONS.ASC,           // Icon sắp xếp tăng dần cho cột tên
+    [SORT.COLUMNS.CERTIFICATION]: SORT.ICONS.ASC,  // Icon sắp xếp tăng dần cho cột chứng chỉ
+    [SORT.COLUMNS.END_DATE]: SORT.ICONS.ASC,       // Icon sắp xếp tăng dần cho cột ngày kết thúc
   };
 
   currentSortColumn: string = '';   // Tên cột đang được dùng để sắp xếp (hiển thị cho UI)
@@ -255,9 +255,9 @@ export class UserListComponent {
    * @returns Biểu tượng mới sau khi thay đổi
    */
   changeSortIcon(currentIcon: string): string {
-    return currentIcon === SORT.ICONS.DEFAULT // Nếu biểu tượng sort đang là mặc định (nghĩa là ASC)
-      ? `${SORT.ICONS.DESC}${SORT.ICONS.ASC}` // Thì đổi thành DESC
-      : SORT.ICONS.DEFAULT; // Nếu không (nghĩa là đang DESC) thì chuyển thành ASC
+    return currentIcon === SORT.ICONS.ASC // Nếu biểu tượng sort đang là mặc định (nghĩa là ASC)
+      ? SORT.ICONS.DESC // Thì đổi thành DESC
+      : SORT.ICONS.ASC; // Nếu không (nghĩa là đang DESC) thì chuyển thành ASC
   }
 
   /**
@@ -271,7 +271,7 @@ export class UserListComponent {
     this.currentPage = PAGINATION.DEFAULT_PAGE; // Di chuyển về trang đầu tiên
     this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]); // Cập nhật biểu tượng sort hiện tại
 
-    const sortOrder = this.sortIcons[column] === SORT.ICONS.DEFAULT // Nếu cột áp dụng sort có biểu tượng sort mặc định (▲▽)
+    const sortOrder = this.sortIcons[column] === SORT.ICONS.ASC // Nếu cột áp dụng sort có biểu tượng sort mặc định ASC (▲▽)
       ? SORT.ORDERS.ASC // Thì gán thứ tự sort là ASC
       : SORT.ORDERS.DESC; // Nếu không thì gán thứ tự sort là DESC
 
