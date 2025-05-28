@@ -31,7 +31,7 @@ public class EmployeeResponse<T> {
      * Tổng số bản ghi trả về. Chỉ được đưa vào nếu giá trị không phải là mặc định (0).
      * Được sử dụng khi có phân trang hoặc khi cần báo cáo tổng số bản ghi.
      */
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)  // Không bao gồm giá trị mặc định (0) trong JSON
+//    @JsonInclude(JsonInclude.Include.NON_DEFAULT)  // Không bao gồm giá trị mặc định (0) trong JSON
     private int totalRecords;
 
     /**

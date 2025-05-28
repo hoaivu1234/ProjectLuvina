@@ -4,7 +4,7 @@
 */
 
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Certification } from 'src/app/model/certification.model';
 import { Department } from 'src/app/model/department.model';
@@ -12,7 +12,6 @@ import { CertificationService } from 'src/app/service/certification.service';
 import { DepartmentService } from 'src/app/service/department.service';
 import { EmployeeService } from 'src/app/service/employee.service';
 import { ValidateFormService } from 'src/app/service/validate-form.service';
-import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
 import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
@@ -32,14 +31,13 @@ import { MODE, PAGE } from 'src/app/shared/utils/mode-constant';
  */
 
 export class ADM004Component {
-  @ViewChild('firstInput') firstInput!: ElementRef;
-  @ViewChild('secondInput') secondInput!: ElementRef;
+  @ViewChild('firstInput') firstInput!: ElementRef; // Tham chiếu đến phần tử đầu tiên trong form
+  @ViewChild('secondInput') secondInput!: ElementRef; // Tham chiếu đến phần tử thứ 2 trong form
 
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị trong dropdown
   listCertifications: Certification[] = [];  // Danh sách các trình độ tiếng nhật, được dùng để hiển thị trong dropdown
-  generalErrorMessage: string = '';  // Lỗi chung của màn hình như gọi API lỗi, server trả về lỗi
   employeeForm!: FormGroup; // Form để thao tác với employee
-  dataReceived: any; // Dữ liệu từ ADM005 back về
+  dataReceived: any; // Dữ liệu dùng để patch vào form, được nhận từ ADM005 chuyển sang hoặc gọi API getEmployeeById với id được truyền từ màn ADM003 sang
   ERROR_MESSAGES = ERROR_MESSAGES; // Danh sách message lỗi constant chứa nội dung message
   ERROR_CODES = ERROR_CODES; // Danh sách mã lỗi  
   employeeId!: number; // Lưu Id của nhân viên được lấy từ router state
@@ -66,7 +64,7 @@ export class ADM004Component {
 
   /**
    * Lifecycle hook khởi chạy khi component được khởi tạo.
-   * Gọi các hàm để lấy dữ liệu phòng ban, trình độ tiếng nhật và tạo dữ liệu cho form.
+   * Gọi các hàm để lấy dữ liệu phòng ban, trình độ tiếng nhật, tạo dữ liệu cho form và cập nhật các cài đặt hiện tài cho màn hình.
    */
   ngOnInit(): void {
     this.extractNavigationState(); // Kiểm tra xem di chuyển từ màn hình nào sang và lấy các giá trị được truyền từ router state
@@ -132,7 +130,7 @@ export class ADM004Component {
 
   /**
    * Focus vào hạng mục đầu tiên khi vào màn hình nếu là mode add
-   * Nếu là mode update thì Focus vào hạng mục thứ hai
+   * Nếu là mode update thì Focus vào hạng mục thứ hai vì employeeLoginId bị disable
    */
   ngAfterViewInit(): void {
     this.mode == MODE.MODE_ADD ? this.firstInput.nativeElement.focus() : this.secondInput.nativeElement.focus();
@@ -147,25 +145,25 @@ export class ADM004Component {
   }
 
   /**
-   * Patch dữ liệu cho form array
+   * Patch dữ liệu cho form array chứa dữ liệu chứng chỉ của nhân viên
    */
   patchValueForCertifications(): void {
     if (this.dataReceived?.certifications) { // Nếu certifications có dữ liệu thì mới patch
-      const certificationsArray = this.certifications;
+      const certificationsArray = this.certifications; // Lấy formArray từ formGroup
 
       // Xóa các certifications cũ
-      while (certificationsArray.length > 0) {
-        certificationsArray.removeAt(0);
+      while (certificationsArray.length > 0) { // Khi mà formArray vẫn có giá trị
+        certificationsArray.removeAt(0); // thì xóa group đầu tiên vì nhân viên chỉ lưu 1 chứng chỉ
       }
 
       // Thêm certifications mới
-      this.dataReceived.certifications.forEach((cert: any) => {
-        certificationsArray.push(
-          this.fb.group({
-            certificationId: [cert.certificationId],
-            startDate: [{ value: cert.startDate, disabled: false }],  // Bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
-            endDate: [{ value: cert.endDate, disabled: false }],
-            score: [{ value: cert.score, disabled: false }],
+      this.dataReceived.certifications.forEach((cert: any) => { // Duyệt qua danh sách nhân viên của data nhận được
+        certificationsArray.push( // Truyền vào formArray
+          this.fb.group({ // 1 formGroup chứa các thông tin
+            certificationId: [cert.certificationId], // Id chứng chỉ
+            startDate: [{ value: cert.startDate, disabled: false }],  // Ngày bắt đầu, bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
+            endDate: [{ value: cert.endDate, disabled: false }], // Ngày kết thúc, bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
+            score: [{ value: cert.score, disabled: false }], // Điểm số, bỏ disabled để thao tác tiếp với certifications mà không cần phải chọn lại giá trị
           })
         );
       });
@@ -203,11 +201,11 @@ export class ADM004Component {
    */
   setValidatorsForUpdateMode(): void {
     this.employeeForm.get('employeeLoginPassword')?.setValidators([
-      this.validationService.checkLengthRangePassword(8, 50)
+      this.validationService.checkLengthRangePassword(8, 50) // Set trạng thái employeeLoginPassword phải validate trường hợp độ dài từ 8 đến 50 ký tự.
     ]);
     this.employeeForm.get('employeeReLoginPassword')?.clearValidators(); // không cần required
 
-    this.employeeForm.updateValueAndValidity();
+    this.employeeForm.updateValueAndValidity(); // Cập nhật trạng thái FormControl.
   }
 
 
@@ -229,19 +227,23 @@ export class ADM004Component {
       employeeReLoginPassword: [null],
       certifications: this.fb.array([]),
     }, {
+      // Validators cấp FormGroup dùng để kiểm tra 2 trường mật khẩu (`employeeLoginPassword`) và
+      // xác nhận mật khẩu (`employeeReLoginPassword`) có giống nhau hay không.
       validators: this.validationService.checkPasswordMatch(this.mode)
     });
 
     this.addCertification();
 
-    // update lại validatior của employeeLoginPassword khi có thay đổi giá trị
+    // Cập nhật lại toàn bộ validation của form mỗi khi người dùng thay đổi giá trị của trường employeeLoginPassword.
+    // Vì đây là validator cấp FormGroup, Angular không tự động re-evaluate form khi chỉ một field con thay đổi.
+    // Vì vậy, cần tự kích hoạt lại việc validate toàn form mỗi khi người dùng thay đổi
     this.employeeForm.get('employeeLoginPassword')?.valueChanges.subscribe(() => {
-      this.employeeForm.updateValueAndValidity({ onlySelf: false });
+      this.employeeForm.updateValueAndValidity({ onlySelf: false }); // onlySelf:  không chỉ cập nhật riêng field đó, mà cập nhật lại toàn bộ form, bao gồm cả các validator cấp FormGroup
     });
 
-    // update lại validatior của employeeReLoginPassword khi có thay đổi giá trị
+    // Cập nhật lại toàn bộ validation của form mỗi khi người dùng thay đổi giá trị của trường employeeReLoginPassword.
     this.employeeForm.get('employeeReLoginPassword')?.valueChanges.subscribe(() => {
-      this.employeeForm.updateValueAndValidity({ onlySelf: false });
+      this.employeeForm.updateValueAndValidity({ onlySelf: false }); // onlySelf:  không chỉ cập nhật riêng field đó, mà cập nhật lại toàn bộ form, bao gồm cả các validator cấp FormGroup
     });
   }
 
@@ -257,16 +259,16 @@ export class ADM004Component {
       endDate: [{ value: null, disabled: true }],
       score: [{ value: null, disabled: true }],
     }, {
-      validators: this.validationService.checkLargerThanStartDate()
+      validators: this.validationService.checkLargerThanStartDate() // Validators dùng để kiểm tra `endDate` phải lớn hơn `startDate`.
     });
 
-    // update lại validatior của startDate trong certifications khi có thay đổi giá trị
+    // Cập nhật lại toàn bộ validation của formArray mỗi khi người dùng thay đổi giá trị của trường startDate.
     this.certifications.push(certificationGroup);
     this.certifications.get('startDate')?.valueChanges.subscribe(() => {
       this.certifications.updateValueAndValidity({ onlySelf: false });
     });
 
-    // update lại validatior của endDate trong certifications khi có thay đổi giá trị
+    // Cập nhật lại toàn bộ validation của formArray mỗi khi người dùng thay đổi giá trị của trường endDate.
     this.certifications.get('endDate')?.valueChanges.subscribe(() => {
       this.certifications.updateValueAndValidity({ onlySelf: false });
     });
@@ -285,18 +287,8 @@ export class ADM004Component {
    * @returns true nếu đã chọn chứng chỉ, ngược lại là false
    */
   isCertSelected(index: number): boolean {
-    const certGroup = this.certifications.at(index) as FormGroup;
-    return !!certGroup.get('certificationId')?.value;
-  }
-
-  /**
-   * Xác định xem các trường ngày hiệu lực, ngày hết hạn, điểm có bắt buộc hay không
-   * Dựa trên việc đã chọn chứng chỉ tại vị trí `index`
-   * @param index - vị trí chứng chỉ
-   * @returns true nếu cần required, ngược lại là false
-   */
-  isRequired(index: number): boolean {
-    return this.isCertSelected(index);
+    const certGroup = this.certifications.at(index) as FormGroup; // Lấy formArray của phần tử thứ index
+    return !!certGroup.get('certificationId')?.value; // Nếu formControl certificationId có giá trị thì trả về true, ngược lại là false
   }
 
   /**
@@ -309,12 +301,13 @@ export class ADM004Component {
    * @param item Đối tượng phòng ban được chọn từ dropdown hoặc null khi bỏ chọn.
    */
   handleChangeDepartmentId(item: any) {
-    const departmentId = item.target.value;
-    if (departmentId) {
+    const departmentId = item.target.value; // Lấy giá trị departmentId đã chọn từ event
+    if (departmentId) { // Nếu departmentId có giá trị
+      // Tìm phần tử department trong listDepartments có departmentId bằng với departmentId từ event
       const department = this.listDepartments.find((item: any) => item.departmentId == departmentId);
-      this.employeeForm.get('departmentName')?.setValue(department?.departmentName);
+      this.employeeForm.get('departmentName')?.setValue(department?.departmentName); // set giá trị cho formControl departmentName bằng departmentName của phần tử đó
     } else {
-      this.employeeForm.get('departmentName')?.setValue(null);
+      this.employeeForm.get('departmentName')?.setValue(null); // Nếu departmentId không có giá trị thì set giá trị cho formControl departmentName bằng null
     }
   }
 
@@ -325,27 +318,25 @@ export class ADM004Component {
    * @param index - vị trí chứng chỉ trong mảng
    */
   handleChangeCertificationId(index: number): void {
-    const certGroup = this.certifications.at(index) as FormGroup;
-    const selectedId = certGroup.get('certificationId')?.value;
+    const certGroup = this.certifications.at(index) as FormGroup; // Lấy formArray của phần tử thứ index
+    const selectedId = certGroup.get('certificationId')?.value; // Lấy giá trị của formControl certificationId
 
-    const controlsToUpdate = [
+    const controlsToUpdate = [ // Tạo object chứa tên các control
       'certificationName',
       'startDate',
       'endDate',
       'score',
     ];
 
-    if (!selectedId) {
-      // Khi chọn lại về rỗng
-      controlsToUpdate.forEach(controlName => {
-        const control = certGroup.get(controlName);
-        control?.disable();
-        control?.reset();
-        control?.clearValidators();
-        control?.updateValueAndValidity();
+    if (!selectedId) { // Nếu selectedId không có giá trị (chọn lại về rỗng)
+      controlsToUpdate.forEach(controlName => { // Duyệt qua danh sách tên control 
+        const control = certGroup.get(controlName); // Lấy formControl tương ứng với tên control
+        control?.disable(); // disable formControl
+        control?.reset(); // reset giá trị formControl
+        control?.clearValidators(); // xóa các validator của formControl
+        control?.updateValueAndValidity(); // Cập nhật lại toàn bộ validation của formArray
       });
-    } else {
-
+    } else { // Nếu selectedId có giá trị (chọn khác rỗng)
       const certification = this.listCertifications.find((item: any) => item.certificationId == selectedId);
       // Khi chọn một chứng chỉ hợp lệ
       controlsToUpdate.forEach(controlName => {
@@ -380,7 +371,6 @@ export class ADM004Component {
         this.patchValueToForm();
       },
       error: (err) => {
-        console.log(err);
         // Nếu xảy ra lỗi, điều hướng đến SystemError và truyền mã lỗi.
         this.router.navigate(['error'], {
           state: { errorCode: err?.error?.message?.code }
@@ -398,10 +388,8 @@ export class ADM004Component {
     this.departmentService.getListDepartment().subscribe({
       next: (value) => {
         this.listDepartments = value?.departments;  // gán giá trị cho listDepartments
-        console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_SUCCESS);
       },
       error: () => {
-        console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
       },
     });
@@ -416,10 +404,8 @@ export class ADM004Component {
     this.certificationService.getListCertifications().subscribe({
       next: (value) => {
         this.listCertifications = value?.certifications;
-        console.log(CONSOLE_MESSAGES.CERTIFICATION.FETCH_SUCCESS);
       },
       error: () => {
-        console.log(CONSOLE_MESSAGES.CERTIFICATION.FETCH_FAILED);
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.CERTIFICATION_FETCH_FAILED } });
       },
     });

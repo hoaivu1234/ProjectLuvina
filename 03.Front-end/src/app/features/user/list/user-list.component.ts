@@ -13,7 +13,6 @@ import { Router } from '@angular/router';
 import { MSG } from 'src/app/shared/utils/messages.constants';
 import { PAGINATION } from 'src/app/shared/utils/pagination.constants';
 import { SORT } from 'src/app/shared/utils/sort.constants';
-import { CONSOLE_MESSAGES } from 'src/app/shared/utils/console-message.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 import { PAGE } from 'src/app/shared/utils/mode-constant';
 
@@ -145,10 +144,8 @@ export class UserListComponent {
     this.departmentService.getListDepartment().subscribe({
       next: (value) => { // Nếu thành công
         this.listDepartments = value?.departments;  // Gán dữ liệu cho listDepartment từ response trả về
-        console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_SUCCESS);
       },
       error: () => { // Nếu thất bại
-        console.log(CONSOLE_MESSAGES.DEPARTMENT.FETCH_FAILED);
         // Điều hướng đến màn hình System Error với mã lỗi tương ứng
         this.router.navigate(['error'], { state: { errorCode: ERROR_CODES.DEPARTMENT_FETCH_FAILED } });
       },
@@ -210,10 +207,8 @@ export class UserListComponent {
 
         // Thông báo chỉ được cho phép hiển thị khi call API xong
         this.isShowMessage = true;  // Cho phép hiển thị thông báo không có bản ghi nào (nếu có)
-        console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_SUCCESS);
       },
       error: () => {
-        console.log(CONSOLE_MESSAGES.EMPLOYEE.FETCH_FAILED);
         // Chuyển hướng sang màn hình System Error và truyền mã lỗi tương ứng để hiển thị chi tiết lỗi
         this.router.navigate(['error'], {
           state: { errorCode: ERROR_CODES.EMPLOYEE_FETCH_FAILED }
@@ -254,15 +249,15 @@ export class UserListComponent {
   }
 
   /**
-   * Thay đổi biểu tượng sắp xếp giữa trạng thái mặc định và tăng/giảm.
+   * Thay đổi biểu tượng sắp xếp giữa trạng thái mặc định và asc/desc.
    *
    * @param currentIcon Biểu tượng hiện tại của cột
    * @returns Biểu tượng mới sau khi thay đổi
    */
   changeSortIcon(currentIcon: string): string {
-    return currentIcon === SORT.ICONS.DEFAULT
-      ? `${SORT.ICONS.ASC}${SORT.ICONS.DESC}`
-      : SORT.ICONS.DEFAULT;
+    return currentIcon === SORT.ICONS.DEFAULT // Nếu biểu tượng sort đang là mặc định (nghĩa là ASC)
+      ? `${SORT.ICONS.DESC}${SORT.ICONS.ASC}` // Thì đổi thành DESC
+      : SORT.ICONS.DEFAULT; // Nếu không (nghĩa là đang DESC) thì chuyển thành ASC
   }
 
   /**
@@ -273,36 +268,39 @@ export class UserListComponent {
    * @param sortField Trường dữ liệu tương ứng với cột để gửi lên API
    */
   handleSort(column: string, sortField: string) {
-    this.currentPage = PAGINATION.DEFAULT_PAGE;
-    this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]);
+    this.currentPage = PAGINATION.DEFAULT_PAGE; // Di chuyển về trang đầu tiên
+    this.sortIcons[column] = this.changeSortIcon(this.sortIcons[column]); // Cập nhật biểu tượng sort hiện tại
 
-    const sortOrder = this.sortIcons[column] === SORT.ICONS.DEFAULT
-      ? SORT.ORDERS.ASC
-      : SORT.ORDERS.DESC;
+    const sortOrder = this.sortIcons[column] === SORT.ICONS.DEFAULT // Nếu cột áp dụng sort có biểu tượng sort mặc định (▲▽)
+      ? SORT.ORDERS.ASC // Thì gán thứ tự sort là ASC
+      : SORT.ORDERS.DESC; // Nếu không thì gán thứ tự sort là DESC
 
-    this.currentSortColumn = column;
-    this.currentSortOrder = sortOrder;
-    this.currentSortField = sortField;
+    this.currentSortColumn = column;  // Cập nhật cột hiện tại được sort
+    this.currentSortField = sortField; // Cập nhật trường dữ liệu thực tế được sort
+    this.currentSortOrder = sortOrder; // Cập nhật thứ tự sort
 
-    this.saveCurrentState();
+    this.saveCurrentState(); // Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
 
-    this.getListEmployee(this.employeeName, this.selectedDepartment);
+    this.getListEmployee(this.employeeName, this.selectedDepartment); // Gọi API để lấy danh sách nhân viên với các tham số lọc, sắp xếp và phân trang.
   }
 
   /**
-   * Điều hướng đến màn hình ADM004
+   * Lưu trạng thái của màn hình, sau đó điều hướng đến màn hình ADM004
    */
   openADM004() {
-    this.saveCurrentState();
+    this.saveCurrentState();  // Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
+    // Điều hướng đến màn hình ADM004 và truyền giá trị PAGE.ADM002 cho fromPage
+    // fromPage dùng để kiểm tra di chuyển từ màn hình nào sang màn ADM004 để set chế độ add hay edit cho màn hình.
     this.router.navigate(['/user/adm004'], { state: { fromPage: PAGE.ADM002 } });
   }
 
   /**
-   * Điều hướng đến màn lấy chi tiết nhân viên với Id đã chọn
+   * Lưu trạng thái của màn hình, sau đó điều hướng đến màn ADM003 với Id đã chọn
    * @param id Id của employee tương ứng cần xem dữ liệu chi tiết
    */
   getDetailEmployee(id: number | undefined) {
-    this.saveCurrentState();
+    this.saveCurrentState();  // Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
+    // Điều hướng đến màn hình ADM003 và truyền giá trị id là id của bản ghi đã chọn cho employeeId
     this.router.navigate(['/user/adm003'], { state: { employeeId: id } });
   }
 
@@ -323,10 +321,16 @@ export class UserListComponent {
    */
   private getSortParams() {
     return {
+      // Nếu cột đang được sort là Name thì gán giá trị thứ tự sắp xếp hiện tại cho tham số ordEmployeeName
+      // Nếu cột đang được sort không phải là Name thì gán giá trị rỗng
       ordEmployeeName: this.currentSortColumn === SORT.COLUMNS.NAME ? this.currentSortOrder : '',
+      // Nếu cột đang được sort là Certification thì gán giá trị thứ tự sắp xếp hiện tại cho tham số ordCertificationName
+      // Nếu cột đang được sort không phải là Certification thì gán giá trị rỗng
       ordCertificationName: this.currentSortColumn === SORT.COLUMNS.CERTIFICATION ? this.currentSortOrder : '',
+      // Nếu cột đang được sort là EndDate thì gán giá trị thứ tự sắp xếp hiện tại cho tham số ordEndDate
+      // Nếu cột đang được sort không phải là EndDate thì gán giá trị rỗng
       ordEndDate: this.currentSortColumn === SORT.COLUMNS.END_DATE ? this.currentSortOrder : '',
-      sortPriority: this.currentSortField
+      sortPriority: this.currentSortField // Gán giá trị trường ưu tiên sắp xếp cho trường hiện tại đang được sắp xếp
     };
   }
 }

@@ -7,9 +7,6 @@
           <form [formGroup]="employeeForm" class="c-form box-shadow was-validated" cdkTrapFocus>
             <ul>
               <li class="title">会員情報編集</li>
-              <li *ngIf="generalErrorMessage" class="box-err">
-                <div class="box-err-content">{{ generalErrorMessage }}</div>
-              </li>
 
               <!-- アカウント名: -->
               <li class="form-group row d-flex">
@@ -184,14 +181,14 @@
                   <!-- 資格交付日: -->
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2">
-                      <i class="relative">資格交付日:<span *ngIf="isRequired(i)" class="note-red">*</span></i>
+                      <i class="relative">資格交付日:<span *ngIf="isCertSelected(i)" class="note-red">*</span></i>
                     </label>
                     <div class="col-sm col-sm-10 d-flex">
                       <div class="input-group">
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="startDate" [readOnly]="isRequired(i)" [disabled]="!isCertSelected(i)"
+                          }" formControlName="startDate" [readOnly]="isCertSelected(i)" [disabled]="!isCertSelected(i)"
                           #startDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('startDate'))" class="invalid-feedback">
                           {{ validationService.getErrorMessage(cert.get('startDate'), '資格交付日') }}
@@ -206,14 +203,14 @@
                   <!-- 失効日: -->
                   <li class="form-group row d-flex">
                     <label class="col-form-label col-sm-2">
-                      <i class="relative">失効日:<span *ngIf="isRequired(i)" class="note-red">*</span></i>
+                      <i class="relative">失効日:<span *ngIf="isCertSelected(i)" class="note-red">*</span></i>
                     </label>
                     <div class="col-sm col-sm-10 d-flex">
                       <div class="input-group">
                         <input class="form-control" type="text" bsDatepicker [bsConfig]="{
                             dateInputFormat: 'YYYY/MM/DD',
                             containerClass: 'theme-green'
-                          }" formControlName="endDate" readonly [disabled]="!isCertSelected(i)"
+                          }" formControlName="endDate" [readOnly]="isCertSelected(i)" [disabled]="!isCertSelected(i)"
                           #endDate="bsDatepicker" />
                         <div *ngIf="validationService.shouldShowError(cert.get('endDate'))" class="invalid-feedback">
                           {{ validationService.getErrorMessage(cert.get('endDate'), '失効日') }}
@@ -231,7 +228,7 @@
 
                   <!-- 点数: -->
                   <li class="form-group row d-flex">
-                    <label class="col-form-label col-sm-2"><i class="relative">点数:<span *ngIf="isRequired(i)"
+                    <label class="col-form-label col-sm-2"><i class="relative">点数:<span *ngIf="isCertSelected(i)"
                           class="note-red">*</span></i></label>
                     <div class="col-sm col-sm-10">
                       <input type="text" class="form-control" formControlName="score" [disabled]="!isCertSelected(i)" />

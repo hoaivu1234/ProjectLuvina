@@ -31,7 +31,6 @@ public interface EmployeeRequestMapper {
      *   <li>{@code department} được ánh xạ từ {@code departmentId} bằng hàm {@link #toDepartment}</li>
      * </ul>
      */
-//    @Mapping(target = "employeeBirthDate", expression = "java(parseDate(dto.getEmployeeBirthDate()))")
     @Mapping(target = "employeeLoginPassword", ignore = true) // Bỏ qua ánh xạ trường này vì sẽ mã hóa mật khẩu thủ công.
     @Mapping(target = "department", expression = "java(toDepartment(dto.getDepartmentId()))")
     Employee toEntity(EmployeeRequestDTO dto);

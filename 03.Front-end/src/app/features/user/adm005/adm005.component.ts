@@ -33,6 +33,7 @@ export class Adm005Component {
   dataConfirm: any; // Dữ liệu gửi từ ADM004 sang
   employeeId!: number;
   mode!: string;
+  submitting: boolean = false;
 
   /**
    * Constructor khởi tạo component, inject các service cần thiết.
@@ -64,7 +65,6 @@ export class Adm005Component {
   ngOnInit() {
     // Lấy dataConfirm nếu được truyền qua navigation state
     this.dataConfirm = history.state?.dataConfirm;
-    console.log(this.dataConfirm)
     // Nếu không có dataConfirm, chuyển hướng đến trang lỗi
     if (!this.dataConfirm) {
       this.router.navigate(['error']);
@@ -91,7 +91,6 @@ export class Adm005Component {
         console.log(data);
       },
       error: (err) => {
-        console.log(err);
         // Nếu xảy ra lỗi, điều hướng đến SystemError và truyền mã lỗi.
         this.router.navigate(['error'], {
           state: { errorCode: err?.error?.message?.code }
@@ -163,9 +162,11 @@ export class Adm005Component {
    * - Nếu thất bại: điều hướng đến màn hình lỗi (/error) và truyền mã lỗi (errorCode) cùng thông tin trường gây lỗi (fieldError).
    */
   submitForm() {
+    if (this.submitting) return; // tránh spam
+    this.submitting = true;
+
     // Chuyển đổi dữ liệu form để chuẩn bị gửi lên server
     const clonedData = this.transformDataSubmit();
-
     // Xác định hành động cần thực hiện: thêm mới hoặc cập nhật nhân viên
     const request$ = this.mode === MODE.MODE_ADD
       ? this.employeeService.addEmployee(clonedData)
@@ -174,16 +175,13 @@ export class Adm005Component {
     // Subscribe response trả về
     request$.subscribe({
       next: (data: any) => { // Trường hợp request thành công
-        console.log(data);
         this.router.navigate(['user/adm006'], {  // Điều hướng đến màn adm006, truyền mã thông báo để hiển thị thông báo
           state: { completeCode: data?.message?.code }
         });
       },
       error: (err) => { // Trường hợp xảy ra lỗi khi gọi API
-        console.log(err);
         const errorMessage = err?.error?.message; // Lấy thông tin lỗi từ đối tượng phản hồi
         const errorCode = err?.error?.code; // Lấy mã lỗi chính
-  
         if (errorMessage?.code) { // Nếu có mã lỗi trong phần message (BusinessException định dạng đầy đủ)
           this.router.navigate(['error'], { // Điều hướng màn system error, truyền mã lỗi và thông tin trường lỗi đầu tiên
             state: {

@@ -100,7 +100,7 @@
                             {{ MSG['MSG004']}}
                           </div>
                           <div class="modal-footer">
-                            <button type="button" class="btn btn-confirm" (click)="handleDelete()">OK</button>
+                            <button type="button" class="btn btn-confirm" [disabled]="isDeleted" (click)="handleDelete()">OK</button>
                             <button type="button" class="btn btn-cancel" (click)="modalRef.hide()">戻る</button>
                           </div>
                         </div>

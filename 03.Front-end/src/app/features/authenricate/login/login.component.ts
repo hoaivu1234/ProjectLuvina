@@ -45,7 +45,6 @@ export class LoginComponent {
             }
           },
           error: (error) => { // Nếu thất bại
-            console.error(error);
             this.router.navigate(['error']) // Điều hướng đến màn System error
           }
         }
