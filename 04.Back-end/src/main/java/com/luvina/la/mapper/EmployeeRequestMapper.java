@@ -7,7 +7,6 @@ import com.luvina.la.entity.Employee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -36,10 +35,10 @@ public interface EmployeeRequestMapper {
     Employee toEntity(EmployeeRequestDTO dto);
 
     /**
-     * Hàm tiện ích để chuyển chuỗi ngày (dạng "yyyy-MM-dd") sang {@link java.sql.Date}.
+     * Hàm tiện ích để chuyển chuỗi ngày (dạng "yyyy-MM-dd") sang {@link java.time.LocalDate}.
      *
      * @param dateStr Chuỗi ngày sinh từ DTO
-     * @return Đối tượng {@link java.sql.Date} tương ứng
+     * @return Đối tượng {@link java.time.LocalDate} tương ứng
      */
     default LocalDate parseDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(EmployeeValidationConstant.DATE_FORMAT);

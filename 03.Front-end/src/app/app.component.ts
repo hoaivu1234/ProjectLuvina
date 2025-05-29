@@ -15,22 +15,25 @@ export class AppComponent implements OnInit {
   ) { }
 
   /**
-   * Write code on Method
+   * Lifecycle hook `ngOnInit` được gọi khi component khởi tạo.
    *
-   * @return response()
+   * Lắng nghe sự kiện thay đổi định tuyến (NavigationEnd),
+   * kiểm tra token đăng nhập trong `sessionStorage`:
+   * - Nếu không có token, điều hướng đến trang `/login`.
+   * - Nếu đã đăng nhập nhưng truy cập vào root (`/` hoặc rỗng), điều hướng đến `/user/list`.
    */
   ngOnInit(): void {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        const token = sessionStorage.getItem("access_token");
-        const currentUrl = this.router.url;
+        const token = sessionStorage.getItem("access_token"); // Lấy token từ sessionStorage
+        const currentUrl = this.router.url; // Lấy url hiện tại
 
-        if (!token) {
-          this.router.navigate(['/login']);
-        } else {
-          if (currentUrl === '/' || currentUrl === '') {
-            this.router.navigate(['/user/list']);
+        if (!token) { // Nếu không có token
+          this.router.navigate(['/login']); // Điều hướng đến trang login
+        } else { // Nếu có token
+          if (currentUrl === '/' || currentUrl === '') { // Nếu url = `/` hoặc rỗng
+            this.router.navigate(['/user/list']); // Điều hướng đến ADM002
           }
         }
       });

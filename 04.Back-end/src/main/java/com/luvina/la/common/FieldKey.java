@@ -1,3 +1,8 @@
+/**
+ * Copyright(C) 2025  Luvina Software Company
+ * FieldKey.java, 11/05/2025 hoaivd
+ */
+
 package com.luvina.la.common;
 
 import java.util.Arrays;
@@ -35,7 +40,17 @@ public enum FieldKey {
         return displayName;
     }
 
-    // Tìm FieldKey theo key string
+
+    /**
+     * Trả về đối tượng {@link FieldKey} tương ứng với chuỗi khóa (key) được truyền vào.
+     *
+     * Phương thức này sẽ duyệt qua tất cả các giá trị của enum {@code FieldKey},
+     * so sánh giá trị {@code key} của từng phần tử với tham số truyền vào, và
+     * trả về phần tử đầu tiên khớp nếu có.
+     *
+     * @param key Chuỗi khóa cần tìm trong danh sách các {@code FieldKey}.
+     * @return {@link Optional} chứa {@code FieldKey} nếu tìm thấy, ngược lại trả về {@link Optional#empty()}.
+     */
     public static Optional<FieldKey> fromKey(String key) {
         return Arrays.stream(values())
                 .filter(field -> field.key.equals(key))

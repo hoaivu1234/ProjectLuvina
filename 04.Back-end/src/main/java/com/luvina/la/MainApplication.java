@@ -14,6 +14,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
+/**
+ * Lớp khởi chạy chính của ứng dụng Spring Boot.
+ * <p>
+ * Cài đặt {@link InitializingBean} để thực hiện kiểm tra sau khi các thuộc tính đã được thiết lập,
+ * nhằm đảm bảo không cấu hình sai khi chạy đồng thời cả hai profile 'dev' và 'prod'.
+ * </p>
+ *
+ * <p>
+ * Chức năng chính:
+ * <ul>
+ *     <li>Khởi tạo và chạy ứng dụng Spring Boot.</li>
+ *     <li>Kiểm tra cấu hình các profile đang hoạt động.</li>
+ *     <li>Ghi log thông tin khởi động của ứng dụng (địa chỉ URL truy cập, profile, context path,...).</li>
+ * </ul>
+ * </p>
+ *
+ * @author
+ */
 @SpringBootApplication
 public class MainApplication implements InitializingBean {
 
@@ -21,10 +39,25 @@ public class MainApplication implements InitializingBean {
 
     private final Environment env;
 
+    /**
+     * Hàm khởi tạo, nhận vào đối tượng {@link Environment} của Spring,
+     * dùng để lấy thông tin cấu hình và các profile đang hoạt động.
+     *
+     * @param env môi trường Spring chứa thông tin cấu hình
+     */
     public MainApplication(Environment env) {
         this.env = env;
     }
 
+    /**
+     * Hàm được gọi sau khi các thuộc tính đã được thiết lập.
+     * <p>
+     * Kiểm tra nếu cả hai profile 'dev' (phát triển) và 'prod' (sản xuất) đang cùng hoạt động,
+     * thì ghi log lỗi vì đây là một cấu hình sai nghiêm trọng.
+     * </p>
+     *
+     * @throws Exception nếu phát hiện cấu hình sai
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
@@ -35,6 +68,11 @@ public class MainApplication implements InitializingBean {
         }
     }
 
+    /**
+     * Phương thức main khởi chạy ứng dụng Spring Boot.
+     *
+     * @param args các đối số dòng lệnh khi khởi động ứng dụng
+     */
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(MainApplication.class);
         DefaultProfileUtil.addDefaultProfile(app);
@@ -42,6 +80,14 @@ public class MainApplication implements InitializingBean {
         logApplicationStartup(env);
     }
 
+    /**
+     * Ghi log các thông tin khởi động như:
+     * - Tên ứng dụng
+     * - Địa chỉ truy cập nội bộ và bên ngoài
+     * - Các profile đang hoạt động
+     *
+     * @param env đối tượng môi trường của Spring chứa thông tin cấu hình
+     */
     private static void logApplicationStartup(Environment env) {
         String protocol = "http";
         String serverPort = env.getProperty("server.port");

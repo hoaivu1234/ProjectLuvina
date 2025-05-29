@@ -27,6 +27,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/certifications")
 public class CertificationController {
+    /**
+     * Inject service để xử lý các logic nghiệp vụ liên quan đến chứng chỉ nhân viên
+     */
     @Autowired
     private CertificationService certificationService;
 

@@ -26,7 +26,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/departments")
 public class DepartmentController {
-
+    /**
+     * Inject service để xử lý các logic nghiệp vụ liên quan đến phòng ban
+     */
     @Autowired
     private DepartmentService departmentService;
 

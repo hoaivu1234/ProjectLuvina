@@ -3,7 +3,7 @@
   user-list.component.ts 10/5/2025 hoaivd
 */
 
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { DepartmentService } from '../../../service/department.service';
 import { EmployeeService } from '../../../service/employee.service';
@@ -15,6 +15,7 @@ import { PAGINATION } from 'src/app/shared/utils/pagination.constants';
 import { SORT } from 'src/app/shared/utils/sort.constants';
 import { ERROR_CODES } from 'src/app/shared/utils/error-code.constants';
 import { PAGE } from 'src/app/shared/utils/mode-constant';
+import { EmployeeStateService } from 'src/app/service/employee-state.service';
 
 @Component({
   selector: 'app-user-list',
@@ -30,6 +31,8 @@ import { PAGE } from 'src/app/shared/utils/mode-constant';
  * @author hoaivd
  */
 export class UserListComponent {
+  @ViewChild('firstInput') firstInput!: ElementRef; // Tham chiếu đến phần tử đầu tiên trong form
+
   listDepartments: Department[] = [];  // Danh sách các phòng ban, được dùng để hiển thị dropdown hoặc filter
   selectedDepartment: string = '';   // ID của phòng ban đang được chọn
   listEmployees: Employee[] = []; // Danh sách nhân viên được hiển thị trong bảng
@@ -58,12 +61,14 @@ export class UserListComponent {
    * @param departmentService Service lấy dữ liệu phòng ban
    * @param employeeService Service lấy dữ liệu nhân viên
    * @param router Service định tuyến Router để điều hướng khi xảy ra lỗi
+   * @param stateService Service dùng để lưu trạng thái của màn hình
    */
   constructor(
     public http: HttpClient,
     public departmentService: DepartmentService,
     public employeeService: EmployeeService,
     private router: Router,
+    private stateService: EmployeeStateService
   ) { }
 
   /**
@@ -72,67 +77,40 @@ export class UserListComponent {
    */
   ngOnInit(): void {
     this.getListDepartment();  // Gọi hàm lấy dữ liệu phòng ban
-    this.restoreStateIfExists(); // Khôi phục lại state ở sessionStorage nếu nó tồn tại
+
+    const restored = this.stateService.restoreStateTo(this); // Lấy lại giá trị state đã lưu vào bộ nhớ
+    if (restored) { // Nếu có trạng thái được khôi phục
+      this.getListEmployee(this.employeeName, this.selectedDepartment); // gọi API danh sách nhân viên với các điều kiện đã lưu
+    } else { // Nếu không có trạng thái nào được lưu
+      this.getListEmployee(); // gọi API với điều kiện mặc định
+    }
+
+    this.updateSortIcons(); // Cập nhật lại biểu tượng sắp xếp
   }
 
   /**
-   * Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
-   * 
-   * Dữ liệu được lưu gồm:
-   * - Tên nhân viên đang tìm kiếm
-   * - Phòng ban được chọn
-   * - Thông tin sắp xếp (cột, thứ tự, trường)
-   * - Thông tin phân trang (trang hiện tại, kích thước trang)
-   * 
-   * Giúp khôi phục lại giao diện đúng trạng thái khi quay lại từ các màn hình khác như ADM003, ADM006.
+   * Focus vào hạng mục đầu tiên khi vào màn hình
+   */
+  ngAfterViewInit(): void {
+    this.firstInput.nativeElement.focus();
+  }
+
+  /**
+   * Cập nhật lại biểu tượng sắp xếp dựa trên currentSortColumn và currentSortOrder.
+   */
+  updateSortIcons() {
+    if (this.currentSortColumn && this.currentSortOrder) {
+      // Đổi icon của cột hiện tại theo thứ tự sắp xếp
+      this.sortIcons[this.currentSortColumn] = this.currentSortOrder === SORT.ORDERS.ASC ? SORT.ICONS.ASC : SORT.ICONS.DESC;
+    }
+  }
+
+  /**
+   * Lưu trạng thái hiện tại của màn hình danh sách nhân viên vào service.
+   * Mục đích để có thể khôi phục lại giao diện đúng trạng thái khi người dùng quay trở lại từ các màn hình khác (ví dụ: ADM003, ADM006).
    */
   saveCurrentState() {
-    const state = { // Tạo state chứa thông tin của điều kiện search, sort và paging
-      employeeName: this.employeeName,
-      selectedDepartment: this.selectedDepartment,
-      currentSortColumn: this.currentSortColumn,
-      currentSortOrder: this.currentSortOrder,
-      currentSortField: this.currentSortField,
-      currentPage: this.currentPage,
-      pageSize: this.pageSize
-    };
-    sessionStorage.setItem('user_list_state', JSON.stringify(state)); // Lưu state vào sessionStorage với key: user_list_state
-  }
-
-  /**
-   * Khôi phục trạng thái trước đó của màn danh sách nhân viên nếu tồn tại trong sessionStorage.
-   * 
-   * Nội dung được khôi phục:
-   * - Giá trị tìm kiếm theo tên nhân viên
-   * - Phòng ban được chọn
-   * - Thông tin sắp xếp (cột, thứ tự, trường)
-   * - Phân trang (trang hiện tại, kích thước trang)
-   * 
-   * Sau khi khôi phục, gọi lại API getListEmployee() để tải dữ liệu theo đúng trạng thái trước đó.
-   * Nếu không có dữ liệu lưu trong sessionStorage, sẽ gọi API với trạng thái mặc định.
-   */
-  restoreStateIfExists() {
-    // Lấy giá trị state chứa thông tin của điều kiện search, sort và paging đã được lưu trong sessionStorage
-    const userListState = sessionStorage.getItem('user_list_state');
-
-    if (userListState) { // Nếu state tồn tại và có giá trị
-      // Parse giá trị về định dạng json 
-      const state = JSON.parse(userListState); 
-      // Sau đó map từng trường trong state với các giá trị trong component hiện tại
-      this.employeeName = state.employeeName;
-      this.selectedDepartment = state.selectedDepartment;
-      this.currentSortColumn = state.currentSortColumn;
-      this.currentSortOrder = state.currentSortOrder;
-      this.currentSortField = state.currentSortField;
-      this.currentPage = state.currentPage;
-      this.pageSize = state.pageSize;
-
-      // Gọi lại API với trạng thái đã khôi phục
-      this.getListEmployee(this.employeeName, this.selectedDepartment);
-    } else {
-      // Trường hợp không có trạng thái cũ thì gọi mặc định
-      this.getListEmployee();
-    }
+    this.stateService.saveStateFrom(this);
   }
 
   /**
@@ -223,6 +201,7 @@ export class UserListComponent {
    */
   search() {
     this.currentPage = 1; // Reset về trang đầu tiên
+    this.saveCurrentState();  // Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
     this.getListEmployee(this.employeeName, this.selectedDepartment); // Gọi lại hàm getListEmployee với filter theo tên và phòng ban.
   }
 
@@ -288,7 +267,6 @@ export class UserListComponent {
    * Lưu trạng thái của màn hình, sau đó điều hướng đến màn hình ADM004
    */
   openADM004() {
-    this.saveCurrentState();  // Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
     // Điều hướng đến màn hình ADM004 và truyền giá trị PAGE.ADM002 cho fromPage
     // fromPage dùng để kiểm tra di chuyển từ màn hình nào sang màn ADM004 để set chế độ add hay edit cho màn hình.
     this.router.navigate(['/user/adm004'], { state: { fromPage: PAGE.ADM002 } });
@@ -299,7 +277,6 @@ export class UserListComponent {
    * @param id Id của employee tương ứng cần xem dữ liệu chi tiết
    */
   getDetailEmployee(id: number | undefined) {
-    this.saveCurrentState();  // Lưu trạng thái hiện tại của màn danh sách nhân viên vào sessionStorage.
     // Điều hướng đến màn hình ADM003 và truyền giá trị id là id của bản ghi đã chọn cho employeeId
     this.router.navigate(['/user/adm003'], { state: { employeeId: id } });
   }

@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 import { HttpClient } from "@angular/common/http";
 import { AppConstants } from "../../../app-constants";
 import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
+import { EmployeeStateService } from 'src/app/service/employee-state.service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,8 @@ import { ERROR_MESSAGES } from 'src/app/shared/utils/error-messages.constants';
 export class LoginComponent {
   constructor(
     private router: Router,
-    public http: HttpClient
+    public http: HttpClient,
+    private stateService: EmployeeStateService
   ) { }
 
   isValid = true; // Trạng thái của form login
@@ -22,6 +24,7 @@ export class LoginComponent {
 
   ngOnInit(): void {
     sessionStorage.removeItem("access_token"); // xóa sessionStorage
+    this.stateService.clearState(); // Xóa state ở màn hình ADM002
     if (this.router.url === '/logout') { // Nếu url là logout
       this.router.navigate(['login']); // thì điều hướng đến màn login
     }

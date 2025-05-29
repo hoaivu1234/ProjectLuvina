@@ -12,3 +12,14 @@ export interface Employee {
     employeeLoginId: string;
     employeeLoginPassword: string;
 }
+
+export interface EmployeeListComponentState {
+    employeeName: string;
+    selectedDepartment: string;
+    currentSortColumn: string;
+    currentSortOrder: string;
+    currentSortField: string;
+    currentPage: number;
+    pageSize: number;
+  }
+  

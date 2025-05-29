@@ -5,8 +5,6 @@
 
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Certification } from 'src/app/model/certification.model';
-import { Department } from 'src/app/model/department.model';
 import { EmployeeService } from 'src/app/service/employee.service';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { TemplateRef } from '@angular/core';

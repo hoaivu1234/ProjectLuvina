@@ -41,7 +41,7 @@ public interface EmployeeMapper {
      * @param entity Đối tượng Employee Entity cần chuyển đổi.
      * @return Đối tượng EmployeeDTO sau khi chuyển đổi.
      */
-    @Mapping(source = "department.departmentName", target = "departmentName")  // Ánh xạ departmentName từ Employee's department.
+    @Mapping(source = "department.departmentName", target = "departmentName")  // Ánh xạ departmentName từ Employee department.
     @Mapping(source = "employeeCertifications", target = "certificationName", qualifiedByName = "mapFirstCertificationName")  // Ánh xạ certificationName từ EmployeeCertification đầu tiên.
     @Mapping(source = "employeeCertifications", target = "endDate", qualifiedByName = "mapFirstEndDate")  // Ánh xạ endDate từ EmployeeCertification đầu tiên.
     @Mapping(source = "employeeCertifications", target = "score", qualifiedByName = "mapFirstScore")  // Ánh xạ score từ EmployeeCertification đầu tiên.

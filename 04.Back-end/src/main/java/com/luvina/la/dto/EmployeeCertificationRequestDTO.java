@@ -5,15 +5,7 @@
 
 package com.luvina.la.dto;
 
-import com.luvina.la.common.EmployeeValidationConstant;
-import com.luvina.la.common.ErrorCodeConstants;
-import com.luvina.la.validator.ExistsCertificationId;
-import com.luvina.la.validator.ValidDate;
-import com.luvina.la.validator.ValidDateRange;
 import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
 
 /**
  * DTO (Data Transfer Object) đại diện cho thông tin chứng chỉ cẩn thêm cho nhân viên.
@@ -22,7 +14,6 @@ import javax.validation.constraints.Pattern;
  * @author hoaivd
  */
 @Data
-@ValidDateRange
 public class EmployeeCertificationRequestDTO {
     private String certificationId;
     private String startDate;

@@ -3,9 +3,8 @@
  * BusinessException.java, 5/5/2025 hoaivd
  */
 
- package com.luvina.la.exception;
+package com.luvina.la.exception;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.luvina.la.payload.MessageResponse;
 import lombok.Data;
 

@@ -7,12 +7,12 @@
           <h1 class="title">
             会員名称で会員を検索します。検索条件無しの場合は全て表示されます。
           </h1>
-          <form class="c-form">
+          <form class="c-form" cdkTrapFocus>
             <ul class="d-flex">
               <li class="form-group row">
                 <label class="col-form-label">氏名:</label>
                 <div class="col-sm">
-                  <input type="text" maxlength="125" [(ngModel)]="employeeName"
+                  <input #firstInput type="text" maxlength="125" [(ngModel)]="employeeName"
                     [ngModelOptions]="{ standalone: true }" />
                 </div>
               </li>
@@ -62,7 +62,8 @@
 
             </div>
             <div class="css-grid-table-body" *ngFor="let employee of listEmployees">
-              <div (click)="getDetailEmployee(employee?.employeeId)" class="employee-id-cell">{{ employee?.employeeId }}</div>
+              <div (click)="getDetailEmployee(employee?.employeeId)" class="employee-id-cell">{{ employee?.employeeId }}
+              </div>
               <div class="text-ellipsis">{{ employee?.employeeName | shortenText }}</div>
               <div class="text-ellipsis">{{ employee?.employeeBirthDate | date : "yyyy/MM/dd" }}</div>
               <div class="text-ellipsis">{{ employee?.departmentName | shortenText }}</div>
@@ -74,9 +75,11 @@
             </div>
 
             <!-- Paging -->
-            <div class="pagin" *ngIf="totalPages() > 1">
+            <!-- Ví dụ nếu đang ở trang 5, tổng số trang là 15 thì hiển thị như sau < 1 … 4 5 6 … 15 > -->
+            <div class="pagin" *ngIf="totalPages() > 1"> <!-- Chỉ hiển thị phân trang nếu tổng số trang > 1 -->
               <button class="btn btn-sm btn-pre btn-falcon-default" [disabled]="currentPage === 1"
                 (click)="goToPage(currentPage - 1)">
+                <!-- Button Previous: Bị disable nếu đang ở trang đầu tiên. Khi click thì chuyển về trang trước -->
                 <svg class="svg-inline--fa fa-chevron-left fa-w-10" aria-hidden="true" focusable="false"
                   data-prefix="fas" data-icon="chevron-left" role="img" xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 320 512" data-fa-i2svg="">
@@ -87,10 +90,12 @@
               </button>
 
               <button class="btn btn-sm btn-falcon-default" [class.active]="currentPage === 1" (click)="goToPage(1)">
+                <!-- Luôn hiển thị trang 1 -->
                 1
               </button>
 
               <button *ngIf="currentPage > 3" class="btn btn-sm btn-falcon-default">
+                <!-- Dấu ... ở phía trước nếu currentPage > 3: Cho biết còn nhiều trang phía trước -->
                 <svg class="svg-inline--fa fa-ellipsis-h fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas"
                   data-icon="ellipsis-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
                   data-fa-i2svg="">
@@ -101,20 +106,21 @@
               </button>
 
               <button *ngIf="currentPage - 1 > 1" class="btn btn-sm btn-falcon-default"
-                (click)="goToPage(currentPage - 1)">
+                (click)="goToPage(currentPage - 1)"> <!-- Hiển thị trang trước trang hiện tại -->
                 {{ currentPage - 1 }}
               </button>
 
               <button *ngIf="currentPage !== 1 && currentPage !== totalPages()"
-                class="btn btn-sm btn-falcon-default active">
+                class="btn btn-sm btn-falcon-default active"> <!-- Trang hiện tại (nếu khác trang 1 và trang cuối) -->
                 {{ currentPage }}
               </button>
 
               <button *ngIf="currentPage + 1 < totalPages()" class="btn btn-sm btn-falcon-default"
-                (click)="goToPage(currentPage + 1)">
+                (click)="goToPage(currentPage + 1)"> <!-- Hiển thị trang sau trang hiện tại -->
                 {{ currentPage + 1 }}
               </button>
 
+              <!-- Dấu ... ở phía sau nếu currentPage < totalPages() - 2: Cho biết còn nhiều trang phía sau -->
               <button *ngIf="currentPage < totalPages() - 2" class="btn btn-sm btn-falcon-default">
                 <svg class="svg-inline--fa fa-ellipsis-h fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas"
                   data-icon="ellipsis-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
@@ -127,11 +133,13 @@
 
               <button *ngIf="totalPages() > 1" class="btn btn-sm btn-falcon-default"
                 [class.active]="currentPage === totalPages()" (click)="goToPage(totalPages())">
+                <!-- Trang cuối hiển thị nếu totalPages() > 1-->
                 {{ totalPages() }}
               </button>
 
               <button class="btn btn-sm btn-next btn-falcon-default" [disabled]="currentPage === totalPages()"
                 (click)="goToPage(currentPage + 1)">
+                <!-- Button Next: Bị disable nếu đang ở trang cuối Khi click thì chuyển đến trang tiếp theo -->
                 <svg class="svg-inline--fa fa-chevron-right fa-w-10" aria-hidden="true" focusable="false"
                   data-prefix="fas" data-icon="chevron-right" role="img" xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 320 512" data-fa-i2svg="">
